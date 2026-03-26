@@ -60,14 +60,46 @@ function getLoginHTML() {
     }
     .logo {
       height: 48px;
-      margin-bottom: 40px;
+      margin-bottom: 48px;
       opacity: 0.9;
     }
+    .badge {
+      display: inline-block;
+      padding: 6px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #c8553d;
+      border: 1px solid rgba(200,85,61,0.3);
+      border-radius: 20px;
+      margin-bottom: 24px;
+    }
     h1 {
-      font-size: 20px;
-      font-weight: 400;
-      color: #999;
-      margin-bottom: 32px;
+      font-size: 28px;
+      font-weight: 300;
+      color: #fff;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .subtitle {
+      font-size: 15px;
+      color: #666;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+    .divider {
+      width: 40px;
+      height: 1px;
+      background: #333;
+      margin: 0 auto 32px;
+    }
+    .auth-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #555;
+      margin-bottom: 12px;
     }
     .input-wrap {
       position: relative;
@@ -116,7 +148,11 @@ function getLoginHTML() {
       class="logo"
       style="filter: brightness(0) invert(1);"
     />
-    <h1>Diese Seite ist passwortgeschützt</h1>
+    <div class="badge">In Bearbeitung</div>
+    <h1>Webseite wird gerade erstellt</h1>
+    <p class="subtitle">Wir arbeiten an etwas Grossartigem.<br/>Besuchen Sie uns in 30 Tagen wieder.</p>
+    <div class="divider"></div>
+    <p class="auth-label">Zugang mit Berechtigung</p>
     <form id="authForm">
       <div class="input-wrap">
         <input type="password" id="password" placeholder="Passwort eingeben" autocomplete="off" autofocus />

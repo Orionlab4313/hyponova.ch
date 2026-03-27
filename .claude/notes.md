@@ -1,6 +1,6 @@
 # HYPONOVA – Entwicklungsnotizen
 
-## Status: Projekt-Setup (26.03.2026)
+## Status: Seiten-Ausbau (27.03.2026)
 
 ### Erledigt
 - [x] GitHub Repo erstellt (Orionlab4313/hyponova.ch)
@@ -13,29 +13,36 @@
 - [x] WhatsApp Floating Button
 - [x] Übersetzungen DE + EN vorbereitet (i18n/translations.ts)
 - [x] Homepage mit Hero, Partner-Logos, Vorteile, CTA
+- [x] Über uns: Hero, Mission, Werte-Grid (3 Karten), Gründer-Abschnitt, CTA
+- [x] FAQ: Accordion-Komponente (Framer Motion) + 10 Hypotheken-FAQs
+- [x] Kontakt: Formular (Vorname, Nachname, E-Mail, Telefon, Betreff, Nachricht) + Kontaktinfos
+- [x] Termin: Cal.com Platzhalter + Was-erwartet-Sie (3 Schritte)
+- [x] AGB: Vollständige AGB (9 Abschnitte, Schweizer Recht)
+- [x] Datenschutz: nDSG-konforme Erklärung (10 Abschnitte)
+- [x] Impressum: Vollständig mit Firma, Kontakt, HR, Haftung, Urheberrecht
 
 ### Nächste Schritte
-- [ ] Figma Design auswählen/erstellen
-- [ ] Design auf alle Seiten anwenden
 - [ ] Hypothekenrechner (Belehnung + Tragbarkeit)
 - [ ] Ablösungs-Prozess (5-stufiger Fragebogen)
 - [ ] Neukauf-Prozess
-- [ ] Supabase CLI Setup + Login
-- [ ] Supabase Schema (Kontaktformular, Dokumente)
-- [ ] Kontaktformular mit Datei-Upload
-- [ ] Cal.com Terminbuchung Integration
+- [ ] Kontaktformular an Supabase anbinden
+- [ ] Kontaktformular Datei-Upload hinzufügen
+- [ ] Cal.com Terminbuchung einbetten (Account nötig)
+- [ ] i18n in alle Komponenten integrieren
 - [ ] Sicheres Dokumenten-Upload Portal
 - [ ] Unterlagenchecklisten (3 Varianten × Objekttyp)
 - [ ] Kündigungsvorlage PDF
 - [ ] SEO (Meta-Tags, Schema.org, Sitemap)
 - [ ] Responsive Testing
+- [ ] Figma Design auswählen/erstellen
 
 ### Offene Fragen an Kunden
 - WhatsApp-Nummer für den Floating Button?
-- Partner-Logos (welche Banken/Versicherungen)?
-- Fotos/Bilder für Über-uns Seite?
-- AGB + Datenschutzerklärung Texte?
+- Fotos/Bilder für Über-uns Seite (Gründer-Foto)?
 - Cal.com Account erstellt?
+- Telefonnummer für Kontakt/Impressum?
+- UID-Nummer für Impressum?
+- AGB + Datenschutz Texte vom Anwalt prüfen lassen?
 
 ### Supabase
 - **Projekt-Ref**: dqryxcdwvuborlayjain

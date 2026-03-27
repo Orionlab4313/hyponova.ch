@@ -35,7 +35,7 @@ export default function ImpressumPage() {
               <h2 className="text-base font-semibold mb-3" style={{ color: "#1a1a1a" }}>Kontakt</h2>
               <p>
                 E-Mail: info@hyponova.ch<br />
-                Telefon: wird noch ergänzt
+                Telefon: <a href="tel:+41792497090" className="hover:text-[#c8553d] transition-colors">+41 79 249 70 90</a>
               </p>
             </section>
 

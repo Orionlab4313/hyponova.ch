@@ -212,9 +212,9 @@ export default function KontaktPage() {
                       <p className="text-xs uppercase tracking-widest font-medium mb-3" style={{ color: "#999" }}>
                         Telefon
                       </p>
-                      <p className="text-sm" style={{ color: "#6b6b6b" }}>
-                        Wird noch ergänzt
-                      </p>
+                      <a href="tel:+41792497090" className="text-sm hover:text-[#c8553d] transition-colors" style={{ color: "#6b6b6b" }}>
+                        +41 79 249 70 90
+                      </a>
                     </div>
                     <div style={{ borderTop: "1px solid #e5e5e5", paddingTop: "2rem" }}>
                       <p className="text-sm leading-relaxed mb-4" style={{ color: "#6b6b6b" }}>

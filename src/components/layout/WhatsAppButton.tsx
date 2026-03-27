@@ -6,8 +6,7 @@ import Link from "next/link";
 
 export default function ContactFloat() {
   const [open, setOpen] = useState(false);
-  // TODO: Replace with actual phone number
-  const phoneNumber = "41XXXXXXXXX";
+  const phoneNumber = "41792497090";
   const whatsappMessage = encodeURIComponent(
     "Hallo, ich interessiere mich für eine Hypothekenberatung bei HYPONOVA."
   );

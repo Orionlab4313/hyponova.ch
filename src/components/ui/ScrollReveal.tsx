@@ -16,10 +16,10 @@ interface ScrollRevealProps {
 
 const getInitial = (direction: Direction) => {
   switch (direction) {
-    case "up": return { opacity: 0, y: 40 } as const;
-    case "down": return { opacity: 0, y: -40 } as const;
-    case "left": return { opacity: 0, x: 40 } as const;
-    case "right": return { opacity: 0, x: -40 } as const;
+    case "up": return { opacity: 0, y: 20 } as const;
+    case "down": return { opacity: 0, y: -20 } as const;
+    case "left": return { opacity: 0, x: 20 } as const;
+    case "right": return { opacity: 0, x: -20 } as const;
     case "none": return { opacity: 0 } as const;
   }
 };
@@ -28,7 +28,7 @@ export default function ScrollReveal({
   children,
   direction = "up",
   delay = 0,
-  duration = 0.6,
+  duration = 0.35,
   className = "",
   once = true,
 }: ScrollRevealProps) {
@@ -36,7 +36,7 @@ export default function ScrollReveal({
     <motion.div
       initial={getInitial(direction)}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once, margin: "-80px" }}
+      viewport={{ once, margin: "-50px" }}
       transition={{
         duration,
         delay,
@@ -63,7 +63,7 @@ export function FadeIn({
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.8, delay, ease: "easeOut" }}
+      transition={{ duration: 0.4, delay, ease: "easeOut" }}
       className={className}
     >
       {children}
@@ -82,10 +82,10 @@ export function ScaleIn({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.97 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.5, delay, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: 0.3, delay, ease: [0.25, 0.1, 0.25, 1] }}
       className={className}
     >
       {children}
@@ -104,10 +104,10 @@ export function SlideUp({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 60 }}
+      initial={{ opacity: 0, y: 25 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.7, delay, ease: [0.25, 0.1, 0.25, 1] }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.35, delay, ease: [0.25, 0.1, 0.25, 1] }}
       className={className}
     >
       {children}
@@ -151,11 +151,11 @@ export function StaggerItem({
   return (
     <motion.div
       variants={{
-        hidden: { opacity: 0, y: 30 },
+        hidden: { opacity: 0, y: 15 },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] },
+          transition: { duration: 0.3, ease: [0.25, 0.1, 0.25, 1] },
         },
       }}
       className={className}

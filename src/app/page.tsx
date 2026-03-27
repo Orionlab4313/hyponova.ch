@@ -20,18 +20,18 @@ export default function Home() {
           {/* Title area */}
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-12 lg:pt-20 pb-8">
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.1 }}
+              transition={{ duration: 0.4, delay: 0.05 }}
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05]"
               style={{ fontWeight: 300, color: "#1a1a1a" }}
             >
               Die neue Art der Hypothekenberatung.
             </motion.h1>
             <motion.p
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
+              transition={{ duration: 0.3, delay: 0.15 }}
               className="text-lg md:text-xl mt-4 max-w-2xl"
               style={{ color: "#6b6b6b" }}
             >
@@ -43,7 +43,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
             className="relative mx-4 lg:mx-10 mb-52 sm:mb-0"
           >
             <div className="relative w-full overflow-visible" style={{ height: "clamp(350px, 55vh, 600px)" }}>
@@ -99,7 +99,7 @@ export default function Home() {
             </ScrollReveal>
 
             <div className="grid md:grid-cols-2 gap-8">
-              <SlideUp delay={0.1}>
+              <SlideUp delay={0.05}>
                 <Link href="/dienstleistungen" className="group block">
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
                     <img
@@ -124,7 +124,7 @@ export default function Home() {
                 </Link>
               </SlideUp>
 
-              <SlideUp delay={0.2}>
+              <SlideUp delay={0.1}>
                 <Link href="/dienstleistungen" className="group block">
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
                     <img
@@ -181,38 +181,38 @@ export default function Home() {
                 </Link>
               </ScrollReveal>
 
-              <ScrollReveal direction="right" delay={0.2}>
+              <ScrollReveal direction="right" delay={0.1}>
                 <div className="p-8" style={{ backgroundColor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "#666" }}>Kaufpreis</p>
                       <p className="text-2xl font-semibold">
-                        <CountUp end={1000000} prefix="CHF " duration={2500} />
+                        <CountUp end={1000000} prefix="CHF " duration={1200} />
                       </p>
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "#666" }}>Eigenmittel</p>
                       <p className="text-2xl font-semibold">
-                        <CountUp end={250000} prefix="CHF " duration={2000} />
+                        <CountUp end={250000} prefix="CHF " duration={1000} />
                       </p>
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "#666" }}>Belehnung</p>
                       <p className="text-2xl font-semibold" style={{ color: "#4ade80" }}>
-                        <CountUp end={75} suffix="%" duration={1800} />
+                        <CountUp end={75} suffix="%" duration={800} />
                       </p>
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "#666" }}>Tragbarkeit</p>
                       <p className="text-2xl font-semibold" style={{ color: "#4ade80" }}>
-                        <CountUp end={28.5} suffix="%" decimals={1} duration={1800} separator="" />
+                        <CountUp end={28.5} suffix="%" decimals={1} duration={800} separator="" />
                       </p>
                     </div>
                   </div>
                   <div className="mt-6 pt-6" style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
                     <p className="text-xs uppercase tracking-widest mb-1" style={{ color: "#666" }}>Monatliche Kosten (kalkulatorisch)</p>
                     <p className="text-3xl font-bold">
-                      <CountUp end={4722} prefix="CHF " duration={2500} />
+                      <CountUp end={4722} prefix="CHF " duration={1200} />
                     </p>
                   </div>
                 </div>
@@ -287,7 +287,7 @@ export default function Home() {
                 { step: "2", title: "Kostenlose Beratung", desc: "Buchen Sie ein unverbindliches Onlinegespräch. Gemeinsam definieren wir die optimale Strategie für Ihre Finanzierung." },
                 { step: "3", title: "Beste Offerte wählen", desc: "Wir präsentieren Ihnen die attraktivsten Angebote unserer Partner. Sie entscheiden — ohne Druck, ohne Kosten." },
               ].map((item, i) => (
-                <ScrollReveal key={i} delay={i * 0.15}>
+                <ScrollReveal key={i} delay={i * 0.08}>
                   <div className="text-center">
                     <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center" style={{ border: "2px solid #000", borderRadius: "50%" }}>
                       <span className="text-xl font-semibold">{item.step}</span>
@@ -314,7 +314,7 @@ export default function Home() {
                   />
                 </div>
               </ScrollReveal>
-              <ScrollReveal direction="right" delay={0.15}>
+              <ScrollReveal direction="right" delay={0.08}>
                 <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
                   Vertrauen
                 </p>

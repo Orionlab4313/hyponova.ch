@@ -85,6 +85,11 @@ export default function Footer() {
               <p>HYPONOVA GmbH</p>
               <p>Dahlienweg 22</p>
               <p>4313 Möhlin, Schweiz</p>
+              <p className="mt-3">
+                <a href="tel:+41792497090" className="transition-colors duration-200 hover:text-white" style={{ color: "#aaa" }}>
+                  +41 79 249 70 90
+                </a>
+              </p>
             </div>
           </div>
         </div>

@@ -31,7 +31,8 @@ export default function DatenschutzPage() {
                 Dahlienweg 22<br />
                 4313 Möhlin<br />
                 Schweiz<br />
-                E-Mail: info@hyponova.ch
+                E-Mail: info@hyponova.ch<br />
+                Telefon: +41 79 249 70 90
               </p>
             </section>
 

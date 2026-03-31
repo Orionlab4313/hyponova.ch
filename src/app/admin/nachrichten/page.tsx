@@ -165,17 +165,19 @@ export default function NachrichtenPage() {
             </div>
 
             <div style={{ display: "flex", gap: 8 }}>
-              <a
-                href="https://ksuite.infomaniak.com/1745676/mail"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: 12, fontSize: 13, fontWeight: 500, background: "#1a1a1a", color: "#fff", borderRadius: 8, textDecoration: "none" }}
+              <button
+                onClick={() => {
+                  const subject = encodeURIComponent(`Re: ${subjectLabels[selected.subject] || selected.subject} — HYPONOVA`);
+                  const body = encodeURIComponent(`Guten Tag ${selected.first_name} ${selected.last_name},\n\nVielen Dank für Ihre Nachricht.\n\n\n\nFreundliche Grüsse\nSimon Topalli\nHYPONOVA GmbH\n+41 79 249 70 90`);
+                  window.open(`https://ksuite.infomaniak.com/1745676/mail/?to=${encodeURIComponent(selected.email)}&subject=${subject}&body=${body}`, "_blank");
+                }}
+                style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: 12, fontSize: 13, fontWeight: 500, background: "#1a1a1a", color: "#fff", borderRadius: 8, border: "none", cursor: "pointer" }}
               >
                 <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10l9 6 9-6M3 10v8a2 2 0 002 2h14a2 2 0 002-2v-8" />
                 </svg>
                 Per E-Mail antworten
-              </a>
+              </button>
               <button
                 onClick={() => createLeadFromMessage(selected)}
                 style={{ padding: "12px 16px", fontSize: 13, fontWeight: 500, background: "#f0fdf4", color: "#22c55e", border: "1px solid #bbf7d0", borderRadius: 8, cursor: "pointer" }}

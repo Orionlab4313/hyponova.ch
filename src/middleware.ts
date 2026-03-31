@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
 
   // Show login page
   return new NextResponse(getLoginHTML(), {
-    status: 401,
+    status: 200,
     headers: { "Content-Type": "text/html; charset=utf-8" },
   });
 }
@@ -41,6 +41,8 @@ function getLoginHTML() {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>HYPONOVA – Zugang</title>
+  <meta name="description" content="HYPONOVA – Ihr unabhängiger Hypothekenpartner in der Schweiz. Webseite in Bearbeitung." />
+  <meta name="robots" content="noindex, nofollow" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -84,7 +86,7 @@ function getLoginHTML() {
     }
     .subtitle {
       font-size: 15px;
-      color: #666;
+      color: #999;
       margin-bottom: 40px;
       line-height: 1.6;
     }
@@ -98,7 +100,7 @@ function getLoginHTML() {
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: #555;
+      color: #999;
       margin-bottom: 12px;
     }
     .input-wrap {
@@ -117,7 +119,7 @@ function getLoginHTML() {
       transition: border-color 0.2s;
     }
     input:focus { border-color: #666; }
-    input::placeholder { color: #555; }
+    input::placeholder { color: #888; }
     button {
       width: 100%;
       padding: 14px;
@@ -141,6 +143,7 @@ function getLoginHTML() {
   </style>
 </head>
 <body>
+  <main>
   <div class="container">
     <img
       src="https://dqryxcdwvuborlayjain.supabase.co/storage/v1/object/public/logos/hyponova-logo.png"
@@ -161,6 +164,7 @@ function getLoginHTML() {
       <p class="error" id="error">Falsches Passwort. Bitte versuchen Sie es erneut.</p>
     </form>
   </div>
+  </main>
   <script>
     document.getElementById('authForm').addEventListener('submit', async (e) => {
       e.preventDefault();

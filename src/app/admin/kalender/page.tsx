@@ -286,7 +286,9 @@ export default function KalenderPage() {
                 if (lead?.email) {
                   return (
                     <a
-                      href={`mailto:${lead.email}?subject=Ihr Termin bei HYPONOVA — ${new Date(selectedAppt.date + "T00:00:00").toLocaleDateString("de-CH")}`}
+                      href="https://ksuite.infomaniak.com/1745676/mail"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       style={{ padding: "12px 16px", fontSize: 13, fontWeight: 500, background: "#f0f9ff", color: "#3b82f6", border: "1px solid #bfdbfe", borderRadius: 8, textDecoration: "none", display: "flex", alignItems: "center", gap: 6 }}
                     >
                       <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">

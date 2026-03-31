@@ -166,7 +166,9 @@ export default function NachrichtenPage() {
 
             <div style={{ display: "flex", gap: 8 }}>
               <a
-                href={`mailto:${selected.email}?subject=Re: ${subjectLabels[selected.subject] || selected.subject} — HYPONOVA`}
+                href="https://ksuite.infomaniak.com/1745676/mail"
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: 12, fontSize: 13, fontWeight: 500, background: "#1a1a1a", color: "#fff", borderRadius: 8, textDecoration: "none" }}
               >
                 <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">

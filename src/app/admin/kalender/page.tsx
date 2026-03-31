@@ -68,15 +68,24 @@ export default function KalenderPage() {
     setShowForm(true);
   }
 
-  const INFOMANIAK_MAIL = "https://ksuite.infomaniak.com/1745676/mail";
-
-  function openInfomaniakCompose(to: string, subject: string, body: string) {
-    const url = `${INFOMANIAK_MAIL}/?to=${encodeURIComponent(to)}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.open(url, "_blank");
-  }
+  const [syncing, setSyncing] = useState(false);
 
   function formatDateDE(dateStr: string) {
     return new Date(dateStr + "T00:00:00").toLocaleDateString("de-CH", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  }
+
+  async function triggerIntegration(data: any) {
+    setSyncing(true);
+    try {
+      await fetch("/api/integrations/on-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+    } catch (err) {
+      console.error("Integration error:", err);
+    }
+    setSyncing(false);
   }
 
   async function saveAppointment(e: React.FormEvent) {
@@ -84,34 +93,52 @@ export default function KalenderPage() {
     const body = { ...form, lead_id: form.lead_id || null };
 
     if (editingAppt) {
-      // Check if date or time changed
       const dateChanged = form.date !== editingAppt.date;
       const timeChanged = form.time_start !== editingAppt.time_start?.slice(0, 5) || form.time_end !== editingAppt.time_end?.slice(0, 5);
       const statusChanged = form.status !== editingAppt.status;
 
-      await fetch("/api/admin/appointments", {
+      const res = await fetch("/api/admin/appointments", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: editingAppt.id, ...body }),
       });
+      const updatedAppt = await res.json();
 
-      // If date/time changed or status changed to abgesagt, open email compose
       const lead = getLeadForAppt(editingAppt);
       if (lead?.email && (dateChanged || timeChanged)) {
-        const subject = `Terminverschiebung — HYPONOVA`;
-        const emailBody = `Guten Tag ${lead.first_name} ${lead.last_name},\n\nIhr Termin bei HYPONOVA wurde verschoben.\n\nNeuer Termin:\nDatum: ${formatDateDE(form.date)}\nUhrzeit: ${form.time_start} – ${form.time_end} Uhr\n\nBei Fragen stehen wir Ihnen gerne zur Verfügung.\n\nFreundliche Grüsse\nSimon Topalli\nHYPONOVA GmbH\n+41 79 249 70 90`;
-        openInfomaniakCompose(lead.email, subject, emailBody);
+        await triggerIntegration({
+          action: "update",
+          appointment: updatedAppt,
+          lead,
+          oldDate: editingAppt.date,
+          oldTime: editingAppt.time_start?.slice(0, 5),
+        });
       } else if (lead?.email && statusChanged && form.status === "abgesagt") {
-        const subject = `Terminabsage — HYPONOVA`;
-        const emailBody = `Guten Tag ${lead.first_name} ${lead.last_name},\n\nLeider müssen wir Ihren Termin am ${formatDateDE(editingAppt.date)} um ${editingAppt.time_start?.slice(0, 5)} Uhr absagen.\n\nGrund: \n\nWir werden uns bei Ihnen melden, um einen neuen Termin zu vereinbaren.\n\nFreundliche Grüsse\nSimon Topalli\nHYPONOVA GmbH\n+41 79 249 70 90`;
-        openInfomaniakCompose(lead.email, subject, emailBody);
+        await triggerIntegration({
+          action: "delete",
+          appointment: editingAppt,
+          lead,
+          reason: "Status auf Abgesagt geändert",
+        });
+      } else {
+        // Just update calendar without email
+        await triggerIntegration({
+          action: "update",
+          appointment: updatedAppt,
+          lead,
+        });
       }
     } else {
-      await fetch("/api/admin/appointments", {
+      const res = await fetch("/api/admin/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
+      const newAppt = await res.json();
+      const lead = form.lead_id ? leads.find((l) => l.id === form.lead_id) : null;
+      if (lead) {
+        await triggerIntegration({ action: "create", appointment: newAppt, lead });
+      }
     }
 
     setShowForm(false);
@@ -120,7 +147,8 @@ export default function KalenderPage() {
   }
 
   async function deleteAppointment(appt: Appointment) {
-    if (!confirm("Termin löschen und Absage-E-Mail vorbereiten?")) return;
+    const reason = prompt("Grund für die Absage (wird dem Kunden mitgeteilt):");
+    if (reason === null) return; // cancelled
 
     const lead = getLeadForAppt(appt);
 
@@ -130,12 +158,12 @@ export default function KalenderPage() {
       body: JSON.stringify({ id: appt.id }),
     });
 
-    // Open Infomaniak with cancellation email
-    if (lead?.email) {
-      const subject = `Terminabsage — HYPONOVA`;
-      const emailBody = `Guten Tag ${lead.first_name} ${lead.last_name},\n\nLeider müssen wir Ihren Termin am ${formatDateDE(appt.date)} um ${appt.time_start?.slice(0, 5)} Uhr absagen.\n\nWir bitten um Ihr Verständnis und werden uns bei Ihnen melden, um einen neuen Termin zu vereinbaren.\n\nFreundliche Grüsse\nSimon Topalli\nHYPONOVA GmbH\n+41 79 249 70 90`;
-      openInfomaniakCompose(lead.email, subject, emailBody);
-    }
+    await triggerIntegration({
+      action: "delete",
+      appointment: appt,
+      lead,
+      reason: reason || undefined,
+    });
 
     setSelectedAppt(null);
     fetchData();
@@ -324,19 +352,17 @@ export default function KalenderPage() {
                 const lead = getLeadForAppt(selectedAppt);
                 if (lead?.email) {
                   return (
-                    <button
-                      onClick={() => {
-                        const subject = `Ihr Termin bei HYPONOVA — ${formatDateDE(selectedAppt.date)}`;
-                        const body = `Guten Tag ${lead.first_name} ${lead.last_name},\n\n\n\nFreundliche Grüsse\nSimon Topalli\nHYPONOVA GmbH\n+41 79 249 70 90`;
-                        openInfomaniakCompose(lead.email, subject, body);
-                      }}
-                      style={{ padding: "12px 16px", fontSize: 13, fontWeight: 500, background: "#f0f9ff", color: "#3b82f6", border: "1px solid #bfdbfe", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
+                    <a
+                      href={`https://ksuite.infomaniak.com/1745676/mail/?to=${encodeURIComponent(lead.email)}&subject=${encodeURIComponent(`Ihr Termin bei HYPONOVA — ${formatDateDE(selectedAppt.date)}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ padding: "12px 16px", fontSize: 13, fontWeight: 500, background: "#f0f9ff", color: "#3b82f6", border: "1px solid #bfdbfe", borderRadius: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 6, textDecoration: "none" }}
                     >
                       <svg style={{ width: 14, height: 14 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8" />
                       </svg>
                       E-Mail
-                    </button>
+                    </a>
                   );
                 }
                 return null;

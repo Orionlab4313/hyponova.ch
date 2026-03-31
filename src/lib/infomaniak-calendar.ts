@@ -26,19 +26,25 @@ function createICSEvent(data: {
   const dtEnd = data.date.replace(/-/g, "") + "T" + data.timeEnd.replace(/:/g, "") + "00";
   const now = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
+  // Replace em dash with regular dash for ICS compatibility
+  const summary = data.summary.replace(/—/g, "-");
+  const description = data.description.replace(/\n/g, "\\n").replace(/—/g, "-");
+
   let ics = `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//HYPONOVA//Terminbuchung//DE
+METHOD:PUBLISH
 BEGIN:VEVENT
 UID:${data.uid}@hyponova.ch
 DTSTAMP:${now}
 DTSTART:${dtStart}
 DTEND:${dtEnd}
-SUMMARY:${data.summary}
-DESCRIPTION:${data.description.replace(/\n/g, "\\n")}`;
+SUMMARY;CHARSET=UTF-8:${summary}
+DESCRIPTION;CHARSET=UTF-8:${description}`;
 
   if (data.attendeeEmail) {
-    ics += `\nATTENDEE;CN=${data.attendeeName || ""}:mailto:${data.attendeeEmail}`;
+    const attendeeName = (data.attendeeName || "").replace(/—/g, "-");
+    ics += `\nATTENDEE;CN=${attendeeName}:mailto:${data.attendeeEmail}`;
   }
 
   ics += `\nEND:VEVENT\nEND:VCALENDAR`;

@@ -3,6 +3,7 @@ import { sendBookingConfirmation, sendBookingRescheduled, sendBookingCancelled }
 import { createCalendarEvent, updateCalendarEvent, deleteCalendarEvent } from "@/lib/infomaniak-calendar";
 import { createContact } from "@/lib/infomaniak-contacts";
 
+
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const { appointment, lead, action, oldDate, oldTime, reason } = body;

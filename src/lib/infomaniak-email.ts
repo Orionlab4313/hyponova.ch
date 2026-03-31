@@ -1,14 +1,16 @@
 import nodemailer from "nodemailer";
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || "mail.infomaniak.com",
-  port: parseInt(process.env.SMTP_PORT || "587"),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+function getTransporter() {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST || "mail.infomaniak.com",
+    port: parseInt(process.env.SMTP_PORT || "587"),
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+}
 
 const FROM_NAME = "HYPONOVA";
 const FROM_EMAIL = process.env.SMTP_USER || "info@hyponova.ch";
@@ -68,7 +70,7 @@ export async function sendBookingConfirmation(data: {
     <p>Bei Fragen stehen wir Ihnen gerne zur Verfügung.</p>
   `);
 
-  await transporter.sendMail({
+  await getTransporter().sendMail({
     from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
     to: data.to,
     subject: `Terminbestätigung — ${formatDateDE(data.date)} um ${data.timeStart} Uhr`,
@@ -102,7 +104,7 @@ export async function sendBookingRescheduled(data: {
     <p>Bei Fragen stehen wir Ihnen gerne zur Verfügung.</p>
   `);
 
-  await transporter.sendMail({
+  await getTransporter().sendMail({
     from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
     to: data.to,
     subject: `Terminverschiebung — HYPONOVA`,
@@ -130,7 +132,7 @@ export async function sendBookingCancelled(data: {
     <p>Wir bitten um Ihr Verständnis.</p>
   `);
 
-  await transporter.sendMail({
+  await getTransporter().sendMail({
     from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
     to: data.to,
     subject: `Terminabsage — HYPONOVA`,
@@ -158,7 +160,7 @@ export async function sendContactConfirmation(data: {
     <p>In der Zwischenzeit können Sie auch direkt einen <a href="https://hyponova.ch/termin" style="color: #c8553d;">kostenlosen Beratungstermin</a> buchen.</p>
   `);
 
-  await transporter.sendMail({
+  await getTransporter().sendMail({
     from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
     to: data.to,
     subject: `Ihre Anfrage bei HYPONOVA — Wir melden uns bei Ihnen`,

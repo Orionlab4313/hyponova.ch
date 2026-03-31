@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 
-// Default availability (can be overridden by availability table later)
-const DEFAULT_AVAILABILITY = [
-  { day: 1, start: "09:00", end: "17:00" }, // Montag
-  { day: 2, start: "09:00", end: "17:00" }, // Dienstag
-  { day: 3, start: "09:00", end: "17:00" }, // Mittwoch
-  { day: 4, start: "09:00", end: "17:00" }, // Donnerstag
-  { day: 5, start: "09:00", end: "17:00" }, // Freitag
-];
-
 const SLOT_DURATION = 60; // minutes
 
 function generateSlots(start: string, end: string, duration: number): string[] {
@@ -28,6 +19,11 @@ function generateSlots(start: string, end: string, duration: number): string[] {
   return slots;
 }
 
+function timeToMinutes(time: string): number {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+}
+
 // GET available slots for a given date
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -37,15 +33,45 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Datum erforderlich" }, { status: 400 });
   }
 
-  const dayOfWeek = new Date(date + "T00:00:00").getDay(); // 0=Sun, 1=Mon...
-  const availability = DEFAULT_AVAILABILITY.find((a) => a.day === dayOfWeek);
+  // Fetch availability settings from the availability API (in-memory store)
+  let availabilitySettings: any[] | null = null;
+  let blockedEntries: any[] = [];
 
-  if (!availability) {
+  try {
+    const baseUrl = request.nextUrl.origin;
+    const res = await fetch(`${baseUrl}/api/admin/availability`);
+    const data = await res.json();
+    availabilitySettings = data.availability;
+    blockedEntries = data.blocked || [];
+  } catch {
+    // Use defaults if fetch fails
+  }
+
+  const DEFAULT_AVAILABILITY = [
+    { day: 1, start: "09:00", end: "17:00", active: true },
+    { day: 2, start: "09:00", end: "17:00", active: true },
+    { day: 3, start: "09:00", end: "17:00", active: true },
+    { day: 4, start: "09:00", end: "17:00", active: true },
+    { day: 5, start: "09:00", end: "17:00", active: true },
+  ];
+
+  const dayOfWeek = new Date(date + "T00:00:00").getDay();
+  const avail = availabilitySettings
+    ? availabilitySettings.find((a: any) => a.day === dayOfWeek && a.active)
+    : DEFAULT_AVAILABILITY.find((a) => a.day === dayOfWeek);
+
+  if (!avail) {
     return NextResponse.json({ slots: [], message: "An diesem Tag sind keine Termine verfügbar." });
   }
 
-  // Get all slots for the day
-  const allSlots = generateSlots(availability.start, availability.end, SLOT_DURATION);
+  // Check if entire day is blocked
+  const dayBlocked = blockedEntries.find((b: any) => b.date === date && b.type === "day");
+  if (dayBlocked) {
+    return NextResponse.json({ slots: [], message: "Dieser Tag ist blockiert." });
+  }
+
+  // Generate all possible slots
+  const allSlots = generateSlots(avail.start, avail.end, SLOT_DURATION);
 
   // Get booked appointments for this date
   const supabase = createServiceClient();
@@ -56,7 +82,28 @@ export async function GET(request: NextRequest) {
     .neq("status", "abgesagt");
 
   const bookedTimes = (appointments || []).map((a: any) => a.time_start?.slice(0, 5));
-  const availableSlots = allSlots.filter((s) => !bookedTimes.includes(s));
+
+  // Get blocked hours for this date
+  const blockedHours = blockedEntries.filter((b: any) => b.date === date && b.type === "hours");
+
+  // Filter out booked and blocked slots
+  const availableSlots = allSlots.filter((slot) => {
+    // Already booked?
+    if (bookedTimes.includes(slot)) return false;
+
+    // Blocked by hour range?
+    const slotMin = timeToMinutes(slot);
+    const slotEndMin = slotMin + SLOT_DURATION;
+
+    for (const blocked of blockedHours) {
+      const blockStart = timeToMinutes(blocked.start_time);
+      const blockEnd = timeToMinutes(blocked.end_time);
+      // Overlap check
+      if (slotMin < blockEnd && slotEndMin > blockStart) return false;
+    }
+
+    return true;
+  });
 
   return NextResponse.json({ slots: availableSlots });
 }
@@ -85,7 +132,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Dieser Termin ist leider nicht mehr verfügbar." }, { status: 409 });
   }
 
-  // Create lead first
+  // Create lead
   const { data: lead } = await supabase
     .from("leads")
     .insert({

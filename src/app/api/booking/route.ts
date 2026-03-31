@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
+import { getAvailability, getBlockedEntries } from "@/lib/availability-store";
 
 const SLOT_DURATION = 60; // minutes
 
@@ -33,41 +34,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Datum erforderlich" }, { status: 400 });
   }
 
-  // Fetch availability settings from the availability API (in-memory store)
-  let availabilitySettings: any[] | null = null;
-  let blockedEntries: any[] = [];
-
-  try {
-    const baseUrl = request.nextUrl.origin;
-    const res = await fetch(`${baseUrl}/api/admin/availability`);
-    const data = await res.json();
-    availabilitySettings = data.availability;
-    blockedEntries = data.blocked || [];
-  } catch {
-    // Use defaults if fetch fails
-  }
-
-  const DEFAULT_AVAILABILITY = [
-    { day: 1, start: "09:00", end: "17:00", active: true },
-    { day: 2, start: "09:00", end: "17:00", active: true },
-    { day: 3, start: "09:00", end: "17:00", active: true },
-    { day: 4, start: "09:00", end: "17:00", active: true },
-    { day: 5, start: "09:00", end: "17:00", active: true },
-  ];
+  // Get availability directly from shared store
+  const availabilitySettings = getAvailability();
+  const blockedEntries = getBlockedEntries();
 
   const dayOfWeek = new Date(date + "T00:00:00").getDay();
-  const avail = availabilitySettings
-    ? availabilitySettings.find((a: any) => a.day === dayOfWeek && a.active)
-    : DEFAULT_AVAILABILITY.find((a) => a.day === dayOfWeek);
+  const avail = availabilitySettings.find((a) => a.day === dayOfWeek && a.active);
 
   if (!avail) {
-    return NextResponse.json({ slots: [], message: "An diesem Tag sind keine Termine verfügbar." });
+    return NextResponse.json({ slots: [], available: false });
   }
 
   // Check if entire day is blocked
-  const dayBlocked = blockedEntries.find((b: any) => b.date === date && b.type === "day");
+  const dayBlocked = blockedEntries.find((b) => b.date === date && b.type === "day");
   if (dayBlocked) {
-    return NextResponse.json({ slots: [], message: "Dieser Tag ist blockiert." });
+    return NextResponse.json({ slots: [], available: false });
   }
 
   // Generate all possible slots
@@ -84,28 +65,33 @@ export async function GET(request: NextRequest) {
   const bookedTimes = (appointments || []).map((a: any) => a.time_start?.slice(0, 5));
 
   // Get blocked hours for this date
-  const blockedHours = blockedEntries.filter((b: any) => b.date === date && b.type === "hours");
+  const blockedHours = blockedEntries.filter((b) => b.date === date && b.type === "hours");
 
   // Filter out booked and blocked slots
   const availableSlots = allSlots.filter((slot) => {
-    // Already booked?
     if (bookedTimes.includes(slot)) return false;
 
-    // Blocked by hour range?
     const slotMin = timeToMinutes(slot);
     const slotEndMin = slotMin + SLOT_DURATION;
 
     for (const blocked of blockedHours) {
+      if (!blocked.start_time || !blocked.end_time) continue;
       const blockStart = timeToMinutes(blocked.start_time);
       const blockEnd = timeToMinutes(blocked.end_time);
-      // Overlap check
       if (slotMin < blockEnd && slotEndMin > blockStart) return false;
     }
 
     return true;
   });
 
-  return NextResponse.json({ slots: availableSlots });
+  return NextResponse.json({ slots: availableSlots, available: true });
+}
+
+// GET availability info for calendar (which days are available)
+export async function OPTIONS(request: NextRequest) {
+  const availability = getAvailability();
+  const activeDays = availability.filter((a) => a.active).map((a) => a.day);
+  return NextResponse.json({ activeDays });
 }
 
 // POST book a new appointment
@@ -152,7 +138,6 @@ export async function POST(request: NextRequest) {
   const endMin = h * 60 + m + SLOT_DURATION;
   const endTime = `${Math.floor(endMin / 60).toString().padStart(2, "0")}:${(endMin % 60).toString().padStart(2, "0")}`;
 
-  // Create appointment
   const { data: appointment, error } = await supabase
     .from("appointments")
     .insert({

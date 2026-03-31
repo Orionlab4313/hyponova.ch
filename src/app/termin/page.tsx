@@ -28,12 +28,29 @@ export default function TerminPage() {
   const [slots, setSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [formData, setFormData] = useState({ first_name: "", last_name: "", email: "", phone: "", notes: "" });
+  const [activeDays, setActiveDays] = useState<number[]>([1, 2, 3, 4, 5]); // Default: Mo-Fr
+  const [blockedDates, setBlockedDates] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const days = getCalendarDays(currentYear, currentMonth);
+
+  // Load availability settings from server
+  useEffect(() => {
+    fetch("/api/admin/availability")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.availability) {
+          setActiveDays(data.availability.filter((a: any) => a.active).map((a: any) => a.day));
+        }
+        if (data.blocked) {
+          setBlockedDates(data.blocked.filter((b: any) => b.type === "day").map((b: any) => b.date));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (selectedDate) {
@@ -51,8 +68,9 @@ export default function TerminPage() {
   function selectDate(day: number) {
     const d = new Date(currentYear, currentMonth, day);
     if (d < today) return;
-    if (d.getDay() === 0 || d.getDay() === 6) return; // Weekend
+    if (!activeDays.includes(d.getDay())) return;
     const dateStr = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+    if (blockedDates.includes(dateStr)) return;
     setSelectedDate(dateStr);
     setSelectedTime(null);
     setStep("time");
@@ -214,8 +232,10 @@ export default function TerminPage() {
                             if (day === null) return <div key={`empty-${i}`} />;
                             const d = new Date(currentYear, currentMonth, day);
                             const isPast = d < today;
-                            const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-                            const isDisabled = isPast || isWeekend;
+                            const dayStr = `${currentYear}-${(currentMonth + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+                            const isInactive = !activeDays.includes(d.getDay());
+                            const isBlocked = blockedDates.includes(dayStr);
+                            const isDisabled = isPast || isInactive || isBlocked;
                             const isToday = d.toDateString() === today.toDateString();
 
                             return (

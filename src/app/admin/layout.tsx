@@ -6,8 +6,10 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: "📊" },
+  { href: "/admin/nachrichten", label: "Nachrichten", icon: "✉️" },
   { href: "/admin/leads", label: "Kontakte", icon: "👥" },
   { href: "/admin/kalender", label: "Kalender", icon: "📅" },
+  { href: "/admin/verfuegbarkeit", label: "Verfügbarkeit", icon: "🕐" },
   { href: "/admin/pipeline", label: "Pipeline", icon: "📈" },
   { href: "/admin/dokumente", label: "Dokumente", icon: "📁" },
 ];
@@ -16,7 +18,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -44,7 +46,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!authenticated) {
     return (
       <html lang="de">
-        <body style={{ margin: 0, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", background: "#0a0a0a", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
+        <body style={{ margin: 0, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", background: "#0a0a0a", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", position: "relative" }}>
+          <Link
+            href="/"
+            style={{ position: "absolute", top: 24, right: 24, color: "#666", textDecoration: "none", fontSize: 28, lineHeight: 1, width: 40, height: 40, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "50%", transition: "all 0.2s" }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.background = "#333"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = "#666"; e.currentTarget.style.background = "transparent"; }}
+          >
+            ×
+          </Link>
           <div style={{ textAlign: "center", maxWidth: 360, padding: "0 24px" }}>
             <h1 style={{ fontSize: 24, fontWeight: 300, marginBottom: 8 }}>HYPONOVA Admin</h1>
             <p style={{ fontSize: 14, color: "#666", marginBottom: 32 }}>Bitte melden Sie sich an</p>
@@ -88,9 +98,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             }}
             className="admin-sidebar"
           >
-            <div style={{ padding: "0 20px", marginBottom: 32 }}>
-              <h2 style={{ fontSize: 16, fontWeight: 600, color: "#fff", margin: 0 }}>HYPONOVA</h2>
-              <p style={{ fontSize: 11, color: "#555", margin: "4px 0 0", textTransform: "uppercase", letterSpacing: "0.1em" }}>Admin Dashboard</p>
+            <div style={{ padding: "0 20px", marginBottom: 32, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <h2 style={{ fontSize: 16, fontWeight: 600, color: "#fff", margin: 0 }}>HYPONOVA</h2>
+                <p style={{ fontSize: 11, color: "#555", margin: "4px 0 0", textTransform: "uppercase", letterSpacing: "0.1em" }}>Admin Dashboard</p>
+              </div>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="admin-sidebar-close"
+                style={{ background: "none", border: "none", color: "#555", fontSize: 22, cursor: "pointer", padding: "0 4px", lineHeight: 1, transition: "color 0.15s" }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "#555"; }}
+              >
+                ×
+              </button>
             </div>
             <nav>
               {navItems.map((item) => {
@@ -133,7 +154,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           )}
 
           {/* Main content */}
-          <div style={{ flex: 1, marginLeft: 0, background: "#fafafa", minHeight: "100vh" }}>
+          <div className="admin-main-content" style={{ flex: 1, marginLeft: 0, background: "#fafafa", minHeight: "100vh", transition: "margin-left 0.3s" }}>
             {/* Top bar */}
             <header style={{ background: "#fff", borderBottom: "1px solid #e5e5e5", padding: "0 24px", height: 56, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 30 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -163,8 +184,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <style>{`
             @media (min-width: 768px) {
-              .admin-sidebar { left: 0 !important; }
-              .admin-sidebar ~ div > div:last-child { margin-left: 240px; }
+              .admin-main-content { margin-left: ${sidebarOpen ? 240 : 0}px !important; transition: margin-left 0.3s; }
             }
           `}</style>
         </div>

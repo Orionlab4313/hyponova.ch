@@ -25,9 +25,24 @@ export default function KontaktPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("sending");
-    // TODO: Supabase integration
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setStatus("success");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+        }),
+      });
+      if (!res.ok) throw new Error("Fehler beim Senden");
+      setStatus("success");
+    } catch {
+      setStatus("error");
+    }
   };
 
   const inputStyle = {
@@ -72,6 +87,23 @@ export default function KontaktPage() {
                       <p className="text-sm" style={{ color: "#6b6b6b" }}>
                         Wir melden uns innerhalb von 24 Stunden bei Ihnen.
                       </p>
+                    </div>
+                  ) : status === "error" ? (
+                    <div className="p-12 text-center" style={{ backgroundColor: "#fef2f2" }}>
+                      <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="#ef4444" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      <h3 className="text-xl font-semibold mb-2">Ein Fehler ist aufgetreten.</h3>
+                      <p className="text-sm mb-4" style={{ color: "#6b6b6b" }}>
+                        Bitte versuchen Sie es erneut oder kontaktieren Sie uns telefonisch.
+                      </p>
+                      <button
+                        onClick={() => setStatus("idle")}
+                        className="text-sm font-medium"
+                        style={{ color: "#c8553d" }}
+                      >
+                        Erneut versuchen
+                      </button>
                     </div>
                   ) : (
                     <form onSubmit={handleSubmit} className="space-y-6">

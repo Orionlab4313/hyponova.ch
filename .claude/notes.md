@@ -1,59 +1,87 @@
 # HYPONOVA – Entwicklungsnotizen
 
-## Status: Seiten-Ausbau (27.03.2026)
+## Status: Live (Under Construction) — Stand 31.03.2026
 
-### Erledigt
-- [x] GitHub Repo erstellt (Orionlab4313/hyponova.ch)
-- [x] Domain hyponova.ch registriert (Infomaniak, Kunden-Account)
-- [x] Supabase Projekt erstellt (Kunden-Account: dqryxcdwvuborlayjain)
-- [x] Next.js 16 Projekt aufgesetzt (TypeScript, Tailwind 4)
-- [x] Grundstruktur mit allen 10 Seiten/Routes
-- [x] Header (Desktop + Mobile Nav, Sprach-Switcher Platzhalter)
-- [x] Footer (3-Spalten, Navigation, Rechtliches, Adresse)
-- [x] WhatsApp Floating Button
+---
+
+## Phase 1: Projekt-Setup
+- [x] GitHub Repo erstellt (`Orionlab4313/hyponova.ch`, privat)
+- [x] Domain `hyponova.ch` registriert (Infomaniak, Kunden-Account)
+- [x] Supabase Projekt erstellt (Ref: `dqryxcdwvuborlayjain`, Region: Zürich, Free Plan)
+- [x] Supabase Tabelle `contact_requests` erstellt
+- [x] Next.js 16 Projekt mit TypeScript + Tailwind CSS 4 aufgesetzt
+- [x] Vercel Deployment konfiguriert (automatisch via GitHub)
+
+## Phase 2: Grundstruktur & Homepage
+- [x] 10 Seiten/Routes angelegt
+- [x] Header — Sticky, Desktop + Mobile Nav, animierter Unterstrich (framer-motion)
+- [x] Footer — Dark Theme, 4-Spalten, alle Links
+- [x] WhatsApp Floating Button — Expandable Menu
 - [x] Übersetzungen DE + EN vorbereitet (i18n/translations.ts)
-- [x] Homepage mit Hero, Partner-Logos, Vorteile, CTA
-- [x] Über uns: Hero, Mission, Werte-Grid (3 Karten), Gründer-Abschnitt, CTA
-- [x] FAQ: Accordion-Komponente (Framer Motion) + 10 Hypotheken-FAQs
-- [x] Kontakt: Formular (Vorname, Nachname, E-Mail, Telefon, Betreff, Nachricht) + Kontaktinfos
-- [x] Termin: Cal.com Platzhalter + Was-erwartet-Sie (3 Schritte)
-- [x] AGB: Vollständige AGB (9 Abschnitte, Schweizer Recht)
-- [x] Datenschutz: nDSG-konforme Erklärung (10 Abschnitte)
-- [x] Impressum: Vollständig mit Firma, Kontakt, HR, Haftung, Urheberrecht
+- [x] Homepage komplett: Hero, Partner-Logo Marquee (9 Logos), Services, Rechner-Teaser (CountUp), Vorteile-Grid, 3-Schritte Prozess, Testimonial, CTA
+- [x] UI-Komponenten: ScrollReveal (6 Varianten), CountUp, LogoMarquee, Accordion
 
-### Nächste Schritte
-- [ ] Hypothekenrechner (Belehnung + Tragbarkeit)
-- [ ] Ablösungs-Prozess (5-stufiger Fragebogen)
-- [ ] Neukauf-Prozess
-- [ ] Kontaktformular an Supabase anbinden
-- [ ] Kontaktformular Datei-Upload hinzufügen
-- [ ] Cal.com Terminbuchung einbetten (Account nötig)
-- [ ] i18n in alle Komponenten integrieren
-- [ ] Sicheres Dokumenten-Upload Portal
-- [ ] Unterlagenchecklisten (3 Varianten × Objekttyp)
-- [ ] Kündigungsvorlage PDF
-- [ ] SEO (Meta-Tags, Schema.org, Sitemap)
-- [ ] Responsive Testing
-- [ ] Figma Design auswählen/erstellen
+## Phase 3: Passwort-Schutz
+- [x] Middleware-basierter Schutz für gesamte Website
+- [x] "Under Construction" Landing Page
+- [x] Cookie-Auth (30 Tage), API-Route `/api/auth`
 
-### Offene Fragen an Kunden
-- WhatsApp-Nummer für den Floating Button?
-- Fotos/Bilder für Über-uns Seite (Gründer-Foto)?
-- Cal.com Account erstellt?
-- Telefonnummer für Kontakt/Impressum?
-- UID-Nummer für Impressum?
-- AGB + Datenschutz Texte vom Anwalt prüfen lassen?
+## Phase 4: Platzhalter-Seiten ausgebaut
+- [x] Über uns: Hero, Mission, 3 Werte-Karten, Gründer-Abschnitt (Foto-Platzhalter), CTA
+- [x] FAQ: Accordion-Komponente + 10 Hypotheken-FAQs
+- [x] Kontakt: Formular (6 Felder + Erfolgs-Anzeige) + Kontaktinfos
+- [x] Termin: Cal.com Platzhalter, 3-Schritte "Was erwartet Sie"
+- [x] AGB: 9 Abschnitte (Gerichtsstand Möhlin)
+- [x] Datenschutz: nDSG-konforme Erklärung, 10 Abschnitte
+- [x] Impressum: Vollständig mit Firma, Kontakt, Vertretung
 
-### Supabase
+## Phase 5: Optimierungen
+- [x] Zoom deaktiviert (viewport)
+- [x] Telefonnummer +41 79 249 70 90 überall eingefügt
+- [x] Animationen ~2x beschleunigt (Hero, ScrollReveal, CountUp)
+- [x] PageSpeed-Fixes: Kontrast WCAG AA, `<main>` Landmark, Meta-Description, noindex auf Login
+
+---
+
+## Was noch offen ist
+
+| Feature | Status |
+|---------|--------|
+| Hypothekenrechner (Belehnung + Tragbarkeit) | Ausstehend |
+| Ablösungs-Prozess (5-stufiger Fragebogen) | Ausstehend |
+| Neukauf-Prozess | Ausstehend |
+| Kontaktformular → Supabase anbinden | Ausstehend |
+| Datei-Upload im Kontaktformular | Ausstehend |
+| Terminbuchung einbetten (Tool noch offen) | Ausstehend |
+| i18n in Komponenten integrieren | Ausstehend |
+| Gründer-Foto für Über-uns | Vom Kunden nötig |
+| UID-Nummer für Impressum | Vom Kunden nötig |
+| AGB/Datenschutz vom Anwalt prüfen | Vom Kunden nötig |
+| CRM/Booking-Tool auswählen | Mit Kunde besprechen |
+| SEO (Schema.org, Sitemap) | Ausstehend |
+| Responsive Testing | Ausstehend |
+
+---
+
+## Tech-Stack & Kosten
+
+| Komponente | Technologie | Kosten |
+|------------|------------|--------|
+| Framework | Next.js 16 + TypeScript | - |
+| Styling | Tailwind CSS 4 | - |
+| Animationen | Framer Motion | - |
+| Datenbank | Supabase (Zürich) | CHF 0/Mt |
+| Hosting | Vercel (Frankfurt) | CHF 0-20/Mt |
+| Domain | Infomaniak | ~CHF 15/Jahr |
+| Terminbuchung | Noch offen | TBD |
+
+## Supabase
 - **Projekt-Ref**: dqryxcdwvuborlayjain
 - **Region**: eu-central (Zürich)
-- **Plan**: Free
-- **Zugriff**: Via Supabase CLI mit `--linked` Flag
-- **CLI-Befehl**: `SUPABASE_ACCESS_TOKEN=... npx supabase db query --linked "SQL"`
-- **Tabellen erstellt**: contact_requests (id, first_name, last_name, email, phone, subject, message, created_at)
+- **Storage**: logos Bucket (public) — 9 Partner + HYPONOVA Logo
+- **Tabellen**: contact_requests
 
-### Kosten-Übersicht (monatlich nach Launch)
-- Vercel: $0-20/mo (Free reicht zum Start)
-- Supabase: $0/mo (Free Plan)
-- Domain: ~CHF 15/Jahr (Infomaniak)
-- Cal.com: $0/mo (Free Plan)
+## Zugang
+- **Website**: hyponova.ch (Passwort: Möhlin4313)
+- **Git**: Orionlab4313/hyponova.ch (Email: 224979510+Orionlab4313@users.noreply.github.com)
+- **Vercel**: hyponova / info-35941487 (Pro Trial, läuft ab ~10.04.2026)

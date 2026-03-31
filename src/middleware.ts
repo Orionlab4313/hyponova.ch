@@ -30,7 +30,7 @@ export const config = {
      * - /_next (Next.js internals)
      * - /favicon.ico
      */
-    "/((?!api/auth|_next|favicon.ico).*)",
+    "/((?!api/auth|api/admin|admin|_next|favicon.ico).*)",
   ],
 };
 

@@ -50,7 +50,7 @@ export default function PipelinePage() {
     <div>
       <p style={{ fontSize: 14, color: "#888", marginBottom: 24 }}>Ziehen Sie Kontakte zwischen den Spalten um den Status zu ändern</p>
 
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${columns.length}, 1fr)`, gap: 16, minHeight: 500 }}>
+      <div className="admin-grid-5col" style={{ display: "grid", gridTemplateColumns: `repeat(${columns.length}, 1fr)`, gap: 16, minHeight: 500, overflowX: "auto" }}>
         {columns.map((col) => {
           const colLeads = leads.filter((l) => l.status === col.id);
           return (

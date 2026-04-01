@@ -186,6 +186,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             @media (min-width: 768px) {
               .admin-main-content { margin-left: ${sidebarOpen ? 240 : 0}px !important; transition: margin-left 0.3s; }
             }
+            @media (max-width: 640px) {
+              .admin-grid-2col { grid-template-columns: 1fr !important; }
+              .admin-grid-3col { grid-template-columns: 1fr !important; }
+              .admin-grid-5col { grid-template-columns: 1fr !important; }
+              .admin-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+              .admin-table-wrap table { min-width: 600px; }
+              .admin-modal { max-width: calc(100vw - 32px) !important; margin: 16px; }
+              .admin-calendar-grid { font-size: 11px !important; }
+              .admin-calendar-grid > div { min-height: 60px !important; padding: 4px !important; }
+              .admin-hide-mobile { display: none !important; }
+              .admin-stack-mobile { flex-direction: column !important; }
+              .admin-stack-mobile > * { width: 100% !important; }
+            }
           `}</style>
         </div>
       </body>

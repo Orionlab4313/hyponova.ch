@@ -98,7 +98,7 @@ export default function LeadsPage() {
           <div style={{ background: "#fff", borderRadius: 16, padding: 32, width: "100%", maxWidth: 500, maxHeight: "90vh", overflow: "auto" }}>
             <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20 }}>{editLead ? "Kontakt bearbeiten" : "Neuer Kontakt"}</h3>
             <form onSubmit={saveLead}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div className="admin-grid-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
                 <div>
                   <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>Vorname *</label>
                   <input required value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} style={inputStyle} />
@@ -108,7 +108,7 @@ export default function LeadsPage() {
                   <input required value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} style={inputStyle} />
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div className="admin-grid-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
                 <div>
                   <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>E-Mail</label>
                   <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} style={inputStyle} />
@@ -118,7 +118,7 @@ export default function LeadsPage() {
                   <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} style={inputStyle} />
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div className="admin-grid-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
                 <div>
                   <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>Status</label>
                   <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} style={{ ...inputStyle, background: "#fff" }}>
@@ -153,7 +153,7 @@ export default function LeadsPage() {
       )}
 
       {/* Table */}
-      <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+      <div className="admin-table-wrap" style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e5e5", overflow: "hidden" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ borderBottom: "1px solid #e5e5e5" }}>

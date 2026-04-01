@@ -95,7 +95,7 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+      <div className="admin-grid-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
         {/* Recent Messages */}
         <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e5e5", padding: 20 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>

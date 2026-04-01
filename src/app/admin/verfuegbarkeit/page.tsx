@@ -111,7 +111,7 @@ export default function VerfuegbarkeitPage() {
         </button>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+      <div className="admin-grid-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
         {/* Weekly Availability */}
         <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e5e5", padding: 24 }}>
           <h3 style={{ fontSize: 15, fontWeight: 600, margin: "0 0 20px" }}>Wöchentliche Verfügbarkeit</h3>
@@ -128,7 +128,7 @@ export default function VerfuegbarkeitPage() {
                   {WEEKDAY_NAMES[slot.day]}
                 </span>
                 {slot.active ? (
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div className="admin-stack-mobile" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <input type="time" value={slot.start} onChange={(e) => updateSlot(slot.day, "start", e.target.value)} style={{ ...inputStyle, width: 110 }} />
                     <span style={{ color: "#999", fontSize: 13 }}>bis</span>
                     <input type="time" value={slot.end} onChange={(e) => updateSlot(slot.day, "end", e.target.value)} style={{ ...inputStyle, width: 110 }} />

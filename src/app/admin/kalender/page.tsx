@@ -195,7 +195,7 @@ export default function KalenderPage() {
           ))}
         </div>
         {/* Days */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }}>
+        <div className="admin-calendar-grid" style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }}>
           {days.map((day, i) => {
             if (day === null) return <div key={`e-${i}`} style={{ minHeight: 80, borderRight: "1px solid #f0f0f0", borderBottom: "1px solid #f0f0f0", background: "#fafafa" }} />;
 
@@ -354,7 +354,7 @@ export default function KalenderPage() {
                   {leads.map((l) => <option key={l.id} value={l.id}>{l.first_name} {l.last_name}</option>)}
                 </select>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div className="admin-grid-3col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
                 <div>
                   <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>Datum *</label>
                   <input required type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} style={inputStyle} />

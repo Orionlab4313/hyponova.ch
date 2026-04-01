@@ -6,8 +6,11 @@ import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import Link from "next/link";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import { useI18n } from "@/i18n/context";
 
 export default function KontaktPage() {
+  const { t, lang } = useI18n();
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -50,28 +53,108 @@ export default function KontaktPage() {
     transition: "border-color 0.2s",
   };
 
+  const heroHeading = {
+    de: { before: "Sprechen Sie ", bold: "mit uns." },
+    en: { before: "Get in ", bold: "touch." },
+  };
+
+  const heroDesc = {
+    de: "Haben Sie Fragen zu Ihrer Hypothek? Wir sind für Sie da — kostenlos und unverbindlich.",
+    en: "Have questions about your mortgage? We are here for you — free and non-binding.",
+  };
+
+  const successTitle = {
+    de: "Vielen Dank für Ihre Nachricht.",
+    en: "Thank you for your message.",
+  };
+
+  const successDesc = {
+    de: "Wir melden uns innerhalb von 24 Stunden bei Ihnen.",
+    en: "We will get back to you within 24 hours.",
+  };
+
+  const errorTitle = {
+    de: "Ein Fehler ist aufgetreten.",
+    en: "An error occurred.",
+  };
+
+  const errorDesc = {
+    de: "Bitte versuchen Sie es erneut oder kontaktieren Sie uns telefonisch.",
+    en: "Please try again or contact us by phone.",
+  };
+
+  const retryLabel = {
+    de: "Erneut versuchen",
+    en: "Try again",
+  };
+
+  const sendingLabel = {
+    de: "Wird gesendet...",
+    en: "Sending...",
+  };
+
+  const subjectPlaceholder = {
+    de: "Bitte wählen",
+    en: "Please select",
+  };
+
+  const subjectOptions = {
+    de: [
+      { value: "neukauf", label: "Eigenheim kaufen" },
+      { value: "abloesung", label: "Hypothek ablösen" },
+      { value: "beratung", label: "Allgemeine Beratung" },
+      { value: "sonstiges", label: "Sonstiges" },
+    ],
+    en: [
+      { value: "neukauf", label: "Buy a property" },
+      { value: "abloesung", label: "Refinance mortgage" },
+      { value: "beratung", label: "General consultation" },
+      { value: "sonstiges", label: "Other" },
+    ],
+  };
+
+  const addressLabel = {
+    de: "Adresse",
+    en: "Address",
+  };
+
+  const emailLabel = {
+    de: "E-Mail",
+    en: "Email",
+  };
+
+  const phoneLabel = {
+    de: "Telefon",
+    en: "Phone",
+  };
+
+  const preferPersonal = {
+    de: "Bevorzugen Sie ein persönliches Gespräch? Buchen Sie direkt einen kostenlosen Beratungstermin.",
+    en: "Prefer a personal conversation? Book a free consultation appointment directly.",
+  };
+
   return (
     <>
       <Header />
       <main>
-        {/* ── HERO ── */}
+        {/* -- HERO -- */}
         <section className="bg-white">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-12 lg:pt-20 pb-16 lg:pb-24">
             <ScrollReveal>
               <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
-                Kontakt
+                {t.contact.title}
               </p>
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05] max-w-3xl" style={{ fontWeight: 300, color: "#1a1a1a" }}>
-                Sprechen Sie <span style={{ fontWeight: 600 }}>mit uns.</span>
+                {heroHeading[lang].before}<span style={{ fontWeight: 600 }}>{heroHeading[lang].bold}</span>
               </h1>
               <p className="text-lg mt-4 max-w-2xl" style={{ color: "#6b6b6b" }}>
-                Haben Sie Fragen zu Ihrer Hypothek? Wir sind für Sie da — kostenlos und unverbindlich.
+                {heroDesc[lang]}
               </p>
             </ScrollReveal>
           </div>
         </section>
 
-        {/* ── FORM + INFO ── */}
+        {/* -- FORM + INFO -- */}
         <section className="pb-24 lg:pb-32">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
             <div className="grid lg:grid-cols-3 gap-16">
@@ -83,9 +166,9 @@ export default function KontaktPage() {
                       <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="#4ade80" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <h3 className="text-xl font-semibold mb-2">Vielen Dank für Ihre Nachricht.</h3>
+                      <h3 className="text-xl font-semibold mb-2">{successTitle[lang]}</h3>
                       <p className="text-sm" style={{ color: "#6b6b6b" }}>
-                        Wir melden uns innerhalb von 24 Stunden bei Ihnen.
+                        {successDesc[lang]}
                       </p>
                     </div>
                   ) : status === "error" ? (
@@ -93,16 +176,16 @@ export default function KontaktPage() {
                       <svg className="w-12 h-12 mx-auto mb-4" fill="none" stroke="#ef4444" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
-                      <h3 className="text-xl font-semibold mb-2">Ein Fehler ist aufgetreten.</h3>
+                      <h3 className="text-xl font-semibold mb-2">{errorTitle[lang]}</h3>
                       <p className="text-sm mb-4" style={{ color: "#6b6b6b" }}>
-                        Bitte versuchen Sie es erneut oder kontaktieren Sie uns telefonisch.
+                        {errorDesc[lang]}
                       </p>
                       <button
                         onClick={() => setStatus("idle")}
                         className="text-sm font-medium"
                         style={{ color: "#c8553d" }}
                       >
-                        Erneut versuchen
+                        {retryLabel[lang]}
                       </button>
                     </div>
                   ) : (
@@ -110,7 +193,7 @@ export default function KontaktPage() {
                       <div className="grid sm:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>
-                            Vorname *
+                            {t.contact.firstName} *
                           </label>
                           <input
                             type="text"
@@ -124,7 +207,7 @@ export default function KontaktPage() {
                         </div>
                         <div>
                           <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>
-                            Nachname *
+                            {t.contact.lastName} *
                           </label>
                           <input
                             type="text"
@@ -140,7 +223,7 @@ export default function KontaktPage() {
                       <div className="grid sm:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>
-                            E-Mail *
+                            {t.contact.email} *
                           </label>
                           <input
                             type="email"
@@ -154,7 +237,7 @@ export default function KontaktPage() {
                         </div>
                         <div>
                           <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>
-                            Telefon
+                            {t.contact.phone}
                           </label>
                           <input
                             type="tel"
@@ -168,7 +251,7 @@ export default function KontaktPage() {
                       </div>
                       <div>
                         <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>
-                          Betreff *
+                          {t.contact.subject} *
                         </label>
                         <select
                           name="subject"
@@ -178,16 +261,15 @@ export default function KontaktPage() {
                           className="w-full px-4 py-3 text-sm outline-none focus:border-[#1a1a1a] bg-white"
                           style={inputStyle}
                         >
-                          <option value="">Bitte wählen</option>
-                          <option value="neukauf">Eigenheim kaufen</option>
-                          <option value="abloesung">Hypothek ablösen</option>
-                          <option value="beratung">Allgemeine Beratung</option>
-                          <option value="sonstiges">Sonstiges</option>
+                          <option value="">{subjectPlaceholder[lang]}</option>
+                          {subjectOptions[lang].map((opt) => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
                         </select>
                       </div>
                       <div>
                         <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>
-                          Nachricht *
+                          {t.contact.message} *
                         </label>
                         <textarea
                           name="message"
@@ -205,7 +287,7 @@ export default function KontaktPage() {
                         className="inline-flex items-center px-8 py-4 text-sm font-medium transition-colors disabled:opacity-50"
                         style={{ backgroundColor: "#000", color: "#fff" }}
                       >
-                        {status === "sending" ? "Wird gesendet..." : "Nachricht senden"}
+                        {status === "sending" ? sendingLabel[lang] : t.contact.send}
                         {status !== "sending" && (
                           <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -223,18 +305,18 @@ export default function KontaktPage() {
                   <div className="space-y-10">
                     <div>
                       <p className="text-xs uppercase tracking-widest font-medium mb-3" style={{ color: "#999" }}>
-                        Adresse
+                        {addressLabel[lang]}
                       </p>
-                      <p className="text-base font-semibold">HYPONOVA GmbH</p>
+                      <p className="text-base font-semibold">{t.footer.company}</p>
                       <p className="text-sm leading-relaxed mt-1" style={{ color: "#6b6b6b" }}>
                         Dahlienweg 22<br />
                         4313 Möhlin<br />
-                        Schweiz
+                        {lang === "de" ? "Schweiz" : "Switzerland"}
                       </p>
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-widest font-medium mb-3" style={{ color: "#999" }}>
-                        E-Mail
+                        {emailLabel[lang]}
                       </p>
                       <p className="text-sm" style={{ color: "#6b6b6b" }}>
                         info@hyponova.ch
@@ -242,7 +324,7 @@ export default function KontaktPage() {
                     </div>
                     <div>
                       <p className="text-xs uppercase tracking-widest font-medium mb-3" style={{ color: "#999" }}>
-                        Telefon
+                        {phoneLabel[lang]}
                       </p>
                       <a href="tel:+41792497090" className="text-sm hover:text-[#c8553d] transition-colors" style={{ color: "#6b6b6b" }}>
                         +41 79 249 70 90
@@ -250,14 +332,14 @@ export default function KontaktPage() {
                     </div>
                     <div style={{ borderTop: "1px solid #e5e5e5", paddingTop: "2rem" }}>
                       <p className="text-sm leading-relaxed mb-4" style={{ color: "#6b6b6b" }}>
-                        Bevorzugen Sie ein persönliches Gespräch? Buchen Sie direkt einen kostenlosen Beratungstermin.
+                        {preferPersonal[lang]}
                       </p>
                       <Link
                         href="/termin"
                         className="inline-flex items-center gap-1 text-sm font-medium hover:gap-2 transition-all"
                         style={{ color: "#c8553d" }}
                       >
-                        Termin buchen
+                        {t.booking.title}
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                         </svg>

@@ -6,9 +6,12 @@ import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import Link from "next/link";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "@/components/ui/ScrollReveal";
+import { useI18n } from "@/i18n/context";
 
-const WEEKDAYS = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-const MONTHS = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+const WEEKDAYS_DE = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+const WEEKDAYS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTHS_DE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+const MONTHS_EN = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 function getCalendarDays(year: number, month: number) {
   const firstDay = new Date(year, month, 1).getDay();
@@ -20,6 +23,8 @@ function getCalendarDays(year: number, month: number) {
 }
 
 export default function TerminPage() {
+  const { t, lang } = useI18n();
+
   const [step, setStep] = useState<"date" | "time" | "form" | "success">("date");
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -28,7 +33,7 @@ export default function TerminPage() {
   const [slots, setSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [formData, setFormData] = useState({ first_name: "", last_name: "", email: "", phone: "", notes: "" });
-  const [activeDays, setActiveDays] = useState<number[]>([1, 2, 3, 4, 5]); // Default: Mo-Fr
+  const [activeDays, setActiveDays] = useState<number[]>([1, 2, 3, 4, 5]);
   const [blockedDates, setBlockedDates] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +42,84 @@ export default function TerminPage() {
   today.setHours(0, 0, 0, 0);
   const days = getCalendarDays(currentYear, currentMonth);
 
-  // Load availability settings from server
+  const WEEKDAYS = lang === "de" ? WEEKDAYS_DE : WEEKDAYS_EN;
+  const MONTHS = lang === "de" ? MONTHS_DE : MONTHS_EN;
+
+  const labels = {
+    de: {
+      heroLabel: "Terminbuchung",
+      heroTitle: { before: "Kostenlose ", bold: "Beratung buchen." },
+      heroDesc: "Vereinbaren Sie ein unverbindliches Onlinegespräch — bequem von zu Hause aus.",
+      step1: "1. Datum wählen",
+      step2: "2. Uhrzeit wählen",
+      step3: "3. Angaben",
+      selectDay: "Wählen Sie einen verfügbaren Werktag",
+      back: "← Zurück",
+      loadingSlots: "Verfügbare Zeiten werden geladen...",
+      noSlots: "An diesem Tag sind leider keine Termine mehr verfügbar.",
+      otherDate: "Anderes Datum wählen",
+      timeNote: "Alle Zeiten in MEZ · Dauer: ca. 60 Minuten",
+      firstName: "Vorname",
+      lastName: "Nachname",
+      email: "E-Mail",
+      phone: "Telefon",
+      notes: "Anliegen / Bemerkungen",
+      notesPlaceholder: "Optional: Beschreiben Sie kurz Ihr Anliegen",
+      submitting: "Wird gebucht...",
+      submitBtn: "Termin buchen",
+      successTitle: "Termin erfolgreich gebucht!",
+      successDesc: "Wir werden uns in Kürze bei Ihnen melden, um den Termin zu bestätigen.",
+      backHome: "Zurück zur Startseite",
+      consultLabel: "Ihr Beratungsgespräch",
+      consultTitle: { before: "Was Sie ", bold: "erwartet." },
+      consultSteps: [
+        { step: "1", title: "Persönliche Analyse", desc: "Wir besprechen Ihre aktuelle Situation, Ihre Wünsche und Ihre finanziellen Rahmenbedingungen — vertraulich und unverbindlich." },
+        { step: "2", title: "Marktvergleich", desc: "Basierend auf Ihren Angaben holen wir die attraktivsten Angebote unserer Partnerbanken, Versicherungen und Pensionskassen ein." },
+        { step: "3", title: "Ihre Entscheidung", desc: "Wir präsentieren Ihnen die besten Optionen übersichtlich aufbereitet. Sie wählen — ohne Druck, ohne Kosten." },
+      ],
+      ctaTitle: { before: "Lieber ", bold: "schriftlich?" },
+      ctaDesc: "Senden Sie uns Ihre Anfrage über unser Kontaktformular. Wir melden uns innerhalb von 24 Stunden bei Ihnen.",
+      ctaBtn: "Kontaktformular öffnen",
+    },
+    en: {
+      heroLabel: "Appointment booking",
+      heroTitle: { before: "Book a free ", bold: "consultation." },
+      heroDesc: "Schedule a non-binding online meeting — conveniently from home.",
+      step1: "1. Choose date",
+      step2: "2. Choose time",
+      step3: "3. Your details",
+      selectDay: "Select an available weekday",
+      back: "← Back",
+      loadingSlots: "Loading available times...",
+      noSlots: "Unfortunately, no appointments are available on this day.",
+      otherDate: "Choose another date",
+      timeNote: "All times in CET · Duration: approx. 60 minutes",
+      firstName: "First name",
+      lastName: "Last name",
+      email: "Email",
+      phone: "Phone",
+      notes: "Concerns / Notes",
+      notesPlaceholder: "Optional: Briefly describe your concern",
+      submitting: "Booking...",
+      submitBtn: "Book appointment",
+      successTitle: "Appointment successfully booked!",
+      successDesc: "We will contact you shortly to confirm the appointment.",
+      backHome: "Back to homepage",
+      consultLabel: "Your consultation",
+      consultTitle: { before: "What to ", bold: "expect." },
+      consultSteps: [
+        { step: "1", title: "Personal analysis", desc: "We discuss your current situation, your wishes and your financial framework — confidentially and without obligation." },
+        { step: "2", title: "Market comparison", desc: "Based on your information, we obtain the most attractive offers from our partner banks, insurance companies and pension funds." },
+        { step: "3", title: "Your decision", desc: "We present you the best options clearly prepared. You choose — no pressure, no costs." },
+      ],
+      ctaTitle: { before: "Prefer ", bold: "writing?" },
+      ctaDesc: "Send us your request via our contact form. We will get back to you within 24 hours.",
+      ctaBtn: "Open contact form",
+    },
+  };
+
+  const l = labels[lang];
+
   useEffect(() => {
     fetch("/api/admin/availability")
       .then((r) => r.json())
@@ -99,7 +181,7 @@ export default function TerminPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Fehler bei der Buchung");
+        throw new Error(data.error || (lang === "de" ? "Fehler bei der Buchung" : "Booking error"));
       }
 
       setStep("success");
@@ -130,7 +212,7 @@ export default function TerminPage() {
 
   const selectedDateObj = selectedDate ? new Date(selectedDate + "T00:00:00") : null;
   const formattedDate = selectedDateObj
-    ? selectedDateObj.toLocaleDateString("de-CH", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+    ? selectedDateObj.toLocaleDateString(lang === "de" ? "de-CH" : "en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
     : "";
 
   const inputStyle = {
@@ -147,13 +229,13 @@ export default function TerminPage() {
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-12 lg:pt-20 pb-16 lg:pb-24">
             <ScrollReveal>
               <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
-                Terminbuchung
+                {l.heroLabel}
               </p>
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05] max-w-3xl" style={{ fontWeight: 300, color: "#1a1a1a" }}>
-                Kostenlose <span style={{ fontWeight: 600 }}>Beratung buchen.</span>
+                {l.heroTitle.before}<span style={{ fontWeight: 600 }}>{l.heroTitle.bold}</span>
               </h1>
               <p className="text-lg mt-4 max-w-2xl" style={{ color: "#6b6b6b" }}>
-                Vereinbaren Sie ein unverbindliches Onlinegespräch — bequem von zu Hause aus.
+                {l.heroDesc}
               </p>
             </ScrollReveal>
           </div>
@@ -168,19 +250,19 @@ export default function TerminPage() {
                   <svg className="w-16 h-16 mx-auto mb-6" fill="none" stroke="#22c55e" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  <h3 className="text-xl font-semibold mb-2" style={{ color: "#1a1a1a" }}>Termin erfolgreich gebucht!</h3>
+                  <h3 className="text-xl font-semibold mb-2" style={{ color: "#1a1a1a" }}>{l.successTitle}</h3>
                   <p className="text-sm mb-2" style={{ color: "#6b6b6b" }}>
-                    {formattedDate} um {selectedTime} Uhr
+                    {formattedDate} {lang === "de" ? "um" : "at"} {selectedTime} {lang === "de" ? "Uhr" : ""}
                   </p>
                   <p className="text-sm mb-8" style={{ color: "#6b6b6b" }}>
-                    Wir werden uns in Kürze bei Ihnen melden, um den Termin zu bestätigen.
+                    {l.successDesc}
                   </p>
                   <Link
                     href="/"
                     className="inline-flex items-center px-7 py-3.5 text-sm font-medium transition-colors"
                     style={{ backgroundColor: "#000", color: "#fff" }}
                   >
-                    Zurück zur Startseite
+                    {l.backHome}
                   </Link>
                 </div>
               ) : (
@@ -188,9 +270,9 @@ export default function TerminPage() {
                   {/* Progress Steps */}
                   <div style={{ display: "flex", borderBottom: "1px solid #e5e5e5", background: "#fafafa" }}>
                     {[
-                      { key: "date", label: "1. Datum wählen" },
-                      { key: "time", label: "2. Uhrzeit wählen" },
-                      { key: "form", label: "3. Angaben" },
+                      { key: "date", label: l.step1 },
+                      { key: "time", label: l.step2 },
+                      { key: "form", label: l.step3 },
                     ].map((s, i) => (
                       <div
                         key={s.key}
@@ -268,7 +350,7 @@ export default function TerminPage() {
                         </div>
 
                         <p className="text-center mt-6" style={{ fontSize: 12, color: "#999" }}>
-                          Wählen Sie einen verfügbaren Werktag
+                          {l.selectDay}
                         </p>
                       </div>
                     )}
@@ -281,7 +363,7 @@ export default function TerminPage() {
                             onClick={() => { setStep("date"); setSelectedDate(null); }}
                             style={{ background: "none", border: "none", fontSize: 14, color: "#c8553d", cursor: "pointer", padding: 0 }}
                           >
-                            ← Zurück
+                            {l.back}
                           </button>
                           <span style={{ color: "#ddd" }}>|</span>
                           <span style={{ fontSize: 14, fontWeight: 500 }}>{formattedDate}</span>
@@ -289,18 +371,18 @@ export default function TerminPage() {
 
                         {loadingSlots ? (
                           <div style={{ textAlign: "center", padding: 40 }}>
-                            <p style={{ fontSize: 14, color: "#888" }}>Verfügbare Zeiten werden geladen...</p>
+                            <p style={{ fontSize: 14, color: "#888" }}>{l.loadingSlots}</p>
                           </div>
                         ) : slots.length === 0 ? (
                           <div style={{ textAlign: "center", padding: 40 }}>
                             <p style={{ fontSize: 14, color: "#888", marginBottom: 16 }}>
-                              An diesem Tag sind leider keine Termine mehr verfügbar.
+                              {l.noSlots}
                             </p>
                             <button
                               onClick={() => { setStep("date"); setSelectedDate(null); }}
                               style={{ fontSize: 14, color: "#c8553d", background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}
                             >
-                              Anderes Datum wählen
+                              {l.otherDate}
                             </button>
                           </div>
                         ) : (
@@ -330,7 +412,7 @@ export default function TerminPage() {
                         )}
 
                         <p className="text-center mt-6" style={{ fontSize: 12, color: "#999" }}>
-                          Alle Zeiten in MEZ · Dauer: ca. 60 Minuten
+                          {l.timeNote}
                         </p>
                       </div>
                     )}
@@ -343,10 +425,10 @@ export default function TerminPage() {
                             onClick={() => setStep("time")}
                             style={{ background: "none", border: "none", fontSize: 14, color: "#c8553d", cursor: "pointer", padding: 0 }}
                           >
-                            ← Zurück
+                            {l.back}
                           </button>
                           <span style={{ color: "#ddd" }}>|</span>
-                          <span style={{ fontSize: 14, fontWeight: 500 }}>{formattedDate}, {selectedTime} Uhr</span>
+                          <span style={{ fontSize: 14, fontWeight: 500 }}>{formattedDate}, {selectedTime} {lang === "de" ? "Uhr" : ""}</span>
                         </div>
 
                         {error && (
@@ -358,7 +440,7 @@ export default function TerminPage() {
                         <form onSubmit={handleSubmit} className="space-y-5">
                           <div className="grid sm:grid-cols-2 gap-5">
                             <div>
-                              <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>Vorname *</label>
+                              <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>{l.firstName} *</label>
                               <input
                                 type="text"
                                 required
@@ -369,7 +451,7 @@ export default function TerminPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>Nachname *</label>
+                              <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>{l.lastName} *</label>
                               <input
                                 type="text"
                                 required
@@ -382,7 +464,7 @@ export default function TerminPage() {
                           </div>
                           <div className="grid sm:grid-cols-2 gap-5">
                             <div>
-                              <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>E-Mail *</label>
+                              <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>{l.email} *</label>
                               <input
                                 type="email"
                                 required
@@ -393,7 +475,7 @@ export default function TerminPage() {
                               />
                             </div>
                             <div>
-                              <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>Telefon</label>
+                              <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>{l.phone}</label>
                               <input
                                 type="tel"
                                 value={formData.phone}
@@ -404,14 +486,14 @@ export default function TerminPage() {
                             </div>
                           </div>
                           <div>
-                            <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>Anliegen / Bemerkungen</label>
+                            <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>{l.notes}</label>
                             <textarea
                               rows={3}
                               value={formData.notes}
                               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                               className="w-full px-4 py-3 text-sm outline-none focus:border-[#1a1a1a] resize-none"
                               style={inputStyle}
-                              placeholder="Optional: Beschreiben Sie kurz Ihr Anliegen"
+                              placeholder={l.notesPlaceholder}
                             />
                           </div>
                           <button
@@ -420,7 +502,7 @@ export default function TerminPage() {
                             className="inline-flex items-center px-8 py-4 text-sm font-medium transition-colors disabled:opacity-50"
                             style={{ backgroundColor: "#000", color: "#fff" }}
                           >
-                            {submitting ? "Wird gebucht..." : "Termin buchen"}
+                            {submitting ? l.submitting : l.submitBtn}
                             {!submitting && (
                               <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -442,31 +524,15 @@ export default function TerminPage() {
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
             <ScrollReveal>
               <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
-                Ihr Beratungsgespräch
+                {l.consultLabel}
               </p>
               <h2 className="text-4xl md:text-5xl leading-[1.1] mb-16 max-w-2xl" style={{ fontWeight: 300 }}>
-                Was Sie <span style={{ fontWeight: 600 }}>erwartet.</span>
+                {l.consultTitle.before}<span style={{ fontWeight: 600 }}>{l.consultTitle.bold}</span>
               </h2>
             </ScrollReveal>
 
             <StaggerContainer className="grid md:grid-cols-3 gap-12 max-w-5xl" staggerDelay={0.1}>
-              {[
-                {
-                  step: "1",
-                  title: "Persönliche Analyse",
-                  desc: "Wir besprechen Ihre aktuelle Situation, Ihre Wünsche und Ihre finanziellen Rahmenbedingungen — vertraulich und unverbindlich.",
-                },
-                {
-                  step: "2",
-                  title: "Marktvergleich",
-                  desc: "Basierend auf Ihren Angaben holen wir die attraktivsten Angebote unserer Partnerbanken, Versicherungen und Pensionskassen ein.",
-                },
-                {
-                  step: "3",
-                  title: "Ihre Entscheidung",
-                  desc: "Wir präsentieren Ihnen die besten Optionen übersichtlich aufbereitet. Sie wählen — ohne Druck, ohne Kosten.",
-                },
-              ].map((item) => (
+              {l.consultSteps.map((item) => (
                 <StaggerItem key={item.step}>
                   <div className="text-center">
                     <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center" style={{ border: "2px solid #000", borderRadius: "50%" }}>
@@ -486,17 +552,17 @@ export default function TerminPage() {
           <div className="max-w-3xl mx-auto px-6 lg:px-10 text-center">
             <ScrollReveal>
               <h2 className="text-4xl md:text-5xl leading-[1.15] mb-6" style={{ fontWeight: 300 }}>
-                Lieber <span style={{ fontWeight: 600 }}>schriftlich?</span>
+                {l.ctaTitle.before}<span style={{ fontWeight: 600 }}>{l.ctaTitle.bold}</span>
               </h2>
               <p className="text-base mb-10 max-w-lg mx-auto leading-relaxed" style={{ color: "#888" }}>
-                Senden Sie uns Ihre Anfrage über unser Kontaktformular. Wir melden uns innerhalb von 24 Stunden bei Ihnen.
+                {l.ctaDesc}
               </p>
               <Link
                 href="/kontakt"
                 className="inline-flex items-center justify-center px-8 py-4 text-sm font-medium transition-colors"
                 style={{ backgroundColor: "#fff", color: "#000" }}
               >
-                Kontaktformular öffnen
+                {l.ctaBtn}
               </Link>
             </ScrollReveal>
           </div>

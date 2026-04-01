@@ -4,21 +4,34 @@ import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
+import { useI18n } from "@/i18n/context";
 
-const mainNav = [
-  { href: "/", label: "Privatkunden" },
-  { href: "/ueber-uns", label: "Über HYPONOVA" },
-];
+const mainNavLabels = {
+  de: [{ href: "/", label: "Privatkunden" }, { href: "/ueber-uns", label: "Über HYPONOVA" }],
+  en: [{ href: "/", label: "Private Clients" }, { href: "/ueber-uns", label: "About HYPONOVA" }],
+};
 
-const subNav = [
-  { href: "/dienstleistungen", label: "Dienstleistungen" },
-  { href: "/rechner", label: "Hypothekenrechner" },
-  { href: "/termin", label: "Terminbuchung" },
-  { href: "/kontakt", label: "Kontakt" },
-  { href: "/faq", label: "FAQ" },
-];
+const subNavLabels = {
+  de: [
+    { href: "/dienstleistungen", label: "Dienstleistungen" },
+    { href: "/rechner", label: "Hypothekenrechner" },
+    { href: "/termin", label: "Terminbuchung" },
+    { href: "/kontakt", label: "Kontakt" },
+    { href: "/faq", label: "FAQ" },
+  ],
+  en: [
+    { href: "/dienstleistungen", label: "Services" },
+    { href: "/rechner", label: "Mortgage Calculator" },
+    { href: "/termin", label: "Book Appointment" },
+    { href: "/kontakt", label: "Contact" },
+    { href: "/faq", label: "FAQ" },
+  ],
+};
+
+const helpLabel = { de: "Hilfe & Kontakt", en: "Help & Contact" };
 
 export default function Header() {
+  const { lang, setLang, t } = useI18n();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hoverStyle, setHoverStyle] = useState<{ left: number; width: number } | null>(null);
@@ -85,7 +98,7 @@ export default function Header() {
 
             {/* Main Navigation */}
             <nav className="hidden lg:flex items-center gap-8">
-              {mainNav.map((item) => {
+              {mainNavLabels[lang].map((item) => {
                 const active = isActive(item.href);
                 return (
                   <Link
@@ -105,9 +118,11 @@ export default function Header() {
 
             {/* Right side */}
             <div className="hidden lg:flex items-center gap-6">
-              <button className="text-[13px] font-medium transition-colors hover:text-black" style={{ color: "#6b6b6b" }}>
-                DE | EN
-              </button>
+              <div className="flex items-center gap-1 text-[13px] font-medium">
+                <button onClick={() => setLang("de")} style={{ color: lang === "de" ? "#c8553d" : "#6b6b6b", fontWeight: lang === "de" ? 600 : 400, transition: "color 0.2s" }}>DE</button>
+                <span style={{ color: "#ccc" }}>|</span>
+                <button onClick={() => setLang("en")} style={{ color: lang === "en" ? "#c8553d" : "#6b6b6b", fontWeight: lang === "en" ? 600 : 400, transition: "color 0.2s" }}>EN</button>
+              </div>
               <Link
                 href="/kontakt"
                 className="flex items-center gap-2 text-[13px] font-medium transition-colors hover:text-black"
@@ -116,7 +131,7 @@ export default function Header() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
                 </svg>
-                Hilfe & Kontakt
+                {helpLabel[lang]}
               </Link>
             </div>
 
@@ -140,7 +155,7 @@ export default function Header() {
       <div className="hidden lg:block" style={{ borderBottom: "1px solid #e5e5e5" }}>
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <nav ref={navRef} className="relative flex items-center gap-8 h-12">
-            {subNav.map((item) => (
+            {subNavLabels[lang].map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -179,7 +194,7 @@ export default function Header() {
             style={{ backgroundColor: "#fff", borderBottom: "1px solid #e5e5e5" }}
           >
             <nav className="max-w-[1400px] mx-auto px-6 py-6 space-y-1">
-              {[...mainNav, ...subNav].map((item) => (
+              {[...mainNavLabels[lang], ...subNavLabels[lang]].map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}

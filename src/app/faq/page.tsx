@@ -6,8 +6,9 @@ import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import Link from "next/link";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import Accordion from "@/components/ui/Accordion";
+import { useI18n } from "@/i18n/context";
 
-const faqItems = [
+const faqItemsDe = [
   {
     question: "Was ist ein Hypothekenvermittler?",
     answer: "Ein Hypothekenvermittler vergleicht die Angebote verschiedener Banken, Versicherungen und Pensionskassen und findet für Sie die attraktivste Finanzierungslösung. Anders als Ihre Hausbank sind wir unabhängig und nicht an ein einzelnes Institut gebunden.",
@@ -50,29 +51,101 @@ const faqItems = [
   },
 ];
 
+const faqItemsEn = [
+  {
+    question: "What is a mortgage broker?",
+    answer: "A mortgage broker compares offers from various banks, insurance companies and pension funds to find the most attractive financing solution for you. Unlike your bank, we are independent and not tied to any single institution.",
+  },
+  {
+    question: "Is the consultation at HYPONOVA really free?",
+    answer: "Yes, the consultation and the entire closing process are completely free for you. We are compensated directly by the lenders. If no deal is closed, you incur no costs whatsoever.",
+  },
+  {
+    question: "What does affordability mean?",
+    answer: "Affordability describes the ratio between annual housing costs (mortgage interest, amortization and ancillary costs) and your gross income. In Switzerland, financing is considered affordable when the imputed costs amount to a maximum of one third (33%) of gross income.",
+  },
+  {
+    question: "What does loan-to-value mean?",
+    answer: "The loan-to-value ratio (LTV) describes the ratio between the mortgage and the market value of the property. In Switzerland, the maximum LTV is generally 80%. This means you must contribute at least 20% equity — of which at least 10% must come from hard equity (not from pension funds).",
+  },
+  {
+    question: "How much equity do I need to buy a property?",
+    answer: "To purchase an owner-occupied property, you need at least 20% of the purchase price as equity. At least 10% must come from so-called hard equity (e.g., savings, gifts, advance inheritance). The remaining 10% can be drawn from the 2nd pillar (pension fund).",
+  },
+  {
+    question: "What is the difference between a fixed-rate and a SARON mortgage?",
+    answer: "With a fixed-rate mortgage, the interest rate is fixed for a set term (e.g., 2, 5 or 10 years). You have planning security but cannot benefit from falling rates. With a SARON mortgage, the interest rate is regularly adjusted to the current money market rate (SARON). You benefit from rate decreases but also bear the risk of rising rates.",
+  },
+  {
+    question: "When should I refinance my existing mortgage?",
+    answer: "It's best to contact us 6 to 12 months before your existing mortgage expires. This gives us enough time to analyze the market and obtain the most attractive offers. A forward contract (pre-fixing the interest rate) is also possible.",
+  },
+  {
+    question: "How does the process at HYPONOVA work?",
+    answer: "The process is simple: (1) Share your key data with us or use our online calculator. (2) We arrange a free consultation and analyze your situation. (3) We obtain offers from our partners and present you with the best options. You decide — no pressure, no costs.",
+  },
+  {
+    question: "What documents do I need?",
+    answer: "For an initial assessment, information about your income, equity and desired property is sufficient. For the formal offer, we typically need: salary statements, tax returns, account statements for equity, pension fund certificate, and property documents (land registry extract, valuation, plans).",
+  },
+  {
+    question: "Does HYPONOVA also offer consultations outside the Canton of Aargau?",
+    answer: "Yes, we advise clients throughout Switzerland. Our consultations take place conveniently via video call, so you can benefit from our service regardless of your location.",
+  },
+];
+
 export default function FAQPage() {
+  const { t, lang } = useI18n();
+
+  const faqItems = lang === "de" ? faqItemsDe : faqItemsEn;
+
+  const heroHeading = {
+    de: { before: "Häufig gestellte ", bold: "Fragen." },
+    en: { before: "Frequently asked ", bold: "questions." },
+  };
+
+  const heroDesc = {
+    de: "Antworten auf die wichtigsten Fragen rund um Hypotheken und unsere Beratung.",
+    en: "Answers to the most important questions about mortgages and our consulting services.",
+  };
+
+  const ctaHeading = {
+    de: { before: "Noch ", bold: "Fragen?" },
+    en: { before: "Still have ", bold: "questions?" },
+  };
+
+  const ctaDesc = {
+    de: "Kontaktieren Sie uns direkt oder buchen Sie ein kostenloses Beratungsgespräch.",
+    en: "Contact us directly or book a free consultation.",
+  };
+
+  const ctaContact = {
+    de: "Kontakt aufnehmen",
+    en: "Get in touch",
+  };
+
   return (
     <>
       <Header />
       <main>
-        {/* ── HERO ── */}
+        {/* -- HERO -- */}
         <section className="bg-white">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-12 lg:pt-20 pb-16 lg:pb-24">
             <ScrollReveal>
               <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
-                FAQ
+                {t.nav.faq}
               </p>
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05] max-w-3xl" style={{ fontWeight: 300, color: "#1a1a1a" }}>
-                Häufig gestellte <span style={{ fontWeight: 600 }}>Fragen.</span>
+                {heroHeading[lang].before}<span style={{ fontWeight: 600 }}>{heroHeading[lang].bold}</span>
               </h1>
               <p className="text-lg mt-4 max-w-2xl" style={{ color: "#6b6b6b" }}>
-                Antworten auf die wichtigsten Fragen rund um Hypotheken und unsere Beratung.
+                {heroDesc[lang]}
               </p>
             </ScrollReveal>
           </div>
         </section>
 
-        {/* ── FAQ ACCORDION ── */}
+        {/* -- FAQ ACCORDION -- */}
         <section className="pb-24 lg:pb-32">
           <div className="max-w-[900px] mx-auto px-6 lg:px-10">
             <ScrollReveal>
@@ -83,15 +156,15 @@ export default function FAQPage() {
           </div>
         </section>
 
-        {/* ── CTA ── */}
+        {/* -- CTA -- */}
         <section className="py-24 lg:py-32 text-white" style={{ backgroundColor: "#000" }}>
           <div className="max-w-3xl mx-auto px-6 lg:px-10 text-center">
             <ScrollReveal>
               <h2 className="text-4xl md:text-5xl leading-[1.15] mb-6" style={{ fontWeight: 300 }}>
-                Noch <span style={{ fontWeight: 600 }}>Fragen?</span>
+                {ctaHeading[lang].before}<span style={{ fontWeight: 600 }}>{ctaHeading[lang].bold}</span>
               </h2>
               <p className="text-base mb-10 max-w-lg mx-auto leading-relaxed" style={{ color: "#888" }}>
-                Kontaktieren Sie uns direkt oder buchen Sie ein kostenloses Beratungsgespräch.
+                {ctaDesc[lang]}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
@@ -99,14 +172,14 @@ export default function FAQPage() {
                   className="inline-flex items-center justify-center px-8 py-4 text-sm font-medium transition-colors"
                   style={{ backgroundColor: "#fff", color: "#000" }}
                 >
-                  Kontakt aufnehmen
+                  {ctaContact[lang]}
                 </Link>
                 <Link
                   href="/termin"
                   className="inline-flex items-center justify-center px-8 py-4 text-sm font-medium transition-colors hover:bg-white/10"
                   style={{ border: "1px solid #fff", color: "#fff" }}
                 >
-                  Termin buchen
+                  {t.booking.title}
                 </Link>
               </div>
             </ScrollReveal>

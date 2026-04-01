@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const supabase = createServiceClient();
   const body = await request.json();
-  const { date, time, first_name, last_name, email, phone, notes } = body;
+  const { date, time, first_name, last_name, email, phone, notes, lang } = body;
 
   if (!date || !time || !first_name || !last_name || !email) {
     return NextResponse.json({ error: "Bitte füllen Sie alle Pflichtfelder aus." }, { status: 400 });
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   // Trigger Supabase Edge Function (non-blocking)
-  triggerIntegration({ action: "create", appointment, lead });
+  triggerIntegration({ action: "create", appointment, lead, lang: lang || "de" });
 
   return NextResponse.json(appointment);
 }

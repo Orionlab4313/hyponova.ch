@@ -43,7 +43,7 @@ export default function TerminPage() {
       .then((r) => r.json())
       .then((data) => {
         if (data.availability) {
-          setActiveDays(data.availability.filter((a: any) => a.active).map((a: any) => a.day));
+          setActiveDays([...new Set(data.availability.filter((a: any) => a.active).map((a: any) => a.day as number))] as number[]);
         }
         if (data.blocked) {
           setBlockedDates(data.blocked.filter((b: any) => b.type === "day").map((b: any) => b.date));

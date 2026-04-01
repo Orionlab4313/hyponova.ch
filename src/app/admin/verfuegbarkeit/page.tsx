@@ -6,7 +6,7 @@ const WEEKDAY_NAMES = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag"
 const WEEKDAYS_SHORT = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 const MONTHS = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
 
-interface AvailabilitySlot { day: number; start: string; end: string; active: boolean; }
+interface AvailabilitySlot { day: number; start: string; end: string; active: boolean; slot_index: number; }
 interface BlockedEntry { id: string; date: string; reason: string; type: "day" | "hours"; start_time?: string; end_time?: string; }
 
 function getCalendarDays(year: number, month: number) {
@@ -45,11 +45,17 @@ export default function VerfuegbarkeitPage() {
       });
   }, []);
 
-  function toggleDay(day: number) {
-    setSlots(slots.map((s) => s.day === day ? { ...s, active: !s.active } : s));
+  function toggleDay(day: number, slotIndex: number) {
+    setSlots(slots.map((s) => s.day === day && s.slot_index === slotIndex ? { ...s, active: !s.active } : s));
   }
-  function updateSlot(day: number, field: "start" | "end", value: string) {
-    setSlots(slots.map((s) => s.day === day ? { ...s, [field]: value } : s));
+  function updateSlot(day: number, slotIndex: number, field: "start" | "end", value: string) {
+    setSlots(slots.map((s) => s.day === day && s.slot_index === slotIndex ? { ...s, [field]: value } : s));
+  }
+
+  // Group slots by day
+  const days = [0, 1, 2, 3, 4, 5, 6];
+  function getSlotsForDay(day: number) {
+    return slots.filter((s) => s.day === day).sort((a, b) => a.slot_index - b.slot_index);
   }
 
   function addBlockedEntry(date: string) {
@@ -117,23 +123,59 @@ export default function VerfuegbarkeitPage() {
           <div style={{ background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5", padding: "12px 14px" }}>
             <h3 style={{ fontSize: 13, fontWeight: 600, margin: "0 0 10px" }}>Wöchentliche Verfügbarkeit</h3>
             <div style={{ display: "grid", gap: 6 }}>
-              {slots.map((slot) => (
-                <div key={slot.day} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 6, background: slot.active ? "#f0fdf4" : "#f9f9f9", border: `1px solid ${slot.active ? "#bbf7d0" : "#e5e5e5"}` }}>
-                  <button onClick={() => toggleDay(slot.day)} style={{ width: 32, height: 18, borderRadius: 9, border: "none", background: slot.active ? "#22c55e" : "#ddd", position: "relative", cursor: "pointer", flexShrink: 0 }}>
-                    <span style={{ position: "absolute", top: 2, left: slot.active ? 16 : 2, width: 14, height: 14, borderRadius: "50%", background: "#fff", transition: "left 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.2)" }} />
-                  </button>
-                  <span style={{ fontSize: 12, fontWeight: 500, width: 80, color: slot.active ? "#1a1a1a" : "#999", flexShrink: 0 }}>{WEEKDAY_NAMES[slot.day]}</span>
-                  {slot.active ? (
-                    <div className="admin-stack-mobile" style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: "auto" }}>
-                      <input type="time" value={slot.start} onChange={(e) => updateSlot(slot.day, "start", e.target.value)} style={{ ...inputStyle, width: 90 }} />
-                      <span style={{ color: "#999", fontSize: 11 }}>–</span>
-                      <input type="time" value={slot.end} onChange={(e) => updateSlot(slot.day, "end", e.target.value)} style={{ ...inputStyle, width: 90 }} />
+              {days.map((day) => {
+                const daySlots = getSlotsForDay(day);
+                const mainSlot = daySlots[0];
+                const pauseSlot = daySlots[1];
+                if (!mainSlot) return null;
+                const anyActive = daySlots.some((s) => s.active);
+
+                return (
+                  <div key={day} style={{ padding: "8px 10px", borderRadius: 6, background: anyActive ? "#f0fdf4" : "#f9f9f9", border: `1px solid ${anyActive ? "#bbf7d0" : "#e5e5e5"}` }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <button onClick={() => {
+                        // Toggle main slot — if deactivating, also deactivate pause
+                        if (mainSlot.active) {
+                          setSlots(slots.map((s) => s.day === day ? { ...s, active: false } : s));
+                        } else {
+                          toggleDay(day, 0);
+                        }
+                      }} style={{ width: 32, height: 18, borderRadius: 9, border: "none", background: mainSlot.active ? "#22c55e" : "#ddd", position: "relative", cursor: "pointer", flexShrink: 0 }}>
+                        <span style={{ position: "absolute", top: 2, left: mainSlot.active ? 16 : 2, width: 14, height: 14, borderRadius: "50%", background: "#fff", transition: "left 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.2)" }} />
+                      </button>
+                      <span style={{ fontSize: 12, fontWeight: 500, width: 80, color: anyActive ? "#1a1a1a" : "#999", flexShrink: 0 }}>{WEEKDAY_NAMES[day]}</span>
+                      {mainSlot.active ? (
+                        <div className="admin-stack-mobile" style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: "auto" }}>
+                          <input type="time" value={mainSlot.start} onChange={(e) => updateSlot(day, 0, "start", e.target.value)} style={{ ...inputStyle, width: 90 }} />
+                          <span style={{ color: "#999", fontSize: 11 }}>–</span>
+                          <input type="time" value={mainSlot.end} onChange={(e) => updateSlot(day, 0, "end", e.target.value)} style={{ ...inputStyle, width: 90 }} />
+                        </div>
+                      ) : (
+                        <span style={{ fontSize: 12, color: "#999", marginLeft: "auto" }}>Nicht verfügbar</span>
+                      )}
                     </div>
-                  ) : (
-                    <span style={{ fontSize: 12, color: "#999", marginLeft: "auto" }}>Nicht verfügbar</span>
-                  )}
-                </div>
-              ))}
+
+                    {/* Pause / zweites Zeitfenster */}
+                    {mainSlot.active && pauseSlot && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, paddingLeft: 40 }}>
+                        {pauseSlot.active ? (
+                          <>
+                            <span style={{ fontSize: 11, color: "#888", width: 80, flexShrink: 0 }}>+ Nachmittag</span>
+                            <div className="admin-stack-mobile" style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: "auto" }}>
+                              <input type="time" value={pauseSlot.start} onChange={(e) => updateSlot(day, 1, "start", e.target.value)} style={{ ...inputStyle, width: 90 }} />
+                              <span style={{ color: "#999", fontSize: 11 }}>–</span>
+                              <input type="time" value={pauseSlot.end} onChange={(e) => updateSlot(day, 1, "end", e.target.value)} style={{ ...inputStyle, width: 90 }} />
+                              <button onClick={() => toggleDay(day, 1)} style={{ fontSize: 14, color: "#999", background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1 }}>×</button>
+                            </div>
+                          </>
+                        ) : (
+                          <button onClick={() => toggleDay(day, 1)} style={{ fontSize: 11, color: "#c8553d", background: "none", border: "none", cursor: "pointer", padding: 0, fontWeight: 500 }}>+ Pause hinzufügen</button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 

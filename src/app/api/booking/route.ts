@@ -36,13 +36,19 @@ export async function GET(request: NextRequest) {
   ]);
 
   const dayOfWeek = new Date(date + "T00:00:00").getDay();
-  const avail = availabilitySettings.find((a) => a.day === dayOfWeek && a.active);
-  if (!avail) return NextResponse.json({ slots: [], available: false });
+  const activeSlots = availabilitySettings.filter((a) => a.day === dayOfWeek && a.active);
+  if (activeSlots.length === 0) return NextResponse.json({ slots: [], available: false });
 
   const dayBlocked = blockedEntries.find((b) => b.date === date && b.type === "day");
   if (dayBlocked) return NextResponse.json({ slots: [], available: false });
 
-  const allSlots = generateSlots(avail.start, avail.end, SLOT_DURATION);
+  // Generate slots from all active time ranges for this day
+  let allSlots: string[] = [];
+  for (const avail of activeSlots) {
+    allSlots = allSlots.concat(generateSlots(avail.start, avail.end, SLOT_DURATION));
+  }
+  // Remove duplicates and sort
+  allSlots = [...new Set(allSlots)].sort();
 
   const supabase = createServiceClient();
   const { data: appointments } = await supabase

@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { getAvailability, getBlockedEntries } from "@/lib/availability-store";
-import { sendBookingConfirmation } from "@/lib/infomaniak-email";
-import { createCalendarEvent } from "@/lib/infomaniak-calendar";
-import { createContact } from "@/lib/infomaniak-contacts";
+import { triggerIntegration } from "@/lib/integrations";
 
 const SLOT_DURATION = 60;
 
@@ -62,9 +60,7 @@ export async function GET(request: NextRequest) {
     const slotEndMin = slotMin + SLOT_DURATION;
     for (const blocked of blockedHours) {
       if (!blocked.start_time || !blocked.end_time) continue;
-      const blockStart = timeToMinutes(blocked.start_time);
-      const blockEnd = timeToMinutes(blocked.end_time);
-      if (slotMin < blockEnd && slotEndMin > blockStart) return false;
+      if (slotMin < timeToMinutes(blocked.end_time) && slotEndMin > timeToMinutes(blocked.start_time)) return false;
     }
     return true;
   });
@@ -82,12 +78,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { data: existing } = await supabase
-    .from("appointments")
-    .select("id")
-    .eq("date", date)
-    .eq("time_start", time + ":00")
-    .neq("status", "abgesagt")
-    .limit(1);
+    .from("appointments").select("id").eq("date", date).eq("time_start", time + ":00").neq("status", "abgesagt").limit(1);
 
   if (existing && existing.length > 0) {
     return NextResponse.json({ error: "Dieser Termin ist leider nicht mehr verfügbar." }, { status: 409 });
@@ -96,8 +87,7 @@ export async function POST(request: NextRequest) {
   const { data: lead } = await supabase
     .from("leads")
     .insert({ first_name, last_name, email, phone: phone || "", status: "neu", source: "website", notes: notes || "" })
-    .select()
-    .single();
+    .select().single();
 
   const [h, m] = time.split(":").map(Number);
   const endMin = h * 60 + m + SLOT_DURATION;
@@ -108,50 +98,16 @@ export async function POST(request: NextRequest) {
     .insert({
       lead_id: lead?.id || null,
       title: `Beratungsgespräch - ${first_name} ${last_name}`,
-      description: notes || "",
-      date,
-      time_start: time + ":00",
-      time_end: endTime + ":00",
+      description: notes || "", date,
+      time_start: time + ":00", time_end: endTime + ":00",
       status: "geplant",
     })
-    .select()
-    .single();
+    .select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Directly call integrations (no internal fetch)
-  try {
-    await Promise.all([
-      sendBookingConfirmation({
-        to: email,
-        firstName: first_name,
-        lastName: last_name,
-        date,
-        timeStart: time,
-        timeEnd: endTime,
-      }),
-      createCalendarEvent({
-        uid: appointment.id,
-        summary: `Beratungsgespräch - ${first_name} ${last_name}`,
-        description: `Kunde: ${first_name} ${last_name}\nE-Mail: ${email}\nTelefon: ${phone || "-"}\n\n${notes || ""}`,
-        date,
-        timeStart: time,
-        timeEnd: endTime,
-        attendeeName: `${first_name} ${last_name}`,
-        attendeeEmail: email,
-      }),
-      createContact({
-        uid: lead?.id || appointment.id,
-        firstName: first_name,
-        lastName: last_name,
-        email,
-        phone: phone || undefined,
-        note: `Quelle: Website\nTerminbuchung: ${date}`,
-      }),
-    ]);
-  } catch (err) {
-    console.error("Integration error (non-blocking):", err);
-  }
+  // Trigger Supabase Edge Function (non-blocking)
+  triggerIntegration({ action: "create", appointment, lead });
 
   return NextResponse.json(appointment);
 }

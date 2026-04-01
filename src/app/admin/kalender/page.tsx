@@ -69,6 +69,7 @@ export default function KalenderPage() {
   }
 
   const [syncing, setSyncing] = useState(false);
+  const EDGE_FN = "https://dqryxcdwvuborlayjain.supabase.co/functions/v1/on-booking";
 
   function formatDateDE(dateStr: string) {
     return new Date(dateStr + "T00:00:00").toLocaleDateString("de-CH", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -77,7 +78,7 @@ export default function KalenderPage() {
   async function triggerIntegration(data: any) {
     setSyncing(true);
     try {
-      await fetch("/api/integrations/on-booking", {
+      await fetch(EDGE_FN, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

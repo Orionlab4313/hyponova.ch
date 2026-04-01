@@ -39,6 +39,7 @@ export default function KontaktPage() {
           phone: formData.phone,
           subject: formData.subject,
           message: formData.message,
+          lang,
         }),
       });
       if (!res.ok) throw new Error("Fehler beim Senden");

@@ -176,6 +176,7 @@ export default function TerminPage() {
           date: selectedDate,
           time: selectedTime,
           ...formData,
+          lang,
         }),
       });
 

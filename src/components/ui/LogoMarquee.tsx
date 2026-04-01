@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "@/i18n/context";
+
 const SUPABASE_URL = "https://dqryxcdwvuborlayjain.supabase.co/storage/v1/object/public/logos";
 
 const partners = [
@@ -15,13 +17,14 @@ const partners = [
 ];
 
 export default function LogoMarquee() {
+  const { lang } = useI18n();
   // Duplicate the list for seamless infinite scroll
   const logos = [...partners, ...partners];
 
   return (
     <section className="py-10 overflow-hidden" style={{ borderBottom: "1px solid #e5e5e5" }}>
       <p className="text-center text-lg uppercase tracking-[0.2em] font-semibold mb-10" style={{ color: "#6b6b6b" }}>
-        Unsere Partner
+        {lang === "en" ? "Our Partners" : "Unsere Partner"}
       </p>
       <div className="relative">
         <div

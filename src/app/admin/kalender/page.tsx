@@ -174,30 +174,30 @@ export default function KalenderPage() {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <button onClick={prevMonth} style={{ background: "none", border: "1px solid #e5e5e5", borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontSize: 14 }}>←</button>
-          <h3 style={{ fontSize: 16, fontWeight: 600, margin: 0, minWidth: 180, textAlign: "center" }}>{MONTHS[currentMonth]} {currentYear}</h3>
-          <button onClick={nextMonth} style={{ background: "none", border: "1px solid #e5e5e5", borderRadius: 8, padding: "8px 14px", cursor: "pointer", fontSize: 14 }}>→</button>
-          <button onClick={() => { setCurrentMonth(new Date().getMonth()); setCurrentYear(new Date().getFullYear()); setSelectedDate(today); }} style={{ fontSize: 13, color: "#c8553d", background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}>Heute</button>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <button onClick={prevMonth} style={{ background: "none", border: "1px solid #e5e5e5", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 13 }}>←</button>
+          <h3 style={{ fontSize: 15, fontWeight: 600, margin: 0, textAlign: "center" }}>{MONTHS[currentMonth]} {currentYear}</h3>
+          <button onClick={nextMonth} style={{ background: "none", border: "1px solid #e5e5e5", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 13 }}>→</button>
+          <button onClick={() => { setCurrentMonth(new Date().getMonth()); setCurrentYear(new Date().getFullYear()); setSelectedDate(today); }} style={{ fontSize: 12, color: "#c8553d", background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}>Heute</button>
         </div>
-        <button onClick={() => openCreate()} style={{ padding: "10px 20px", fontSize: 14, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer" }}>
-          + Neuer Termin
+        <button onClick={() => openCreate()} style={{ padding: "8px 16px", fontSize: 13, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer" }}>
+          + Termin
         </button>
       </div>
 
       {/* Calendar Grid */}
-      <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e5e5", overflow: "hidden", marginBottom: 24 }}>
+      <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e5e5", overflow: "hidden", marginBottom: 24, width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>
         {/* Weekday headers */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", borderBottom: "1px solid #e5e5e5" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", borderBottom: "1px solid #e5e5e5" }}>
           {WEEKDAYS.map((d) => (
-            <div key={d} style={{ padding: "10px 0", textAlign: "center", fontSize: 12, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: "0.05em" }}>{d}</div>
+            <div key={d} style={{ padding: "8px 0", textAlign: "center", fontSize: 11, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: "0.05em" }}>{d}</div>
           ))}
         </div>
         {/* Days */}
-        <div className="admin-calendar-grid" style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))" }}>
           {days.map((day, i) => {
-            if (day === null) return <div key={`e-${i}`} style={{ minHeight: 80, borderRight: "1px solid #f0f0f0", borderBottom: "1px solid #f0f0f0", background: "#fafafa" }} />;
+            if (day === null) return <div key={`e-${i}`} style={{ minHeight: 60, borderRight: "1px solid #f0f0f0", borderBottom: "1px solid #f0f0f0", background: "#fafafa" }} />;
 
             const dateStr = getDateStr(day);
             const isToday = dateStr === today;
@@ -209,32 +209,33 @@ export default function KalenderPage() {
                 key={day}
                 onClick={() => setSelectedDate(dateStr)}
                 style={{
-                  minHeight: 80,
-                  padding: 6,
+                  minHeight: 60,
+                  padding: 4,
                   borderRight: "1px solid #f0f0f0",
                   borderBottom: "1px solid #f0f0f0",
                   cursor: "pointer",
                   background: isSelected ? "#f8f6f4" : "#fff",
                   transition: "background 0.1s",
+                  overflow: "hidden",
                 }}
               >
                 <div style={{
-                  width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 13, fontWeight: isToday ? 700 : 400,
+                  width: 24, height: 24, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 12, fontWeight: isToday ? 700 : 400,
                   background: isToday ? "#c8553d" : "transparent",
                   color: isToday ? "#fff" : isSelected ? "#c8553d" : "#1a1a1a",
-                  marginBottom: 4,
+                  marginBottom: 2,
                 }}>
                   {day}
                 </div>
-                {dayAppts.slice(0, 3).map((appt) => (
+                {dayAppts.slice(0, 2).map((appt) => (
                   <div
                     key={appt.id}
                     style={{
-                      fontSize: 10,
-                      padding: "2px 4px",
-                      marginBottom: 2,
-                      borderRadius: 3,
+                      fontSize: 9,
+                      padding: "1px 3px",
+                      marginBottom: 1,
+                      borderRadius: 2,
                       background: `${statusColors[appt.status] || "#888"}15`,
                       color: statusColors[appt.status] || "#888",
                       overflow: "hidden",
@@ -244,11 +245,11 @@ export default function KalenderPage() {
                       borderLeft: `2px solid ${statusColors[appt.status] || "#888"}`,
                     }}
                   >
-                    {appt.time_start?.slice(0, 5)} {appt.title?.split(" - ")[1] || appt.title?.slice(0, 15)}
+                    {appt.time_start?.slice(0, 5)}
                   </div>
                 ))}
-                {dayAppts.length > 3 && (
-                  <div style={{ fontSize: 10, color: "#999", padding: "0 4px" }}>+{dayAppts.length - 3} mehr</div>
+                {dayAppts.length > 2 && (
+                  <div style={{ fontSize: 9, color: "#999" }}>+{dayAppts.length - 2}</div>
                 )}
               </div>
             );

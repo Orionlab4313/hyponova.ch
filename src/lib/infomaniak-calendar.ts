@@ -26,29 +26,30 @@ function createICSEvent(data: {
   const dtEnd = data.date.replace(/-/g, "") + "T" + data.timeEnd.replace(/:/g, "") + "00";
   const now = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 
-  // Replace em dash with regular dash for ICS compatibility
-  const summary = data.summary.replace(/—/g, "-");
-  const description = data.description.replace(/\n/g, "\\n").replace(/—/g, "-");
+  const summary = data.summary.replace(/[—–]/g, "-");
+  const description = data.description.replace(/\n/g, "\\n").replace(/[—–]/g, "-");
 
-  let ics = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//HYPONOVA//Terminbuchung//DE
-METHOD:PUBLISH
-BEGIN:VEVENT
-UID:${data.uid}@hyponova.ch
-DTSTAMP:${now}
-DTSTART:${dtStart}
-DTEND:${dtEnd}
-SUMMARY;CHARSET=UTF-8:${summary}
-DESCRIPTION;CHARSET=UTF-8:${description}`;
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//HYPONOVA//DE",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:${data.uid}@hyponova.ch`,
+    `DTSTAMP:${now}`,
+    `DTSTART:${dtStart}`,
+    `DTEND:${dtEnd}`,
+    `SUMMARY:${summary}`,
+    `DESCRIPTION:${description}`,
+  ];
 
   if (data.attendeeEmail) {
-    const attendeeName = (data.attendeeName || "").replace(/—/g, "-");
-    ics += `\nATTENDEE;CN=${attendeeName}:mailto:${data.attendeeEmail}`;
+    const name = (data.attendeeName || "").replace(/[—–]/g, "-");
+    lines.push(`ATTENDEE;CN=${name}:mailto:${data.attendeeEmail}`);
   }
 
-  ics += `\nEND:VEVENT\nEND:VCALENDAR`;
-  return ics;
+  lines.push("END:VEVENT", "END:VCALENDAR");
+  return lines.join("\r\n");
 }
 
 export async function createCalendarEvent(data: {

@@ -23,6 +23,10 @@ const subjectLabels: Record<string, string> = {
 export default function NachrichtenPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [selected, setSelected] = useState<Message | null>(null);
+  const [showReply, setShowReply] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     fetchMessages();
@@ -84,7 +88,7 @@ export default function NachrichtenPage() {
             messages.map((msg) => (
               <div
                 key={msg.id}
-                onClick={() => setSelected(msg)}
+                onClick={() => { setSelected(msg); setShowReply(false); setReplyText(""); setSent(false); }}
                 style={{
                   background: selected?.id === msg.id ? "#f8f8f8" : "#fff",
                   borderRadius: 8,
@@ -164,20 +168,77 @@ export default function NachrichtenPage() {
               </p>
             </div>
 
+            {/* Reply Form */}
+            {showReply ? (
+              <div style={{ marginBottom: 8 }}>
+                <div style={{ background: "#f9f9f9", borderRadius: 6, padding: 10, marginBottom: 8 }}>
+                  <p style={{ fontSize: 11, color: "#888", margin: "0 0 2px" }}>An: {selected.email}</p>
+                  <p style={{ fontSize: 11, color: "#888", margin: 0 }}>Betreff: Re: {subjectLabels[selected.subject] || selected.subject} — HYPONOVA</p>
+                </div>
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  rows={5}
+                  autoFocus
+                  placeholder="Ihre Antwort schreiben..."
+                  style={{ width: "100%", padding: "10px 12px", fontSize: 13, border: "1px solid #ddd", borderRadius: 6, outline: "none", resize: "vertical", boxSizing: "border-box", lineHeight: 1.5 }}
+                />
+                <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+                  <button
+                    onClick={async () => {
+                      if (!replyText.trim()) return;
+                      setSending(true);
+                      try {
+                        const res = await fetch("https://dqryxcdwvuborlayjain.supabase.co/functions/v1/on-booking", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            action: "reply",
+                            to: selected.email,
+                            subject: `Re: ${subjectLabels[selected.subject] || selected.subject} — HYPONOVA`,
+                            message: replyText,
+                            firstName: selected.first_name,
+                            lastName: selected.last_name,
+                          }),
+                        });
+                        const data = await res.json();
+                        if (data.results?.email === "sent") {
+                          setSent(true);
+                          setReplyText("");
+                          setTimeout(() => { setSent(false); setShowReply(false); }, 2000);
+                        } else {
+                          alert("Fehler beim Senden: " + (data.results?.email || "Unbekannt"));
+                        }
+                      } catch { alert("Fehler beim Senden"); }
+                      setSending(false);
+                    }}
+                    disabled={sending || !replyText.trim()}
+                    style={{ flex: 1, padding: "8px 12px", fontSize: 12, fontWeight: 500, background: sent ? "#22c55e" : "#1a1a1a", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", opacity: sending || !replyText.trim() ? 0.5 : 1, transition: "background 0.2s" }}
+                  >
+                    {sent ? "✓ Gesendet" : sending ? "Wird gesendet..." : "Absenden"}
+                  </button>
+                  <button
+                    onClick={() => { setShowReply(false); setReplyText(""); }}
+                    style={{ padding: "8px 12px", fontSize: 12, background: "#f5f5f5", border: "1px solid #ddd", borderRadius: 6, cursor: "pointer" }}
+                  >
+                    Abbrechen
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-              <button
-                onClick={() => {
-                  const subject = encodeURIComponent(`Re: ${subjectLabels[selected.subject] || selected.subject} — HYPONOVA`);
-                  const body = encodeURIComponent(`Guten Tag ${selected.first_name} ${selected.last_name},\n\nVielen Dank für Ihre Nachricht.\n\n\n\nFreundliche Grüsse\nSimon Topalli\nHYPONOVA GmbH\n+41 79 249 70 90`);
-                  window.open(`https://ksuite.infomaniak.com/1745676/mail/?to=${encodeURIComponent(selected.email)}&subject=${subject}&body=${body}`, "_blank");
-                }}
-                style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, padding: "8px 12px", fontSize: 12, fontWeight: 500, background: "#1a1a1a", color: "#fff", borderRadius: 6, border: "none", cursor: "pointer", minWidth: 0 }}
-              >
-                <svg style={{ width: 12, height: 12, flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10l9 6 9-6M3 10v8a2 2 0 002 2h14a2 2 0 002-2v-8" />
-                </svg>
-                Antworten
-              </button>
+              {!showReply && (
+                <button
+                  onClick={() => setShowReply(true)}
+                  style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, padding: "8px 12px", fontSize: 12, fontWeight: 500, background: "#1a1a1a", color: "#fff", borderRadius: 6, border: "none", cursor: "pointer", minWidth: 0 }}
+                >
+                  <svg style={{ width: 12, height: 12, flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10l9 6 9-6M3 10v8a2 2 0 002 2h14a2 2 0 002-2v-8" />
+                  </svg>
+                  Antworten
+                </button>
+              )}
               <button
                 onClick={() => createLeadFromMessage(selected)}
                 style={{ padding: "8px 12px", fontSize: 12, fontWeight: 500, background: "#f0fdf4", color: "#22c55e", border: "1px solid #bbf7d0", borderRadius: 6, cursor: "pointer", whiteSpace: "nowrap" }}

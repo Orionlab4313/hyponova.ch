@@ -1,58 +1,47 @@
 # HYPONOVA – Entwicklungsnotizen
 
-## Status: Live (Under Construction) — Stand 01.04.2026
+## Status: Admin Dashboard FERTIG — Stand 01.04.2026
 
 ---
 
-## Phase 1: Projekt-Setup
-- [x] GitHub Repo erstellt (`Orionlab4313/hyponova.ch`, privat)
-- [x] Domain `hyponova.ch` registriert (Infomaniak, Kunden-Account)
-- [x] Supabase Projekt erstellt (Ref: `dqryxcdwvuborlayjain`, Region: Zürich, Free Plan)
-- [x] Supabase Tabelle `contact_requests` erstellt
-- [x] Next.js 16 Projekt mit TypeScript + Tailwind CSS 4 aufgesetzt
-- [x] Vercel Deployment konfiguriert (automatisch via GitHub)
+## Phase 1–5: Website-Grundlagen (abgeschlossen)
+- [x] Projekt-Setup (GitHub, Supabase, Vercel, Domain)
+- [x] Homepage, Header, Footer, WhatsApp Button, ScrollReveal
+- [x] Alle Seiten: Über uns, FAQ, Kontakt, Termin, AGB, Datenschutz, Impressum
+- [x] Passwort-Schutz (Middleware, Cookie, Under Construction)
+- [x] PageSpeed-Optimierungen, Barrierefreiheit
 
-## Phase 2: Grundstruktur & Homepage
-- [x] 10 Seiten/Routes angelegt
-- [x] Header — Sticky, Desktop + Mobile Nav, animierter Unterstrich (framer-motion)
-- [x] Footer — Dark Theme, 4-Spalten, alle Links
-- [x] WhatsApp Floating Button — Expandable Menu
-- [x] Übersetzungen DE + EN vorbereitet (i18n/translations.ts)
-- [x] Homepage komplett: Hero, Partner-Logo Marquee (9 Logos), Services, Rechner-Teaser (CountUp), Vorteile-Grid, 3-Schritte Prozess, Testimonial, CTA
-- [x] UI-Komponenten: ScrollReveal (6 Varianten), CountUp, LogoMarquee, Accordion
+## Phase 6: Admin Dashboard & CRM ✅ FERTIG
+- [x] Admin Login schliessbar (X-Button, zurück zur Website)
+- [x] **Dashboard** — Statistik-Karten (Nachrichten, Kontakte, Termine, Abschlussrate), letzte Nachrichten/Termine/Kontakte
+- [x] **Nachrichten** — Kontaktanfragen lesen, inline per E-Mail antworten (via Supabase Edge Function SMTP), als Kontakt anlegen, löschen
+- [x] **Kontakte/Leads** — Listenansicht mit Status-Badges, Filter, Bearbeiten/Löschen, Formular-Modal
+- [x] **Kalender** — Monatsansicht, Termine als farbige Badges, Tag anklicken → Detail-Panel mit Kundendaten, Bearbeiten/Löschen, E-Mail an Kunden
+- [x] **Verfügbarkeit** — 2 Tabs:
+  - Öffnungszeiten: Wochentage ein/aus, 2 Zeitfenster pro Tag (Pause/Split), rechts ausgerichtet
+  - Kalender: Monatsansicht, Tage/Stunden blockieren per Klick, Legende
+- [x] **Pipeline** — Kanban-Board (Drag & Drop)
+- [x] **Dokumente** — Platzhalter (kommt später)
+- [x] Sidebar togglebar, alle Seiten mobile-responsive, max-width 1100px
 
-## Phase 3: Passwort-Schutz
-- [x] Middleware-basierter Schutz für gesamte Website
-- [x] "Under Construction" Landing Page
-- [x] Cookie-Auth (30 Tage), API-Route `/api/auth`
+## Phase 7: Infomaniak Integration ✅ FERTIG
+- [x] **Supabase Edge Function** `on-booking` (V14) — zentral für alle Integrationen
+- [x] **E-Mail** via SMTP (mail.infomaniak.com:587, info@hyponova.ch)
+  - Buchungsbestätigung mit ICS-Anhang
+  - Terminverschiebung mit neuem ICS
+  - Terminabsage mit Grund
+  - Kontaktformular-Bestätigung
+  - Inline-Antwort aus Admin Nachrichten
+- [x] **CalDAV** Kalender-Sync (Termine → Simons Infomaniak Kalender, Europe/Zurich Zeitzone)
+- [x] **CardDAV** Kontakte-Sync (Kunden → Simons Infomaniak Kontakte)
+- [x] Alle Credentials als Supabase Secrets (nicht auf Vercel)
 
-## Phase 4: Platzhalter-Seiten ausgebaut
-- [x] Über uns, FAQ, Kontakt, Termin, AGB, Datenschutz, Impressum
-
-## Phase 5: Optimierungen
-- [x] Zoom deaktiviert, Telefonnummer überall, Animationen beschleunigt
-- [x] PageSpeed-Fixes: WCAG AA, Meta, noindex auf Login
-
-## Phase 6: Admin Dashboard & CRM (01.04.2026)
-- [x] Admin Login schliessbar (X-Button)
-- [x] Kontaktformular → Supabase (`contact_requests` Tabelle)
-- [x] Admin Nachrichten-Seite (Anfragen lesen, antworten, als Kontakt anlegen)
-- [x] Terminbuchung mit Kalender, Zeitslots & Buchungsformular
-- [x] Admin Verfügbarkeit (Wochentage, blockierte Tage/Stunden)
-- [x] Admin Kalender als Monatsansicht (Termine, Detail-Panel, Bearbeiten/Löschen)
-- [x] Dashboard mit Nachrichten-Statistik
-- [x] Admin Sidebar togglebar auf Desktop & Mobile
-- [x] Alle Admin-Seiten mobile-responsive
-
-## Phase 7: Infomaniak Integration (01.04.2026)
-- [x] Supabase Edge Function `on-booking` für alle Integrationen
-- [x] E-Mail-Versand via SMTP (mail.infomaniak.com) mit HTML-Vorlagen
-- [x] CalDAV Kalender-Sync (Termine in Simons Infomaniak Kalender)
-- [x] CardDAV Kontakte-Sync (Kunden in Simons Infomaniak Kontakte)
-- [x] ICS-Datei als E-Mail-Anhang (Kunde kann Termin in eigenen Kalender speichern)
-- [x] Zeitzone Europe/Zurich korrekt im Kalender
-- [x] E-Mail-Vorlagen: Buchungsbestätigung, Verschiebung, Absage, Kontaktformular
-- [x] Infomaniak Webmail-Link im Admin für manuelle E-Mails
+## Phase 8: Verfügbarkeit persistent ✅ FERTIG
+- [x] Supabase-Tabellen: `availability` (mit slot_index für 2 Zeitfenster/Tag) + `blocked_dates`
+- [x] Availability-Store liest/schreibt direkt aus Supabase (kein Memory/localStorage)
+- [x] Blockierte Tage/Stunden synchronisiert mit Kundenseite
+- [x] Kundenseite: Blockierte/inaktive Tage ausgegraut, nicht anklickbar
+- [x] Booking-API generiert Slots aus allen aktiven Zeitfenstern pro Tag
 
 ---
 
@@ -60,19 +49,29 @@
 
 ### Frontend (Vercel)
 - Next.js 16 + TypeScript + Tailwind CSS 4
-- Keine Credentials auf Vercel (ausser Supabase Keys)
+- Keine Credentials auf Vercel (ausser Supabase Keys + ADMIN_PASSWORD)
+- Middleware: Passwort-Schutz für öffentliche Seiten, alle /api/* frei
 
 ### Backend (Supabase)
-- **Datenbank**: leads, appointments, contact_requests
-- **Edge Function**: `on-booking` — E-Mail, CalDAV, CardDAV
+- **Datenbank**: leads, appointments, contact_requests, availability, blocked_dates
+- **Edge Function**: `on-booking` — E-Mail (SMTP), CalDAV, CardDAV, Reply
 - **Secrets**: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, CALDAV_USER, CALDAV_PASS, CALDAV_CALENDAR_URL, CARDDAV_ADDRESSBOOK_URL
-- **Storage**: logos Bucket (public) — Partner + HYPONOVA Logo
+- **Storage**: logos Bucket (public)
+- **MCP**: `mcp__supabase-hyponova__*` (Simons Account, für Edge Functions + SQL)
 
 ### Infomaniak
-- **E-Mail**: info@hyponova.ch via SMTP (mail.infomaniak.com:587)
-- **Kalender**: CalDAV (sync.infomaniak.com) — Simon Topalli Kalender
-- **Kontakte**: CardDAV (sync.infomaniak.com) — Simon Topalli Adressbuch
-- **Webmail**: ksuite.infomaniak.com/1745676/mail
+- **E-Mail**: info@hyponova.ch (Passwort: Admin.Simon.4313!)
+- **CalDAV**: ST07312 / nCk8AYvrg7FUouEg
+- **Kalender-URL**: https://sync.infomaniak.com/calendars/ST07312/b5c18253-12b3-4eb0-8bb6-143e6f639fef/
+- **Kontakte-URL**: https://sync.infomaniak.com/addressbooks/ST07312/b4f935a8-0005-4550-8219-bad56b33b084/
+- **Webmail**: https://ksuite.infomaniak.com/1745676/mail
+
+### Workflows
+1. **Kunde bucht Termin** → Supabase (leads + appointments) → Edge Function → E-Mail mit ICS + CalDAV Event + CardDAV Kontakt
+2. **Admin verschiebt Termin** → Supabase Update → Edge Function → Verschiebungs-E-Mail mit neuem ICS + CalDAV Update
+3. **Admin löscht Termin** → Supabase Delete → Edge Function → Absage-E-Mail + CalDAV Delete
+4. **Kunde sendet Kontaktformular** → Supabase (contact_requests) → Edge Function → Bestätigungs-E-Mail + CardDAV Kontakt
+5. **Admin antwortet auf Nachricht** → Edge Function → Antwort-E-Mail im HYPONOVA-Design
 
 ---
 
@@ -83,13 +82,12 @@
 | Hypothekenrechner (Belehnung + Tragbarkeit) | Ausstehend |
 | Ablösungs-Prozess (5-stufiger Fragebogen) | Ausstehend |
 | Neukauf-Prozess | Ausstehend |
-| Datei-Upload im Kontaktformular | Ausstehend |
+| Datei-Upload (Supabase Storage) | Ausstehend |
 | i18n in Komponenten integrieren | Ausstehend |
+| SEO (Schema.org, Sitemap) | Ausstehend |
 | Gründer-Foto für Über-uns | Vom Kunden nötig |
 | UID-Nummer für Impressum | Vom Kunden nötig |
 | AGB/Datenschutz vom Anwalt prüfen | Vom Kunden nötig |
-| SEO (Schema.org, Sitemap) | Ausstehend |
-| Responsive Testing | Ausstehend |
 
 ---
 
@@ -98,6 +96,6 @@
 - **Admin**: hyponova.ch/admin (Passwort: HypoAdmin2026!)
 - **Git**: Orionlab4313/hyponova.ch (Email: 224979510+Orionlab4313@users.noreply.github.com)
 - **Vercel**: hyponova / info-35941487 (Pro Trial, läuft ab ~10.04.2026)
-- **Supabase**: dqryxcdwvuborlayjain (info@hyponova.ch Account, MCP verbunden)
+- **Supabase**: dqryxcdwvuborlayjain (info@hyponova.ch Account, MCP: mcp__supabase-hyponova__)
 - **Infomaniak Mail**: info@hyponova.ch
 - **Infomaniak CalDAV**: ST07312 / sync.infomaniak.com

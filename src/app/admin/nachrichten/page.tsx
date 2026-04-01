@@ -70,7 +70,7 @@ export default function NachrichtenPage() {
         </p>
       </div>
 
-      <div className="admin-grid-2col" style={{ display: "grid", gridTemplateColumns: selected ? "minmax(0, 1fr) minmax(0, 1fr)" : "1fr", gap: 12 }}>
+      <div className="admin-grid-2col" style={{ display: "grid", gridTemplateColumns: selected ? "minmax(0, 2fr) minmax(0, 3fr)" : "1fr", gap: 12 }}>
         {/* Messages List */}
         <div style={{ display: "grid", gap: 6 }}>
           {messages.length === 0 ? (

@@ -159,26 +159,17 @@ export default function AdminDashboard() {
           {recentLeads.length === 0 ? (
             <p style={{ fontSize: 12, color: "#999" }}>Noch keine Kontakte vorhanden</p>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
-              {recentLeads.map((lead: any) => (
-                <div key={lead.id} style={{ padding: 10, borderRadius: 6, border: "1px solid #f0f0f0" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <p style={{ fontSize: 13, fontWeight: 500, margin: 0 }}>{lead.first_name} {lead.last_name}</p>
-                    <span style={{
-                      fontSize: 10,
-                      padding: "2px 7px",
-                      borderRadius: 10,
-                      background: `${statusColors[lead.status] || "#888"}20`,
-                      color: statusColors[lead.status] || "#888",
-                      fontWeight: 500,
-                    }}>
-                      {lead.status}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: 11, color: "#888", margin: "3px 0 0" }}>{lead.email || lead.phone}</p>
+            recentLeads.map((lead: any) => (
+              <div key={lead.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: "1px solid #f0f0f0" }}>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 500, margin: 0 }}>{lead.first_name} {lead.last_name}</p>
+                  <p style={{ fontSize: 11, color: "#888", margin: "1px 0 0" }}>{lead.email || lead.phone}</p>
                 </div>
-              ))}
-            </div>
+                <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 10, background: `${statusColors[lead.status] || "#888"}20`, color: statusColors[lead.status] || "#888", fontWeight: 500 }}>
+                  {lead.status}
+                </span>
+              </div>
+            ))
           )}
         </div>
       </div>

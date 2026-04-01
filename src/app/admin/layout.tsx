@@ -177,7 +177,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </header>
 
             {/* Page content */}
-            <main style={{ padding: 16 }}>
+            <main style={{ padding: 16, maxWidth: 1100, margin: "0 auto" }}>
               {children}
             </main>
           </div>

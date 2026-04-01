@@ -124,13 +124,13 @@ export default function VerfuegbarkeitPage() {
                   </button>
                   <span style={{ fontSize: 12, fontWeight: 500, width: 80, color: slot.active ? "#1a1a1a" : "#999", flexShrink: 0 }}>{WEEKDAY_NAMES[slot.day]}</span>
                   {slot.active ? (
-                    <div className="admin-stack-mobile" style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <input type="time" value={slot.start} onChange={(e) => updateSlot(slot.day, "start", e.target.value)} style={{ ...inputStyle, width: 100 }} />
-                      <span style={{ color: "#999", fontSize: 12 }}>bis</span>
-                      <input type="time" value={slot.end} onChange={(e) => updateSlot(slot.day, "end", e.target.value)} style={{ ...inputStyle, width: 100 }} />
+                    <div className="admin-stack-mobile" style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: "auto" }}>
+                      <input type="time" value={slot.start} onChange={(e) => updateSlot(slot.day, "start", e.target.value)} style={{ ...inputStyle, width: 90 }} />
+                      <span style={{ color: "#999", fontSize: 11 }}>–</span>
+                      <input type="time" value={slot.end} onChange={(e) => updateSlot(slot.day, "end", e.target.value)} style={{ ...inputStyle, width: 90 }} />
                     </div>
                   ) : (
-                    <span style={{ fontSize: 12, color: "#999" }}>Nicht verfügbar</span>
+                    <span style={{ fontSize: 12, color: "#999", marginLeft: "auto" }}>Nicht verfügbar</span>
                   )}
                 </div>
               ))}

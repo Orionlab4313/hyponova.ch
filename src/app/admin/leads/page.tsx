@@ -158,19 +158,19 @@ export default function LeadsPage() {
           <p style={{ padding: 20, textAlign: "center", color: "#999", fontSize: 13, margin: 0 }}>Keine Kontakte gefunden</p>
         ) : (
           filtered.map((lead) => (
-            <div key={lead.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 14px", borderBottom: "1px solid #f0f0f0", gap: 8 }}>
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <div key={lead.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "10px 14px", borderBottom: "1px solid #f0f0f0", gap: 8 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
                   <span style={{ fontSize: 13, fontWeight: 500 }}>{lead.first_name} {lead.last_name}</span>
                   <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 10, background: `${statusColors[lead.status]}15`, color: statusColors[lead.status], fontWeight: 600 }}>
                     {lead.status}
                   </span>
                 </div>
-                <p style={{ fontSize: 11, color: "#888", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {lead.email || ""}{lead.email && lead.phone ? " · " : ""}{lead.phone || ""}{lead.source ? ` · ${lead.source}` : ""}
-                </p>
+                {lead.email && <p style={{ fontSize: 11, color: "#888", margin: "1px 0 0" }}>{lead.email}</p>}
+                {lead.phone && <p style={{ fontSize: 11, color: "#888", margin: "1px 0 0" }}>{lead.phone}</p>}
+                {lead.source && <p style={{ fontSize: 10, color: "#aaa", margin: "1px 0 0" }}>{lead.source}</p>}
               </div>
-              <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+              <div style={{ display: "flex", gap: 8, flexShrink: 0, paddingTop: 2 }}>
                 <button onClick={() => openEdit(lead)} style={{ fontSize: 11, color: "#3b82f6", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Bearbeiten</button>
                 <button onClick={() => deleteLead(lead.id)} style={{ fontSize: 11, color: "#ef4444", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Löschen</button>
               </div>

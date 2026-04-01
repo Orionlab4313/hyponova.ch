@@ -48,9 +48,9 @@ export default function PipelinePage() {
 
   return (
     <div>
-      <p style={{ fontSize: 14, color: "#888", marginBottom: 24 }}>Ziehen Sie Kontakte zwischen den Spalten um den Status zu ändern</p>
+      <p style={{ fontSize: 12, color: "#888", marginBottom: 12, marginTop: 0 }}>Ziehen Sie Kontakte zwischen den Spalten um den Status zu ändern</p>
 
-      <div className="admin-grid-5col" style={{ display: "grid", gridTemplateColumns: `repeat(${columns.length}, 1fr)`, gap: 16, minHeight: 500, overflowX: "auto" }}>
+      <div className="admin-grid-5col" style={{ display: "grid", gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))`, gap: 8, overflowX: "auto" }}>
         {columns.map((col) => {
           const colLeads = leads.filter((l) => l.status === col.id);
           return (
@@ -58,17 +58,17 @@ export default function PipelinePage() {
               key={col.id}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => handleDrop(e, col.id)}
-              style={{ background: "#f5f5f5", borderRadius: 12, padding: 12, minHeight: 400 }}
+              style={{ background: "#f5f5f5", borderRadius: 8, padding: 8, minHeight: 200 }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, padding: "0 4px" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: col.color }} />
-                  <span style={{ fontSize: 13, fontWeight: 600 }}>{col.label}</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, padding: "0 2px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                  <div style={{ width: 7, height: 7, borderRadius: "50%", background: col.color }} />
+                  <span style={{ fontSize: 11, fontWeight: 600 }}>{col.label}</span>
                 </div>
-                <span style={{ fontSize: 12, color: "#888", background: "#e5e5e5", borderRadius: 10, padding: "2px 8px" }}>{colLeads.length}</span>
+                <span style={{ fontSize: 10, color: "#888", background: "#e5e5e5", borderRadius: 8, padding: "1px 6px" }}>{colLeads.length}</span>
               </div>
 
-              <div style={{ display: "grid", gap: 8 }}>
+              <div style={{ display: "grid", gap: 5 }}>
                 {colLeads.map((lead) => (
                   <div
                     key={lead.id}
@@ -77,18 +77,18 @@ export default function PipelinePage() {
                     onDragEnd={() => setDragId(null)}
                     style={{
                       background: "#fff",
-                      borderRadius: 8,
-                      padding: 12,
+                      borderRadius: 6,
+                      padding: "8px 10px",
                       border: "1px solid #e5e5e5",
                       cursor: "grab",
                       opacity: dragId === lead.id ? 0.5 : 1,
                       transition: "opacity 0.15s",
                     }}
                   >
-                    <p style={{ fontSize: 14, fontWeight: 500, margin: 0 }}>{lead.first_name} {lead.last_name}</p>
-                    {lead.email && <p style={{ fontSize: 12, color: "#888", margin: "4px 0 0" }}>{lead.email}</p>}
-                    {lead.phone && <p style={{ fontSize: 12, color: "#888", margin: "2px 0 0" }}>{lead.phone}</p>}
-                    {lead.notes && <p style={{ fontSize: 11, color: "#aaa", margin: "6px 0 0", fontStyle: "italic" }}>{lead.notes.slice(0, 50)}{lead.notes.length > 50 ? "..." : ""}</p>}
+                    <p style={{ fontSize: 12, fontWeight: 500, margin: 0 }}>{lead.first_name} {lead.last_name}</p>
+                    {lead.email && <p style={{ fontSize: 11, color: "#888", margin: "2px 0 0" }}>{lead.email}</p>}
+                    {lead.phone && <p style={{ fontSize: 11, color: "#888", margin: "1px 0 0" }}>{lead.phone}</p>}
+                    {lead.notes && <p style={{ fontSize: 10, color: "#aaa", margin: "3px 0 0", fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{lead.notes.slice(0, 50)}{lead.notes.length > 50 ? "..." : ""}</p>}
                   </div>
                 ))}
               </div>

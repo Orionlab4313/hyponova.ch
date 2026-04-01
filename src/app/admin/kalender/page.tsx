@@ -169,35 +169,35 @@ export default function KalenderPage() {
     else setCurrentMonth(currentMonth + 1);
   }
 
-  const inputStyle = { width: "100%", padding: "10px 12px", fontSize: 14, border: "1px solid #ddd", borderRadius: 8, outline: "none", boxSizing: "border-box" as const };
+  const inputStyle = { width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid #ddd", borderRadius: 6, outline: "none", boxSizing: "border-box" as const };
 
   return (
     <div>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button onClick={prevMonth} style={{ background: "none", border: "1px solid #e5e5e5", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 13 }}>←</button>
-          <h3 style={{ fontSize: 15, fontWeight: 600, margin: 0, textAlign: "center" }}>{MONTHS[currentMonth]} {currentYear}</h3>
-          <button onClick={nextMonth} style={{ background: "none", border: "1px solid #e5e5e5", borderRadius: 6, padding: "6px 10px", cursor: "pointer", fontSize: 13 }}>→</button>
-          <button onClick={() => { setCurrentMonth(new Date().getMonth()); setCurrentYear(new Date().getFullYear()); setSelectedDate(today); }} style={{ fontSize: 12, color: "#c8553d", background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}>Heute</button>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12, flexWrap: "wrap", gap: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <button onClick={prevMonth} style={{ background: "none", border: "1px solid #e5e5e5", borderRadius: 5, padding: "4px 8px", cursor: "pointer", fontSize: 12 }}>←</button>
+          <h3 style={{ fontSize: 14, fontWeight: 600, margin: 0, textAlign: "center" }}>{MONTHS[currentMonth]} {currentYear}</h3>
+          <button onClick={nextMonth} style={{ background: "none", border: "1px solid #e5e5e5", borderRadius: 5, padding: "4px 8px", cursor: "pointer", fontSize: 12 }}>→</button>
+          <button onClick={() => { setCurrentMonth(new Date().getMonth()); setCurrentYear(new Date().getFullYear()); setSelectedDate(today); }} style={{ fontSize: 11, color: "#c8553d", background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}>Heute</button>
         </div>
-        <button onClick={() => openCreate()} style={{ padding: "8px 16px", fontSize: 13, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer" }}>
+        <button onClick={() => openCreate()} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>
           + Termin
         </button>
       </div>
 
       {/* Calendar Grid */}
-      <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e5e5", overflow: "hidden", marginBottom: 24, width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>
+      <div style={{ background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5", overflow: "hidden", marginBottom: 12, width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>
         {/* Weekday headers */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", borderBottom: "1px solid #e5e5e5" }}>
+        <div className="admin-calendar-grid" style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", borderBottom: "1px solid #e5e5e5" }}>
           {WEEKDAYS.map((d) => (
-            <div key={d} style={{ padding: "8px 0", textAlign: "center", fontSize: 11, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: "0.05em" }}>{d}</div>
+            <div key={d} style={{ padding: "5px 0", textAlign: "center", fontSize: 10, fontWeight: 600, color: "#888", textTransform: "uppercase", letterSpacing: "0.05em" }}>{d}</div>
           ))}
         </div>
         {/* Days */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))" }}>
+        <div className="admin-calendar-grid" style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))" }}>
           {days.map((day, i) => {
-            if (day === null) return <div key={`e-${i}`} style={{ minHeight: 60, borderRight: "1px solid #f0f0f0", borderBottom: "1px solid #f0f0f0", background: "#fafafa" }} />;
+            if (day === null) return <div key={`e-${i}`} style={{ minHeight: 52, borderRight: "1px solid #f0f0f0", borderBottom: "1px solid #f0f0f0", background: "#fafafa" }} />;
 
             const dateStr = getDateStr(day);
             const isToday = dateStr === today;
@@ -209,8 +209,8 @@ export default function KalenderPage() {
                 key={day}
                 onClick={() => setSelectedDate(dateStr)}
                 style={{
-                  minHeight: 60,
-                  padding: 4,
+                  minHeight: 52,
+                  padding: 3,
                   borderRight: "1px solid #f0f0f0",
                   borderBottom: "1px solid #f0f0f0",
                   cursor: "pointer",
@@ -220,11 +220,11 @@ export default function KalenderPage() {
                 }}
               >
                 <div style={{
-                  width: 24, height: 24, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 12, fontWeight: isToday ? 700 : 400,
+                  width: 22, height: 22, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 11, fontWeight: isToday ? 700 : 400,
                   background: isToday ? "#c8553d" : "transparent",
                   color: isToday ? "#fff" : isSelected ? "#c8553d" : "#1a1a1a",
-                  marginBottom: 2,
+                  marginBottom: 1,
                 }}>
                   {day}
                 </div>
@@ -258,20 +258,20 @@ export default function KalenderPage() {
       </div>
 
       {/* Selected Day Detail */}
-      <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e5e5", padding: 24 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <h3 style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>
+      <div style={{ background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5", padding: "12px 14px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <h3 style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>
             {formatDateDE(selectedDate)}
           </h3>
-          <button onClick={() => openCreate(selectedDate)} style={{ fontSize: 13, color: "#c8553d", background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}>
+          <button onClick={() => openCreate(selectedDate)} style={{ fontSize: 12, color: "#c8553d", background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}>
             + Termin hinzufügen
           </button>
         </div>
 
         {selectedDayAppointments.length === 0 ? (
-          <p style={{ fontSize: 13, color: "#999", margin: 0 }}>Keine Termine an diesem Tag</p>
+          <p style={{ fontSize: 12, color: "#999", margin: 0 }}>Keine Termine an diesem Tag</p>
         ) : (
-          <div style={{ display: "grid", gap: 10 }}>
+          <div style={{ display: "grid", gap: 6 }}>
             {selectedDayAppointments.map((appt) => {
               const lead = getLeadForAppt(appt);
               const isExpanded = selectedAppt?.id === appt.id;
@@ -282,52 +282,52 @@ export default function KalenderPage() {
                     onClick={() => setSelectedAppt(isExpanded ? null : appt)}
                     style={{
                       display: "flex", justifyContent: "space-between", alignItems: "center",
-                      padding: "12px 16px", borderRadius: 10,
+                      padding: "8px 12px", borderRadius: 6,
                       border: `1px solid ${isExpanded ? "#c8553d" : "#e5e5e5"}`,
                       background: isExpanded ? "#faf8f7" : "#fff",
                       cursor: "pointer", transition: "all 0.15s",
                     }}
                   >
-                    <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-                      <div style={{ width: 3, height: 36, borderRadius: 2, background: statusColors[appt.status] || "#888" }} />
+                    <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                      <div style={{ width: 3, height: 28, borderRadius: 2, background: statusColors[appt.status] || "#888" }} />
                       <div>
-                        <p style={{ fontSize: 14, fontWeight: 500, margin: 0 }}>{appt.title}</p>
-                        <p style={{ fontSize: 12, color: "#888", margin: "2px 0 0" }}>
+                        <p style={{ fontSize: 13, fontWeight: 500, margin: 0 }}>{appt.title}</p>
+                        <p style={{ fontSize: 11, color: "#888", margin: "1px 0 0" }}>
                           {appt.time_start?.slice(0, 5)} – {appt.time_end?.slice(0, 5)}
                           {lead && ` · ${lead.first_name} ${lead.last_name}`}
                         </p>
                       </div>
                     </div>
-                    <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 12, background: `${statusColors[appt.status]}15`, color: statusColors[appt.status], fontWeight: 600 }}>
+                    <span style={{ fontSize: 10, padding: "2px 8px", borderRadius: 10, background: `${statusColors[appt.status]}15`, color: statusColors[appt.status], fontWeight: 600 }}>
                       {statusLabels[appt.status] || appt.status}
                     </span>
                   </div>
 
                   {/* Expanded Detail */}
                   {isExpanded && (
-                    <div style={{ padding: "16px 16px 16px 34px", borderLeft: `3px solid ${statusColors[appt.status]}`, marginLeft: 16 }}>
+                    <div style={{ padding: "10px 12px 10px 26px", borderLeft: `3px solid ${statusColors[appt.status]}`, marginLeft: 12 }}>
                       {appt.description && (
-                        <div style={{ background: "#f9f9f9", borderRadius: 8, padding: 12, marginBottom: 12 }}>
-                          <p style={{ fontSize: 12, color: "#888", margin: "0 0 4px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Beschreibung</p>
-                          <p style={{ fontSize: 13, margin: 0, whiteSpace: "pre-wrap", color: "#333" }}>{appt.description}</p>
+                        <div style={{ background: "#f9f9f9", borderRadius: 6, padding: 10, marginBottom: 8 }}>
+                          <p style={{ fontSize: 11, color: "#888", margin: "0 0 3px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Beschreibung</p>
+                          <p style={{ fontSize: 12, margin: 0, whiteSpace: "pre-wrap", color: "#333" }}>{appt.description}</p>
                         </div>
                       )}
 
                       {lead && (
-                        <div style={{ border: "1px solid #e5e5e5", borderRadius: 8, padding: 12, marginBottom: 12 }}>
-                          <p style={{ fontSize: 12, color: "#888", margin: "0 0 8px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Kundendaten</p>
-                          <p style={{ fontSize: 13, fontWeight: 500, margin: "0 0 4px" }}>{lead.first_name} {lead.last_name}</p>
-                          {lead.email && <p style={{ fontSize: 12, margin: "0 0 2px" }}><a href={`mailto:${lead.email}`} style={{ color: "#3b82f6", textDecoration: "none" }}>{lead.email}</a></p>}
-                          {lead.phone && <p style={{ fontSize: 12, margin: 0 }}><a href={`tel:${lead.phone}`} style={{ color: "#3b82f6", textDecoration: "none" }}>{lead.phone}</a></p>}
+                        <div style={{ border: "1px solid #e5e5e5", borderRadius: 6, padding: 10, marginBottom: 8 }}>
+                          <p style={{ fontSize: 11, color: "#888", margin: "0 0 4px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Kundendaten</p>
+                          <p style={{ fontSize: 12, fontWeight: 500, margin: "0 0 2px" }}>{lead.first_name} {lead.last_name}</p>
+                          {lead.email && <p style={{ fontSize: 11, margin: "0 0 1px" }}><a href={`mailto:${lead.email}`} style={{ color: "#3b82f6", textDecoration: "none" }}>{lead.email}</a></p>}
+                          {lead.phone && <p style={{ fontSize: 11, margin: 0 }}><a href={`tel:${lead.phone}`} style={{ color: "#3b82f6", textDecoration: "none" }}>{lead.phone}</a></p>}
                         </div>
                       )}
 
-                      <div style={{ display: "flex", gap: 8 }}>
-                        <button onClick={() => openEdit(appt)} style={{ padding: "8px 14px", fontSize: 12, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Bearbeiten</button>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        <button onClick={() => openEdit(appt)} style={{ padding: "5px 10px", fontSize: 11, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 5, cursor: "pointer" }}>Bearbeiten</button>
                         {lead?.email && (
-                          <a href={`https://ksuite.infomaniak.com/1745676/mail/?to=${encodeURIComponent(lead.email)}&subject=${encodeURIComponent(`Ihr Termin bei HYPONOVA - ${formatDateDE(appt.date)}`)}`} target="_blank" rel="noopener noreferrer" style={{ padding: "8px 14px", fontSize: 12, fontWeight: 500, background: "#f0f9ff", color: "#3b82f6", border: "1px solid #bfdbfe", borderRadius: 6, textDecoration: "none" }}>E-Mail</a>
+                          <a href={`https://ksuite.infomaniak.com/1745676/mail/?to=${encodeURIComponent(lead.email)}&subject=${encodeURIComponent(`Ihr Termin bei HYPONOVA - ${formatDateDE(appt.date)}`)}`} target="_blank" rel="noopener noreferrer" style={{ padding: "5px 10px", fontSize: 11, fontWeight: 500, background: "#f0f9ff", color: "#3b82f6", border: "1px solid #bfdbfe", borderRadius: 5, textDecoration: "none" }}>E-Mail</a>
                         )}
-                        <button onClick={() => deleteAppointment(appt)} style={{ padding: "8px 14px", fontSize: 12, color: "#ef4444", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 6, cursor: "pointer" }}>Löschen</button>
+                        <button onClick={() => deleteAppointment(appt)} style={{ padding: "5px 10px", fontSize: 11, color: "#ef4444", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 5, cursor: "pointer" }}>Löschen</button>
                       </div>
                     </div>
                   )}
@@ -341,37 +341,37 @@ export default function KalenderPage() {
       {/* Create/Edit Form Modal */}
       {showForm && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div style={{ background: "#fff", borderRadius: 16, padding: 32, width: "100%", maxWidth: 500, maxHeight: "90vh", overflow: "auto" }}>
-            <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20 }}>{editingAppt ? "Termin bearbeiten" : "Neuer Termin"}</h3>
+          <div className="admin-modal" style={{ background: "#fff", borderRadius: 10, padding: "20px", width: "100%", maxWidth: "min(500px, calc(100vw - 32px))", maxHeight: "90vh", overflow: "auto" }}>
+            <h3 style={{ fontSize: 15, fontWeight: 600, marginBottom: 14, marginTop: 0 }}>{editingAppt ? "Termin bearbeiten" : "Neuer Termin"}</h3>
             <form onSubmit={saveAppointment}>
-              <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>Titel *</label>
+              <div style={{ marginBottom: 10 }}>
+                <label style={{ fontSize: 11, color: "#888", display: "block", marginBottom: 3 }}>Titel *</label>
                 <input required value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} style={inputStyle} placeholder="z.B. Erstberatung Hypothek" />
               </div>
-              <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>Kontakt</label>
+              <div style={{ marginBottom: 10 }}>
+                <label style={{ fontSize: 11, color: "#888", display: "block", marginBottom: 3 }}>Kontakt</label>
                 <select value={form.lead_id} onChange={(e) => setForm({ ...form, lead_id: e.target.value })} style={{ ...inputStyle, background: "#fff" }}>
                   <option value="">– Kein Kontakt –</option>
                   {leads.map((l) => <option key={l.id} value={l.id}>{l.first_name} {l.last_name}</option>)}
                 </select>
               </div>
-              <div className="admin-grid-3col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 12 }}>
+              <div className="admin-grid-3col" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)", gap: 8, marginBottom: 10 }}>
                 <div>
-                  <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>Datum *</label>
+                  <label style={{ fontSize: 11, color: "#888", display: "block", marginBottom: 3 }}>Datum *</label>
                   <input required type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} style={inputStyle} />
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>Von *</label>
+                  <label style={{ fontSize: 11, color: "#888", display: "block", marginBottom: 3 }}>Von *</label>
                   <input required type="time" value={form.time_start} onChange={(e) => setForm({ ...form, time_start: e.target.value })} style={inputStyle} />
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>Bis *</label>
+                  <label style={{ fontSize: 11, color: "#888", display: "block", marginBottom: 3 }}>Bis *</label>
                   <input required type="time" value={form.time_end} onChange={(e) => setForm({ ...form, time_end: e.target.value })} style={inputStyle} />
                 </div>
               </div>
               {editingAppt && (
-                <div style={{ marginBottom: 12 }}>
-                  <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>Status</label>
+                <div style={{ marginBottom: 10 }}>
+                  <label style={{ fontSize: 11, color: "#888", display: "block", marginBottom: 3 }}>Status</label>
                   <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} style={{ ...inputStyle, background: "#fff" }}>
                     <option value="geplant">Geplant</option>
                     <option value="bestaetigt">Bestätigt</option>
@@ -380,13 +380,13 @@ export default function KalenderPage() {
                   </select>
                 </div>
               )}
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ fontSize: 12, color: "#888", display: "block", marginBottom: 4 }}>Beschreibung / Notizen</label>
-                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} style={{ ...inputStyle, resize: "vertical" }} placeholder="Details zum Termin..." />
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: 11, color: "#888", display: "block", marginBottom: 3 }}>Beschreibung / Notizen</label>
+                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} style={{ ...inputStyle, resize: "vertical" }} placeholder="Details zum Termin..." />
               </div>
-              <div style={{ display: "flex", gap: 12 }}>
-                <button type="submit" style={{ flex: 1, padding: 12, fontSize: 14, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer" }}>{editingAppt ? "Speichern" : "Erstellen"}</button>
-                <button type="button" onClick={() => { setShowForm(false); setEditingAppt(null); }} style={{ padding: "12px 20px", fontSize: 14, background: "#f5f5f5", border: "1px solid #ddd", borderRadius: 8, cursor: "pointer" }}>Abbrechen</button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button type="submit" style={{ flex: 1, padding: 9, fontSize: 13, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>{editingAppt ? "Speichern" : "Erstellen"}</button>
+                <button type="button" onClick={() => { setShowForm(false); setEditingAppt(null); }} style={{ padding: "9px 16px", fontSize: 13, background: "#f5f5f5", border: "1px solid #ddd", borderRadius: 6, cursor: "pointer" }}>Abbrechen</button>
               </div>
             </form>
           </div>

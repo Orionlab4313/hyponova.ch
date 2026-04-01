@@ -81,42 +81,42 @@ export default function AdminDashboard() {
   return (
     <div>
       {/* Stats Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 32 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 10, marginBottom: 16 }}>
         {statCards.map((stat) => (
           <Link key={stat.label} href={stat.href} style={{ textDecoration: "none" }}>
-            <div style={{ background: "#fff", borderRadius: 12, padding: 20, border: "1px solid #e5e5e5", transition: "box-shadow 0.2s" }}
+            <div style={{ background: "#fff", borderRadius: 8, padding: "12px 14px", border: "1px solid #e5e5e5", transition: "box-shadow 0.2s" }}
               onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.06)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "none"; }}
             >
-              <p style={{ fontSize: 12, color: "#888", textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>{stat.label}</p>
-              <p style={{ fontSize: 32, fontWeight: 600, color: stat.color, margin: "8px 0 0" }}>{stat.value}</p>
+              <p style={{ fontSize: 11, color: "#888", textTransform: "uppercase", letterSpacing: "0.05em", margin: 0 }}>{stat.label}</p>
+              <p style={{ fontSize: 26, fontWeight: 600, color: stat.color, margin: "4px 0 0", lineHeight: 1.1 }}>{stat.value}</p>
             </div>
           </Link>
         ))}
       </div>
 
-      <div className="admin-grid-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+      <div className="admin-grid-2col" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: 12 }}>
         {/* Recent Messages */}
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e5e5", padding: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>Neue Nachrichten</h3>
-            <Link href="/admin/nachrichten" style={{ fontSize: 12, color: "#c8553d", textDecoration: "none" }}>Alle anzeigen →</Link>
+        <div style={{ background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5", padding: "12px 14px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <h3 style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>Neue Nachrichten</h3>
+            <Link href="/admin/nachrichten" style={{ fontSize: 11, color: "#c8553d", textDecoration: "none" }}>Alle anzeigen →</Link>
           </div>
           {recentMessages.length === 0 ? (
-            <p style={{ fontSize: 13, color: "#999" }}>Noch keine Nachrichten eingegangen</p>
+            <p style={{ fontSize: 12, color: "#999" }}>Noch keine Nachrichten eingegangen</p>
           ) : (
             recentMessages.map((msg: any) => (
-              <div key={msg.id} style={{ padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
+              <div key={msg.id} style={{ padding: "7px 0", borderBottom: "1px solid #f0f0f0" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <p style={{ fontSize: 14, fontWeight: 500, margin: 0 }}>{msg.first_name} {msg.last_name}</p>
-                  <span style={{ fontSize: 11, color: "#999" }}>
+                  <p style={{ fontSize: 13, fontWeight: 500, margin: 0 }}>{msg.first_name} {msg.last_name}</p>
+                  <span style={{ fontSize: 10, color: "#999" }}>
                     {new Date(msg.created_at).toLocaleDateString("de-CH")}
                   </span>
                 </div>
-                <p style={{ fontSize: 12, color: "#c8553d", margin: "2px 0", fontWeight: 500 }}>
+                <p style={{ fontSize: 11, color: "#c8553d", margin: "1px 0", fontWeight: 500 }}>
                   {subjectLabels[msg.subject] || msg.subject}
                 </p>
-                <p style={{ fontSize: 12, color: "#888", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <p style={{ fontSize: 11, color: "#888", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {msg.message}
                 </p>
               </div>
@@ -125,25 +125,25 @@ export default function AdminDashboard() {
         </div>
 
         {/* Upcoming Appointments */}
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e5e5", padding: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>Nächste Termine</h3>
-            <Link href="/admin/kalender" style={{ fontSize: 12, color: "#c8553d", textDecoration: "none" }}>Alle anzeigen →</Link>
+        <div style={{ background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5", padding: "12px 14px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <h3 style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>Nächste Termine</h3>
+            <Link href="/admin/kalender" style={{ fontSize: 11, color: "#c8553d", textDecoration: "none" }}>Alle anzeigen →</Link>
           </div>
           {upcomingAppointments.length === 0 ? (
-            <p style={{ fontSize: 13, color: "#999" }}>Keine bevorstehenden Termine</p>
+            <p style={{ fontSize: 12, color: "#999" }}>Keine bevorstehenden Termine</p>
           ) : (
             upcomingAppointments.map((appt: any) => (
-              <div key={appt.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: "1px solid #f0f0f0" }}>
+              <div key={appt.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderBottom: "1px solid #f0f0f0" }}>
                 <div>
-                  <p style={{ fontSize: 14, fontWeight: 500, margin: 0 }}>{appt.title}</p>
-                  <p style={{ fontSize: 12, color: "#888", margin: "2px 0 0" }}>
+                  <p style={{ fontSize: 13, fontWeight: 500, margin: 0 }}>{appt.title}</p>
+                  <p style={{ fontSize: 11, color: "#888", margin: "1px 0 0" }}>
                     {appt.leads?.first_name} {appt.leads?.last_name}
                   </p>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <p style={{ fontSize: 13, fontWeight: 500, margin: 0 }}>{new Date(appt.date).toLocaleDateString("de-CH")}</p>
-                  <p style={{ fontSize: 12, color: "#888", margin: "2px 0 0" }}>{appt.time_start?.slice(0, 5)}</p>
+                  <p style={{ fontSize: 12, fontWeight: 500, margin: 0 }}>{new Date(appt.date).toLocaleDateString("de-CH")}</p>
+                  <p style={{ fontSize: 11, color: "#888", margin: "1px 0 0" }}>{appt.time_start?.slice(0, 5)}</p>
                 </div>
               </div>
             ))
@@ -151,23 +151,23 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Leads */}
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e5e5e5", padding: 20, gridColumn: "1 / -1" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>Letzte Kontakte</h3>
-            <Link href="/admin/leads" style={{ fontSize: 12, color: "#c8553d", textDecoration: "none" }}>Alle anzeigen →</Link>
+        <div style={{ background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5", padding: "12px 14px", gridColumn: "1 / -1" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <h3 style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>Letzte Kontakte</h3>
+            <Link href="/admin/leads" style={{ fontSize: 11, color: "#c8553d", textDecoration: "none" }}>Alle anzeigen →</Link>
           </div>
           {recentLeads.length === 0 ? (
-            <p style={{ fontSize: 13, color: "#999" }}>Noch keine Kontakte vorhanden</p>
+            <p style={{ fontSize: 12, color: "#999" }}>Noch keine Kontakte vorhanden</p>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 8 }}>
               {recentLeads.map((lead: any) => (
-                <div key={lead.id} style={{ padding: 12, borderRadius: 8, border: "1px solid #f0f0f0" }}>
+                <div key={lead.id} style={{ padding: 10, borderRadius: 6, border: "1px solid #f0f0f0" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <p style={{ fontSize: 14, fontWeight: 500, margin: 0 }}>{lead.first_name} {lead.last_name}</p>
+                    <p style={{ fontSize: 13, fontWeight: 500, margin: 0 }}>{lead.first_name} {lead.last_name}</p>
                     <span style={{
-                      fontSize: 11,
-                      padding: "3px 8px",
-                      borderRadius: 12,
+                      fontSize: 10,
+                      padding: "2px 7px",
+                      borderRadius: 10,
                       background: `${statusColors[lead.status] || "#888"}20`,
                       color: statusColors[lead.status] || "#888",
                       fontWeight: 500,
@@ -175,7 +175,7 @@ export default function AdminDashboard() {
                       {lead.status}
                     </span>
                   </div>
-                  <p style={{ fontSize: 12, color: "#888", margin: "4px 0 0" }}>{lead.email || lead.phone}</p>
+                  <p style={{ fontSize: 11, color: "#888", margin: "3px 0 0" }}>{lead.email || lead.phone}</p>
                 </div>
               ))}
             </div>

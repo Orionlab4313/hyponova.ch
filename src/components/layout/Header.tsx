@@ -208,14 +208,19 @@ export default function Header() {
                   {item.label}
                 </Link>
               ))}
-              <div className="pt-4 mt-4" style={{ borderTop: "1px solid #e5e5e5" }}>
+              <div className="pt-4 mt-4 flex items-center justify-between" style={{ borderTop: "1px solid #e5e5e5" }}>
+                <div className="flex items-center gap-2 px-4 text-[14px] font-medium">
+                  <button onClick={() => { setLang("de"); setMobileOpen(false); }} style={{ color: lang === "de" ? "#c8553d" : "#999", fontWeight: lang === "de" ? 600 : 400 }}>DE</button>
+                  <span style={{ color: "#ddd" }}>|</span>
+                  <button onClick={() => { setLang("en"); setMobileOpen(false); }} style={{ color: lang === "en" ? "#c8553d" : "#999", fontWeight: lang === "en" ? 600 : 400 }}>EN</button>
+                </div>
                 <Link
                   href="/termin"
-                  className="block w-full px-4 py-3 text-center text-[15px] font-medium text-white"
+                  className="px-6 py-3 text-center text-[14px] font-medium text-white"
                   style={{ backgroundColor: "#000", borderRadius: "8px" }}
                   onClick={() => setMobileOpen(false)}
                 >
-                  Termin buchen
+                  {lang === "en" ? "Book appointment" : "Termin buchen"}
                 </Link>
               </div>
             </nav>

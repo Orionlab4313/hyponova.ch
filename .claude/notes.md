@@ -1,6 +1,6 @@
 # HYPONOVA – Entwicklungsnotizen
 
-## Status: Admin Dashboard FERTIG — Stand 01.04.2026
+## Status: Admin + i18n FERTIG — Stand 02.04.2026
 
 ---
 
@@ -72,6 +72,17 @@
 3. **Admin löscht Termin** → Supabase Delete → Edge Function → Absage-E-Mail + CalDAV Delete
 4. **Kunde sendet Kontaktformular** → Supabase (contact_requests) → Edge Function → Bestätigungs-E-Mail + CardDAV Kontakt
 5. **Admin antwortet auf Nachricht** → Edge Function → Antwort-E-Mail im HYPONOVA-Design
+
+---
+
+## Phase 9: i18n DE/EN ✅ FERTIG
+- [x] I18nProvider mit Cookie-basiertem Sprachwechsel (1 Jahr)
+- [x] DE|EN Toggle im Header funktional mit Accent-Farbe (#c8553d)
+- [x] Alle öffentlichen Seiten übersetzt: Homepage, Kontakt, Termin, FAQ, Dienstleistungen, Über uns, Rechner
+- [x] Header, Footer, LogoMarquee übersetzt
+- [x] E-Mail-Vorlagen zweisprachig (Edge Function V15 mit lang-Parameter)
+- [x] Booking + Contact API senden Sprache an Edge Function
+- [x] **WICHTIG**: Bei neuen Features IMMER sofort DE + EN erstellen!
 
 ---
 

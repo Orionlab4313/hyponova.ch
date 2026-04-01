@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { getAvailability, getBlockedEntries } from "@/lib/availability-store";
+import { sendBookingConfirmation } from "@/lib/infomaniak-email";
+import { createCalendarEvent } from "@/lib/infomaniak-calendar";
+import { createContact } from "@/lib/infomaniak-contacts";
 
 const SLOT_DURATION = 60;
 
@@ -104,7 +107,7 @@ export async function POST(request: NextRequest) {
     .from("appointments")
     .insert({
       lead_id: lead?.id || null,
-      title: `Beratungsgespräch — ${first_name} ${last_name}`,
+      title: `Beratungsgespräch - ${first_name} ${last_name}`,
       description: notes || "",
       date,
       time_start: time + ":00",
@@ -116,15 +119,39 @@ export async function POST(request: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Send confirmation email + sync calendar/contacts
+  // Directly call integrations (no internal fetch)
   try {
-    const baseUrl = request.nextUrl.origin;
-    await fetch(`${baseUrl}/api/integrations/on-booking`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ appointment, lead, action: "create" }),
-    });
-  } catch {}
+    await Promise.all([
+      sendBookingConfirmation({
+        to: email,
+        firstName: first_name,
+        lastName: last_name,
+        date,
+        timeStart: time,
+        timeEnd: endTime,
+      }),
+      createCalendarEvent({
+        uid: appointment.id,
+        summary: `Beratungsgespräch - ${first_name} ${last_name}`,
+        description: `Kunde: ${first_name} ${last_name}\nE-Mail: ${email}\nTelefon: ${phone || "-"}\n\n${notes || ""}`,
+        date,
+        timeStart: time,
+        timeEnd: endTime,
+        attendeeName: `${first_name} ${last_name}`,
+        attendeeEmail: email,
+      }),
+      createContact({
+        uid: lead?.id || appointment.id,
+        firstName: first_name,
+        lastName: last_name,
+        email,
+        phone: phone || undefined,
+        note: `Quelle: Website\nTerminbuchung: ${date}`,
+      }),
+    ]);
+  } catch (err) {
+    console.error("Integration error (non-blocking):", err);
+  }
 
   return NextResponse.json(appointment);
 }

@@ -13,6 +13,13 @@ interface Message {
   created_at: string;
 }
 
+interface Reply {
+  id: string;
+  message_id: string;
+  reply_text: string;
+  sent_at: string;
+}
+
 const subjectLabels: Record<string, string> = {
   neukauf: "Eigenheim kaufen",
   abloesung: "Hypothek ablösen",
@@ -23,19 +30,34 @@ const subjectLabels: Record<string, string> = {
 export default function NachrichtenPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [selected, setSelected] = useState<Message | null>(null);
+  const [replies, setReplies] = useState<Reply[]>([]);
   const [showReply, setShowReply] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [showReplyPopup, setShowReplyPopup] = useState<Reply | null>(null);
 
   useEffect(() => {
     fetchMessages();
   }, []);
 
   async function fetchMessages() {
-    const res = await fetch("/api/admin/messages");
-    const data = await res.json();
-    if (Array.isArray(data)) setMessages(data);
+    const [msgRes, repRes] = await Promise.all([
+      fetch("/api/admin/messages"),
+      fetch("/api/admin/replies"),
+    ]);
+    const msgData = await msgRes.json();
+    const repData = await repRes.json();
+    if (Array.isArray(msgData)) setMessages(msgData);
+    if (Array.isArray(repData)) setReplies(repData);
+  }
+
+  function getRepliesForMessage(msgId: string): Reply[] {
+    return replies.filter((r) => r.message_id === msgId).sort((a, b) => b.sent_at.localeCompare(a.sent_at));
+  }
+
+  function hasReply(msgId: string): boolean {
+    return replies.some((r) => r.message_id === msgId);
   }
 
   async function deleteMessage(id: string) {
@@ -99,9 +121,22 @@ export default function NachrichtenPage() {
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 3 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>
-                    {msg.first_name} {msg.last_name}
-                  </p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>
+                      {msg.first_name} {msg.last_name}
+                    </p>
+                    {hasReply(msg.id) && (
+                      <span
+                        title="Beantwortet"
+                        onClick={(e) => { e.stopPropagation(); setShowReplyPopup(getRepliesForMessage(msg.id)[0]); }}
+                        style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+                      >
+                        <svg style={{ width: 14, height: 14 }} fill="#22c55e" viewBox="0 0 24 24">
+                          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                        </svg>
+                      </span>
+                    )}
+                  </div>
                   <span style={{ fontSize: 10, color: "#999", whiteSpace: "nowrap" }}>
                     {new Date(msg.created_at).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                   </span>
@@ -203,8 +238,15 @@ export default function NachrichtenPage() {
                         });
                         const data = await res.json();
                         if (data.results?.email === "sent") {
+                          // Save reply to DB
+                          await fetch("/api/admin/replies", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ message_id: selected.id, reply_text: replyText }),
+                          });
                           setSent(true);
                           setReplyText("");
+                          fetchMessages();
                           setTimeout(() => { setSent(false); setShowReply(false); }, 2000);
                         } else {
                           alert("Fehler beim Senden: " + (data.results?.email || "Unbekannt"));
@@ -255,6 +297,31 @@ export default function NachrichtenPage() {
           </div>
         )}
       </div>
+
+      {/* Reply Popup */}
+      {showReplyPopup && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
+          <div className="admin-modal" style={{ background: "#fff", borderRadius: 10, padding: 20, width: "100%", maxWidth: "min(500px, calc(100vw - 32px))" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <svg style={{ width: 16, height: 16 }} fill="#22c55e" viewBox="0 0 24 24">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                </svg>
+                <h3 style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>Gesendete Antwort</h3>
+              </div>
+              <button onClick={() => setShowReplyPopup(null)} style={{ background: "none", border: "none", fontSize: 18, color: "#999", cursor: "pointer" }}>×</button>
+            </div>
+            <p style={{ fontSize: 11, color: "#888", margin: "0 0 8px" }}>
+              Gesendet am {new Date(showReplyPopup.sent_at).toLocaleDateString("de-CH", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+            </p>
+            <div style={{ background: "#f9f9f9", borderRadius: 6, padding: 12 }}>
+              <p style={{ fontSize: 13, lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap", color: "#333" }}>
+                {showReplyPopup.reply_text}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

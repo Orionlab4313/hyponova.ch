@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useI18n } from "@/i18n/context";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import Accordion from "@/components/ui/Accordion";
 import CalculatorInput from "./CalculatorInput";
@@ -20,26 +21,10 @@ import {
   formatCHF,
 } from "./mortgage-utils";
 
-const infoItems = [
-  {
-    question: "Was ist die Tragbarkeit?",
-    answer: "Die Tragbarkeit zeigt, ob Sie sich die Immobilie langfristig leisten können. Sie wird berechnet, indem die jährlichen Wohnkosten (kalkulatorische Zinsen mit 5%, Amortisation und Unterhalt) ins Verhältnis zu Ihrem Bruttoeinkommen gesetzt werden. Die Faustregel: Die Wohnkosten sollten nicht mehr als 33% des Bruttoeinkommens ausmachen.",
-  },
-  {
-    question: "Was ist die Belehnung?",
-    answer: "Die Belehnung (Loan-to-Value) beschreibt das Verhältnis zwischen der Hypothek und dem Kaufpreis der Liegenschaft. In der Schweiz beträgt die maximale Belehnung 80%. Das bedeutet: Mindestens 20% des Kaufpreises müssen Sie als Eigenmittel einbringen — davon mindestens 10% aus harten Eigenmitteln (nicht aus der Pensionskasse).",
-  },
-  {
-    question: "Wie wird die Amortisation berechnet?",
-    answer: "Die 2. Hypothek (alles über 65% Belehnung) muss innert 15 Jahren amortisiert werden. Das bedeutet: Sie zahlen diesen Teil in gleichmässigen Raten zurück, bis die Belehnung auf 65% sinkt. Die 1. Hypothek (bis 65%) muss in der Regel nicht amortisiert werden.",
-  },
-  {
-    question: "Warum wird mit 5% kalkulatorischem Zins gerechnet?",
-    answer: "Banken in der Schweiz rechnen für die Tragbarkeit nicht mit dem aktuellen Zinssatz, sondern mit einem kalkulatorischen Zins von 5%. Damit wird sichergestellt, dass Sie sich die Hypothek auch bei steigenden Zinsen leisten können. Die effektiven monatlichen Kosten sind in der Regel deutlich tiefer.",
-  },
-];
-
 export default function MortgageCalculator() {
+  const { t } = useI18n();
+  const c = t.calculator;
+
   const [kaufpreis, setKaufpreis] = useState(1_000_000);
   const [eigenmittel, setEigenmittel] = useState(200_000);
   const [einkommen, setEinkommen] = useState(180_000);
@@ -62,10 +47,18 @@ export default function MortgageCalculator() {
 
   // Status colors
   const ltvColor = ltv <= 80 ? "#4ade80" : "#ef4444";
-  const ltvStatus = ltv <= 80 ? "Belehnung OK" : "Belehnung zu hoch";
+  const ltvStatus = ltv <= 80 ? c.ltvOk : c.ltvHigh;
 
   const affordColor = affordability <= 33 ? "#4ade80" : affordability <= 38 ? "#f59e0b" : "#ef4444";
-  const affordStatus = affordability <= 33 ? "Tragbar" : affordability <= 38 ? "Prüfbar" : "Nicht tragbar";
+  const affordStatus = affordability <= 33 ? c.statusGood : affordability <= 38 ? c.statusWarning : c.statusBad;
+
+  // Info items
+  const infoItems = [
+    { question: c.infoAffordabilityQ, answer: c.infoAffordabilityA },
+    { question: c.infoLtvQ, answer: c.infoLtvA },
+    { question: c.infoAmortizationQ, answer: c.infoAmortizationA },
+    { question: c.infoImputedRateQ, answer: c.infoImputedRateA },
+  ];
 
   // Handlers with clamping
   const handleKaufpreisChange = (val: number) => {
@@ -84,13 +77,13 @@ export default function MortgageCalculator() {
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-12 lg:pt-20 pb-12 lg:pb-16">
           <ScrollReveal>
             <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
-              Hypothekenrechner
+              {c.heroLabel}
             </p>
             <h1 className="text-4xl sm:text-5xl md:text-6xl leading-[1.05] max-w-3xl" style={{ fontWeight: 300, color: "#1a1a1a" }}>
-              Berechnen Sie Ihre <span style={{ fontWeight: 600 }}>Tragbarkeit.</span>
+              {c.heroTitle} <span style={{ fontWeight: 600 }}>{c.heroTitleBold}</span>
             </h1>
             <p className="text-lg mt-4 max-w-2xl" style={{ color: "#6b6b6b" }}>
-              Prüfen Sie in Echtzeit, ob Ihre Wunschimmobilie finanzierbar ist.
+              {c.heroDesc}
             </p>
           </ScrollReveal>
         </div>
@@ -104,7 +97,7 @@ export default function MortgageCalculator() {
               {/* Left: Inputs */}
               <div>
                 <CalculatorInput
-                  label="Kaufpreis"
+                  label={c.propertyValue}
                   value={kaufpreis}
                   onChange={handleKaufpreisChange}
                   min={100_000}
@@ -112,23 +105,23 @@ export default function MortgageCalculator() {
                   step={10_000}
                 />
                 <CalculatorInput
-                  label="Eigenmittel"
+                  label={c.equity}
                   value={eigenmittel}
                   onChange={handleEigenmittelChange}
                   min={0}
                   max={kaufpreis}
                   step={10_000}
-                  hintLabel="Min. Eigenmittel"
+                  hintLabel={c.minEquity}
                   hintValue={formatCHF(Math.round(minEquity))}
                 />
                 <CalculatorInput
-                  label="Jährliches Einkommen"
+                  label={c.annualIncome}
                   value={einkommen}
                   onChange={setEinkommen}
                   min={0}
                   max={1_000_000}
                   step={5_000}
-                  hintLabel="Min. Einkommen"
+                  hintLabel={c.minIncome}
                   hintValue={formatCHF(Math.round(minIncome))}
                 />
               </div>
@@ -140,13 +133,13 @@ export default function MortgageCalculator() {
                   <DonutChart
                     percentage={Math.round(ltv * 10) / 10}
                     color={ltvColor}
-                    label="Belehnung"
+                    label={c.loanToValue}
                     statusText={ltvStatus}
                   />
                   <DonutChart
                     percentage={Math.round(affordability * 10) / 10}
                     color={affordColor}
-                    label="Tragbarkeit"
+                    label={c.affordability}
                     statusText={affordStatus}
                   />
                 </div>
@@ -158,6 +151,15 @@ export default function MortgageCalculator() {
                   maintenance={monthlyMaintenance}
                   total={totalMonthly}
                   hypothek={mortgage}
+                  labels={{
+                    monthlyCosts: c.monthlyCosts,
+                    interest: c.interestLabel,
+                    amortization: c.amortization,
+                    maintenance: c.maintenanceLabel,
+                    total: c.totalLabel,
+                    hypothek: c.hypothekLabel,
+                    requestOffer: c.requestOffer,
+                  }}
                 />
               </div>
             </div>
@@ -170,7 +172,7 @@ export default function MortgageCalculator() {
         <div className="max-w-[900px] mx-auto px-6 lg:px-10 py-24 lg:py-32">
           <ScrollReveal>
             <h2 className="text-2xl sm:text-3xl mb-10" style={{ fontWeight: 300, color: "#1a1a1a" }}>
-              Gut zu <span style={{ fontWeight: 600 }}>wissen.</span>
+              {c.infoTitle} <span style={{ fontWeight: 600 }}>{c.infoTitleBold}</span>
             </h2>
             <div style={{ borderTop: "1px solid #ddd" }}>
               <Accordion items={infoItems} />
@@ -184,10 +186,10 @@ export default function MortgageCalculator() {
         <div className="max-w-3xl mx-auto px-6 lg:px-10 text-center">
           <ScrollReveal>
             <h2 className="text-4xl md:text-5xl leading-[1.15] mb-6" style={{ fontWeight: 300 }}>
-              Passt die <span style={{ fontWeight: 600 }}>Finanzierung?</span>
+              {c.ctaTitle} <span style={{ fontWeight: 600 }}>{c.ctaTitleBold}</span>
             </h2>
             <p className="text-base mb-10 max-w-lg mx-auto leading-relaxed" style={{ color: "#888" }}>
-              Lassen Sie sich kostenlos und unverbindlich beraten. Wir holen die besten Angebote für Sie ein.
+              {c.ctaDesc}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -195,14 +197,14 @@ export default function MortgageCalculator() {
                 className="inline-flex items-center justify-center px-8 py-4 text-sm font-medium transition-colors"
                 style={{ backgroundColor: "#fff", color: "#000" }}
               >
-                Beratung buchen
+                {c.ctaBooking}
               </Link>
               <Link
                 href="/kontakt"
                 className="inline-flex items-center justify-center px-8 py-4 text-sm font-medium transition-colors hover:bg-white/10"
                 style={{ border: "1px solid #fff", color: "#fff" }}
               >
-                Kontakt aufnehmen
+                {c.ctaContact}
               </Link>
             </div>
           </ScrollReveal>

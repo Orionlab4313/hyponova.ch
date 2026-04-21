@@ -90,12 +90,12 @@
 
 | Feature | Status |
 |---------|--------|
-| Hypothekenrechner (Belehnung + Tragbarkeit) | Ausstehend |
+| Hypothekenrechner (Belehnung + Tragbarkeit) | ✅ Erledigt |
 | Ablösungs-Prozess (5-stufiger Fragebogen) | Ausstehend |
 | Neukauf-Prozess | Ausstehend |
 | Datei-Upload (Supabase Storage) | Ausstehend |
 | i18n in Komponenten integrieren | Ausstehend |
-| SEO (Schema.org, Sitemap) | Ausstehend |
+| SEO (Schema.org, Sitemap) | ✅ Erledigt |
 | Gründer-Foto für Über-uns | Vom Kunden nötig |
 | UID-Nummer für Impressum | Vom Kunden nötig |
 | AGB/Datenschutz vom Anwalt prüfen | Vom Kunden nötig |

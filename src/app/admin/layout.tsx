@@ -12,6 +12,7 @@ const navItems = [
   { href: "/admin/verfuegbarkeit", label: "Verfügbarkeit", icon: "🕐" },
   { href: "/admin/pipeline", label: "Pipeline", icon: "📈" },
   { href: "/admin/dokumente", label: "Dokumente", icon: "📁" },
+  { href: "/admin/blogposts", label: "Blog", icon: "📝" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

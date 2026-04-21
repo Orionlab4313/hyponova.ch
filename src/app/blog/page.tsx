@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import ScrollReveal from "@/components/ScrollReveal";
+import ScrollReveal from "@/components/ui/ScrollReveal";
 import { getVisibleBlogPosts, effectivePublishDate } from "@/lib/blog-posts";
 
 // Dynamisch rendern, damit neue/umbenannte DB-Posts sofort im Grid

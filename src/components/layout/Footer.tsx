@@ -40,11 +40,13 @@ export default function Footer() {
   const infoLinks = {
     de: [
       { href: "/ueber-uns", label: "Über HYPONOVA" },
+      { href: "/blog", label: "Ratgeber" },
       { href: "/faq", label: "Häufige Fragen" },
       { href: "/kontakt", label: "Kontakt" },
     ],
     en: [
       { href: "/ueber-uns", label: "About HYPONOVA" },
+      { href: "/blog", label: "Insights" },
       { href: "/faq", label: "FAQ" },
       { href: "/kontakt", label: "Contact" },
     ],

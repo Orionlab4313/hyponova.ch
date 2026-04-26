@@ -1,4 +1,4 @@
--- Admin Settings: zentrale Konfiguration fuer Webseiten-PW, Admin-PW, 2FA
+-- Admin Settings: zentrale Konfiguration für Webseiten-PW, Admin-PW, 2FA
 -- Single-Row-Tabelle mit fester id=1, niemals mehr als ein Datensatz
 create table if not exists admin_settings (
   id int primary key default 1,
@@ -13,12 +13,12 @@ create table if not exists admin_settings (
 );
 
 -- Initial-Datensatz mit Default-Hashes (werden beim ersten Login gesetzt)
--- Hashes leer → Code faellt auf process.env zurueck (Migration ohne Downtime)
+-- Hashes leer → Code fällt auf process.env zurück (Migration ohne Downtime)
 insert into admin_settings (id, site_password_hash, admin_password_hash, notification_email)
 values (1, null, '', 'simon.topalli@hyponova.ch')
 on conflict (id) do nothing;
 
--- Reset-Tokens fuer Admin-Passwort-Aenderung per Email
+-- Reset-Tokens für Admin-Passwort-Änderung per E-Mail
 create table if not exists admin_password_reset_tokens (
   token text primary key,
   expires_at timestamptz not null,
@@ -30,6 +30,6 @@ create index if not exists idx_admin_password_reset_tokens_expires
   on admin_password_reset_tokens (expires_at)
   where used = false;
 
--- RLS aus, Tabellen werden ausschliesslich vom Service-Role-Key zugegriffen
+-- RLS aus, Tabellen werden ausschliesslich über den Service-Role-Key zugegriffen
 alter table admin_settings disable row level security;
 alter table admin_password_reset_tokens disable row level security;

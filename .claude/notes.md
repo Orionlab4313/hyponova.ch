@@ -78,12 +78,13 @@
 ## Phase 10: Einstellungen + 2FA ✅ FERTIG (26.04.2026)
 - [x] **Bug-Fix Blog-Prose**: globals.css Hierarchie (h1-h3, p, ul, blockquote, code, img) im Hyponova-Brand
 - [x] **Tabellen**: admin_settings (singleton), admin_password_reset_tokens
-- [x] **Webseiten-Passwort**: in DB gehashed, Aenderung erfordert Admin-Passwort-Bestaetigung
-- [x] **Admin-Passwort**: Aenderung per E-Mail-Token (15 Min) an simon.topalli@hyponova.ch
-- [x] **2FA (TOTP)**: optional, QR-Code, 8 Backup-Codes (gehashed)
-- [x] **Admin-Login**: zwei-stufig (Passwort + Code) sobald 2FA aktiv
+- [x] **Webseiten-Passwort**: in DB gehasht, Änderung erfordert Admin-Passwort-Bestätigung
+- [x] **Admin-Passwort**: Änderung per E-Mail-Token (15 Min) an simon.topalli@hyponova.ch
+- [x] **2FA (TOTP)**: optional, QR-Code, 8 Backup-Codes (gehasht)
+- [x] **Admin-Login**: zweistufig (Passwort + Code) sobald 2FA aktiv
 - [x] **Edge Function on-booking V17**: neue Action `admin-password-reset`
-- [x] **Cookie-basierte Admin-Session**: HMAC-signiert, 8h Gueltigkeit, ersetzt sessionStorage
+- [x] **Cookie-basierte Admin-Session**: HMAC-signiert, 8h Gültigkeit, ersetzt sessionStorage
+- [x] **Sidebar-Abmelden** zusätzlich zum Header-Button
 - Routen: `/admin/einstellungen`, `/admin/einstellungen/passwort-bestaetigen`
 - APIs: `/api/admin/settings/{site-password,admin-password,twofa}`
 

@@ -1,9 +1,9 @@
 import { createHmac, randomBytes, timingSafeEqual } from "crypto";
 
 /**
- * Leichte signierte Tokens fuer den Admin-Auth-Flow.
- * Wird benutzt fuer:
- *   - Step-1 → Step-2 Brueckentoken (Passwort ok, jetzt 2FA-Code)
+ * Leichte signierte Tokens für den Admin-Auth-Flow.
+ * Wird benutzt für:
+ *   - Step-1 → Step-2 Brücken-Token (Passwort ok, jetzt 2FA-Code)
  *   - Final-Auth-Cookie (Passwort + 2FA ok)
  * Format: base64url(payload) + "." + base64url(hmac).
  */

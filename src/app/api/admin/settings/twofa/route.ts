@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Code falsch" }, { status: 400 });
     }
 
-    // 8 Backup-Codes generieren, anzeigen, gehashed speichern
+    // 8 Backup-Codes generieren, anzeigen, gehasht speichern
     const plainCodes: string[] = [];
     const hashedCodes: string[] = [];
     for (let i = 0; i < 8; i++) {
@@ -102,3 +102,4 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ error: "Unbekannte Aktion" }, { status: 400 });
 }
+

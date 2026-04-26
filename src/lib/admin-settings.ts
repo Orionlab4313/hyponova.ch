@@ -5,13 +5,10 @@ import { createServiceClient } from "./supabase";
  * Admin Settings Layer
  * --------------------
  * Liest Hashes und 2FA-Konfiguration aus der DB.
- * Faellt auf process.env zurueck, wenn die DB-Hashes leer sind
+ * Fällt auf process.env zurück, wenn die DB-Hashes leer sind
  * (z.B. unmittelbar nach dem Migrations-Apply).
  *
- * Diese Modul ist NUR fuer Server-Code gedacht (API-Routes, Middleware
- * funktioniert in Next.js Edge-Runtime und MUSS bcryptjs vermeiden,
- * darum gibt es eine separate Plain-Text-Funktion fuer die Site-PW-Pruefung
- * via Cookie-Hash-Kompatibilitaetsmodus).
+ * Dieses Modul ist NUR für Server-Code gedacht (API-Routes).
  */
 
 export type AdminSettings = {
@@ -32,7 +29,7 @@ export async function getAdminSettings(): Promise<AdminSettings> {
   const sb = createServiceClient();
   const { data, error } = await sb.from("admin_settings").select("*").eq("id", 1).single();
   if (error || !data) {
-    throw new Error("Admin Settings nicht gefunden – Migration applied?");
+    throw new Error("Admin-Settings nicht gefunden – Migration angewandt?");
   }
   return data as AdminSettings;
 }
@@ -55,7 +52,7 @@ export async function verifySitePassword(input: string): Promise<boolean> {
       return bcrypt.compareSync(input, s.site_password_hash);
     }
   } catch {
-    // DB unreachable - falle auf Env-Default zurueck
+    // DB nicht erreichbar – falle auf Env-Default zurück
   }
   return input === ENV_FALLBACK_SITE_PW;
 }
@@ -74,7 +71,7 @@ export async function verifyAdminPassword(input: string): Promise<boolean> {
       return bcrypt.compareSync(input, s.admin_password_hash);
     }
   } catch {
-    // DB unreachable - Fallback
+    // DB nicht erreichbar – Fallback
   }
   return input === ENV_FALLBACK_ADMIN_PW;
 }

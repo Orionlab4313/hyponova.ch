@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { setSitePassword, verifyAdminPassword } from "@/lib/admin-settings";
 import { isAdminAuthenticated } from "@/lib/admin-guard";
 
-/** Webseiten-Passwort aendern (Admin-authed, zur Sicherheit zusaetzlich Admin-PW pruefen). */
+/** Webseiten-Passwort ändern (Admin-authed, zur Sicherheit zusätzlich Admin-PW prüfen). */
 export async function POST(request: NextRequest) {
   if (!isAdminAuthenticated(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   const { adminPassword, newPassword } = await request.json();
   if (!newPassword || String(newPassword).length < 6) {
     return NextResponse.json(
-      { error: "Neues Passwort muss mind. 6 Zeichen haben" },
+      { error: "Neues Passwort muss mindestens 6 Zeichen haben" },
       { status: 400 }
     );
   }

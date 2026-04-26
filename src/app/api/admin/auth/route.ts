@@ -8,10 +8,10 @@ const STEP_COOKIE = "hyponova-admin-step";
 const FULL_COOKIE = "hyponova-admin-session";
 
 /**
- * Zwei-Stufen-Login fuer Admin:
+ * Zwei-Stufen-Login für Admin:
  * Stage 1: { password }                  → wenn 2FA aktiv: stage-cookie + needsTotp
  *                                         → sonst: full session cookie
- * Stage 2: { totpCode } oder { backupCode } mit gueltigem stage-cookie
+ * Stage 2: { totpCode } oder { backupCode } mit gültigem stage-cookie
  *                                         → full session cookie
  */
 export async function POST(request: NextRequest) {
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     const stageToken = request.cookies.get(STEP_COOKIE)?.value;
     const payload = verifyAdminToken(stageToken);
     if (!payload || payload.stage !== "pw-ok") {
-      return NextResponse.json({ error: "Session abgelaufen, bitte neu anmelden" }, { status: 401 });
+      return NextResponse.json({ error: "Sitzung abgelaufen, bitte neu anmelden" }, { status: 401 });
     }
 
     const settings = await getAdminSettings();
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       ok = delta !== null;
     } else if (body.backupCode) {
       const code = String(body.backupCode).trim();
-      // Backup-Codes sind gehashed gespeichert
+      // Backup-Codes sind gehasht gespeichert
       for (let i = 0; i < settings.backup_codes.length; i++) {
         if (bcrypt.compareSync(code, settings.backup_codes[i])) {
           ok = true;
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!ok) {
-      return NextResponse.json({ error: "Code ungueltig" }, { status: 401 });
+      return NextResponse.json({ error: "Code ungültig" }, { status: 401 });
     }
 
     const fullToken = signAdminToken("full", 60 * 60 * 8); // 8h
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
   return res;
 }
 
-/** Session-Check (vom Admin-Layout im Browser benutzt). */
+/** Sitzungs-Check (vom Admin-Layout im Browser benutzt). */
 export async function GET(request: NextRequest) {
   const token = request.cookies.get(FULL_COOKIE)?.value;
   const payload = verifyAdminToken(token);

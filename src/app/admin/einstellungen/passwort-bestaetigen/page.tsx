@@ -20,7 +20,7 @@ function Inner() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (pw1 !== pw2) {
-      setMsg({ type: "err", text: "Passwoerter stimmen nicht ueberein" });
+      setMsg({ type: "err", text: "Passwörter stimmen nicht überein" });
       return;
     }
     if (pw1.length < 8) {
@@ -73,7 +73,7 @@ function Inner() {
                 marginBottom: 20,
               }}
             >
-              Passwort erfolgreich geaendert. Sie koennen sich jetzt mit dem neuen Passwort anmelden.
+              Passwort erfolgreich geändert. Sie können sich jetzt mit dem neuen Passwort anmelden.
             </div>
             <Link
               href="/admin"
@@ -95,7 +95,7 @@ function Inner() {
           <form onSubmit={submit} style={{ textAlign: "left" }}>
             <label style={{ display: "block", marginBottom: 12 }}>
               <span style={{ display: "block", fontSize: 11, color: "#aaa", marginBottom: 4 }}>
-                Neues Passwort (min. 8 Zeichen)
+                Neues Passwort (mind. 8 Zeichen)
               </span>
               <input
                 type="password"
@@ -133,7 +133,7 @@ function Inner() {
                 cursor: loading || !token || !pw1 || !pw2 ? "not-allowed" : "pointer",
               }}
             >
-              {loading ? "Speichern ..." : "Passwort speichern"}
+              {loading ? "Speichern…" : "Passwort speichern"}
             </button>
             {msg && (
               <p
@@ -168,7 +168,7 @@ const inputDark: React.CSSProperties = {
 
 export default function Page() {
   return (
-    <Suspense fallback={<div style={{ padding: 32, color: "#888" }}>Lade ...</div>}>
+    <Suspense fallback={<div style={{ padding: 32, color: "#888" }}>Lädt…</div>}>
       <Inner />
     </Suspense>
   );

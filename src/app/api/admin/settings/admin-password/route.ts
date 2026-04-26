@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     if (!fnRes.ok) {
       const text = await fnRes.text().catch(() => "");
       return NextResponse.json(
-        { error: `Email-Versand fehlgeschlagen: ${text}` },
+        { error: `E-Mail-Versand fehlgeschlagen: ${text}` },
         { status: 500 }
       );
     }
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
   if (action === "confirm") {
     if (!token || !newPassword || String(newPassword).length < 8) {
       return NextResponse.json(
-        { error: "Token oder Passwort ungueltig (min. 8 Zeichen)" },
+        { error: "Token oder Passwort ungültig (mindestens 8 Zeichen)" },
         { status: 400 }
       );
     }

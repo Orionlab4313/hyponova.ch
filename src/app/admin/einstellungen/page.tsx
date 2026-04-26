@@ -25,7 +25,7 @@ export default function EinstellungenPage() {
   };
 
   if (!status) {
-    return <div style={{ padding: 32, color: "#888" }}>Lade ...</div>;
+    return <div style={{ padding: 32, color: "#888" }}>Lädt…</div>;
   }
 
   return (
@@ -33,7 +33,7 @@ export default function EinstellungenPage() {
       <div>
         <h1 style={{ fontSize: 22, fontWeight: 600, margin: "0 0 4px" }}>Einstellungen</h1>
         <p style={{ fontSize: 13, color: "#666", margin: 0 }}>
-          Passwoerter, Zwei-Faktor-Authentifizierung und Benachrichtigungen.
+          Passwörter, Zwei-Faktor-Authentifizierung und Benachrichtigungen.
         </p>
       </div>
 
@@ -64,7 +64,7 @@ function SitePasswordSection({ onChange }: { onChange: () => void }) {
     const data = await res.json();
     setLoading(false);
     if (res.ok) {
-      setMsg({ type: "ok", text: "Webseiten-Passwort wurde geaendert." });
+      setMsg({ type: "ok", text: "Webseiten-Passwort wurde geändert." });
       setAdminPw("");
       setNewPw("");
       onChange();
@@ -74,10 +74,10 @@ function SitePasswordSection({ onChange }: { onChange: () => void }) {
   };
 
   return (
-    <Card title="Webseiten-Passwort" subtitle="Schuetzt die oeffentliche Seite (aktuell &laquo;In Bearbeitung&raquo;).">
+    <Card title="Webseiten-Passwort" subtitle="Schützt die öffentliche Seite (aktuell «In Bearbeitung»).">
       <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 12, maxWidth: 420 }}>
         <Field
-          label="Admin-Passwort (zur Bestaetigung)"
+          label="Admin-Passwort (zur Bestätigung)"
           type="password"
           value={adminPw}
           onChange={setAdminPw}
@@ -87,14 +87,14 @@ function SitePasswordSection({ onChange }: { onChange: () => void }) {
           type="password"
           value={newPw}
           onChange={setNewPw}
-          placeholder="min. 6 Zeichen"
+          placeholder="mind. 6 Zeichen"
         />
         <button
           type="submit"
           disabled={loading || !adminPw || !newPw}
           style={primaryBtn(loading || !adminPw || !newPw)}
         >
-          {loading ? "..." : "Webseiten-Passwort aendern"}
+          {loading ? "…" : "Webseiten-Passwort ändern"}
         </button>
         {msg && <Msg msg={msg} />}
       </form>
@@ -121,7 +121,7 @@ function AdminPasswordSection({ onChange, email }: { onChange: () => void; email
     if (res.ok) {
       setMsg({
         type: "ok",
-        text: `E-Mail mit Bestaetigungs-Link wurde an ${data.sentTo} gesendet (gueltig ${data.ttlMinutes} Min).`,
+        text: `E-Mail mit Bestätigungs-Link wurde an ${data.sentTo} gesendet (gültig ${data.ttlMinutes} Min).`,
       });
       onChange();
     } else {
@@ -132,14 +132,14 @@ function AdminPasswordSection({ onChange, email }: { onChange: () => void; email
   return (
     <Card
       title="Admin-Passwort"
-      subtitle={`Aenderung erfordert Bestaetigung per E-Mail an ${email}.`}
+      subtitle={`Änderung erfordert Bestätigung per E-Mail an ${email}.`}
     >
       <p style={{ fontSize: 13, color: "#666", margin: "0 0 12px", maxWidth: 540 }}>
-        Klicken Sie auf den Button. Sie erhalten eine E-Mail mit einem Bestaetigungs-Link, ueber den Sie ein
-        neues Passwort setzen koennen. Der Link ist 15 Minuten gueltig und kann nur einmal verwendet werden.
+        Klicken Sie auf den Button. Sie erhalten eine E-Mail mit einem Bestätigungs-Link, über den Sie ein
+        neues Passwort setzen können. Der Link ist 15 Minuten gültig und kann nur einmal verwendet werden.
       </p>
       <button onClick={requestReset} disabled={loading} style={primaryBtn(loading)}>
-        {loading ? "..." : "Aenderungs-Link per E-Mail anfordern"}
+        {loading ? "…" : "Änderungs-Link per E-Mail anfordern"}
       </button>
       {msg && <Msg msg={msg} />}
     </Card>
@@ -203,16 +203,16 @@ function Enable2FA({ onChange }: { onChange: () => void }) {
   return (
     <Card
       title="Zwei-Faktor-Authentifizierung (2FA)"
-      subtitle="Zusaetzlicher Schutz beim Admin-Login per Authenticator-App."
+      subtitle="Zusätzlicher Schutz beim Admin-Login per Authenticator-App."
     >
       {step === "idle" && (
         <>
           <p style={{ fontSize: 13, color: "#666", margin: "0 0 12px", maxWidth: 540 }}>
-            Aktivieren Sie 2FA, damit beim Admin-Login zusaetzlich ein 6-stelliger Code aus Ihrer
-            Authenticator-App benoetigt wird (Google Authenticator, Authy, 1Password, etc.).
+            Aktivieren Sie 2FA, damit beim Admin-Login zusätzlich ein 6-stelliger Code aus Ihrer
+            Authenticator-App benötigt wird (Google Authenticator, Authy, 1Password, etc.).
           </p>
           <button onClick={start} disabled={loading} style={primaryBtn(loading)}>
-            {loading ? "..." : "2FA einrichten"}
+            {loading ? "…" : "2FA einrichten"}
           </button>
         </>
       )}
@@ -244,7 +244,7 @@ function Enable2FA({ onChange }: { onChange: () => void }) {
               disabled={loading || code.length !== 6}
               style={primaryBtn(loading || code.length !== 6)}
             >
-              {loading ? "..." : "2FA aktivieren"}
+              {loading ? "…" : "2FA aktivieren"}
             </button>
             {msg && <Msg msg={msg} />}
           </form>
@@ -254,7 +254,7 @@ function Enable2FA({ onChange }: { onChange: () => void }) {
       {step === "done" && (
         <div>
           <p style={{ fontSize: 14, color: "#16a34a", fontWeight: 500, margin: "0 0 12px" }}>
-            2FA ist aktiv. Beim naechsten Admin-Login werden Sie nach dem Code gefragt.
+            2FA ist aktiv. Beim nächsten Admin-Login werden Sie nach dem Code gefragt.
           </p>
           <p style={{ fontSize: 13, color: "#444", margin: "0 0 8px" }}>
             <strong>Backup-Codes</strong> (jeder Code kann nur einmal verwendet werden, falls Sie keinen Zugriff
@@ -351,7 +351,7 @@ function Disable2FA({ backupCount, onChange }: { backupCount: number; onChange: 
               disabled={loading || !adminPw || code.length !== 6}
               style={dangerBtn(loading || !adminPw || code.length !== 6)}
             >
-              {loading ? "..." : "Endgueltig deaktivieren"}
+              {loading ? "…" : "Endgültig deaktivieren"}
             </button>
             <button type="button" onClick={() => setShow(false)} style={secondaryBtn}>
               Abbrechen
@@ -370,10 +370,7 @@ function Card({ title, subtitle, children }: { title: string; subtitle: string; 
   return (
     <section style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", padding: 20 }}>
       <h2 style={{ fontSize: 15, fontWeight: 600, margin: "0 0 4px" }}>{title}</h2>
-      <p
-        style={{ fontSize: 13, color: "#888", margin: "0 0 16px" }}
-        dangerouslySetInnerHTML={{ __html: subtitle }}
-      />
+      <p style={{ fontSize: 13, color: "#888", margin: "0 0 16px" }}>{subtitle}</p>
       {children}
     </section>
   );

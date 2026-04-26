@@ -113,7 +113,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div style={{ textAlign: "center", maxWidth: 320, padding: "0 16px" }}>
             <h1 style={{ fontSize: 22, fontWeight: 300, marginBottom: 6 }}>HYPONOVA Admin</h1>
             <p style={{ fontSize: 13, color: "#666", marginBottom: 24 }}>
-              {authStage === "password" ? "Bitte melden Sie sich an" : useBackup ? "Backup-Code eingeben" : "Code aus Authenticator-App"}
+              {authStage === "password" ? "Bitte melden Sie sich an" : useBackup ? "Backup-Code eingeben" : "Code aus der Authenticator-App"}
             </p>
 
             {authStage === "password" ? (
@@ -147,7 +147,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   autoFocus
                   style={{ ...inputDarkAuth, letterSpacing: useBackup ? "0.05em" : "0.4em", textAlign: "center", fontSize: 18 }}
                 />
-                <button type="submit" style={btnDarkAuth}>Bestaetigen</button>
+                <button type="submit" style={btnDarkAuth}>Bestätigen</button>
                 {error && <p style={errorTextStyle}>{error}</p>}
                 <button
                   type="button"
@@ -237,7 +237,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 );
               })}
             </nav>
-            <div style={{ position: "absolute", bottom: 16, left: 0, right: 0, padding: "0 16px" }}>
+            <div style={{ position: "absolute", bottom: 16, left: 0, right: 0, padding: "0 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+              <button
+                onClick={handleLogout}
+                style={{
+                  fontSize: 12,
+                  color: "#aaa",
+                  background: "transparent",
+                  border: "1px solid #2a2a2a",
+                  borderRadius: 6,
+                  padding: "7px 12px",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  transition: "all 0.15s",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#444"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "#aaa"; e.currentTarget.style.borderColor = "#2a2a2a"; }}
+              >
+                <span style={{ fontSize: 13 }}>↪</span> Abmelden
+              </button>
               <Link href="/" style={{ fontSize: 11, color: "#555", textDecoration: "none" }}>← Zurück zur Website</Link>
             </div>
           </aside>

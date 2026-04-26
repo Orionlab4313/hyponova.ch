@@ -11,6 +11,9 @@ interface BlogArticleProps {
   children: React.ReactNode;
 }
 
+const HYPONOVA_LOGO =
+  "https://dqryxcdwvuborlayjain.supabase.co/storage/v1/object/public/logos/hyponova-logo.png";
+
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
   return date.toLocaleDateString("de-CH", {
@@ -34,20 +37,20 @@ export default function BlogArticle({
     "@context": "https://schema.org",
     "@type": "Article",
     headline: fullTitle,
-    image: heroImage?.startsWith("http") ? heroImage : `https://www.orionlab.ch${heroImage}`,
+    image: heroImage?.startsWith("http") ? heroImage : `https://www.hyponova.ch${heroImage}`,
     datePublished: new Date(date).toISOString(),
     dateModified: new Date(date).toISOString(),
     author: {
       "@type": "Organization",
-      name: "OrionLab",
-      url: "https://www.orionlab.ch",
+      name: "HYPONOVA GmbH",
+      url: "https://www.hyponova.ch",
     },
     publisher: {
       "@type": "Organization",
-      name: "OrionLab",
+      name: "HYPONOVA",
       logo: {
         "@type": "ImageObject",
-        url: "https://www.orionlab.ch/logo.svg",
+        url: HYPONOVA_LOGO,
       },
     },
     articleSection: badge,
@@ -59,6 +62,7 @@ export default function BlogArticle({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
       />
+
       {/* Hero */}
       <section className="relative py-24 md:py-32 px-6 overflow-hidden">
         <div
@@ -67,7 +71,7 @@ export default function BlogArticle({
             backgroundImage: `url(${heroImage})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-            filter: "brightness(0.3)",
+            filter: "brightness(0.35)",
           }}
         />
         <div className="relative z-10 max-w-3xl mx-auto text-center">
@@ -76,16 +80,35 @@ export default function BlogArticle({
               href="/blog"
               className="inline-flex items-center gap-2 text-sm mb-6 transition-colors text-white/70 hover:text-white"
             >
-              &larr; Zurück zum Blog
+              ← Zurück zum Blog
             </Link>
-            <span className="badge mb-4 block mx-auto w-fit" style={{ color: "#a78bfa", borderColor: "rgba(167,139,250,0.4)", border: "1px solid rgba(167,139,250,0.4)" }}>{badge}</span>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold leading-[1.1] tracking-tight mb-4 text-white">
-              {title}{" "}
-              <span className="gradient-text">{titleHighlight}</span>
-            </h1>
-            <div
-              className="flex items-center justify-center gap-3 text-sm text-white/70"
+            <span
+              style={{
+                display: "inline-block",
+                padding: "5px 14px",
+                fontSize: 11,
+                fontWeight: 600,
+                letterSpacing: "0.12em",
+                textTransform: "uppercase",
+                color: "#f4a896",
+                border: "1px solid rgba(200, 85, 61, 0.5)",
+                borderRadius: 20,
+                marginBottom: 20,
+                background: "rgba(200, 85, 61, 0.08)",
+              }}
             >
+              {badge}
+            </span>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold leading-[1.1] tracking-tight mb-4 text-white">
+              {title}
+              {titleHighlight ? (
+                <>
+                  {" "}
+                  <span style={{ color: "#c8553d" }}>{titleHighlight}</span>
+                </>
+              ) : null}
+            </h1>
+            <div className="flex items-center justify-center gap-3 text-sm text-white/70">
               <time dateTime={date}>{formatDate(date)}</time>
               <span
                 style={{
@@ -110,30 +133,57 @@ export default function BlogArticle({
       </section>
 
       {/* CTA */}
-      <section className="py-16 md:py-24 px-6">
-        <div className="max-w-3xl mx-auto text-center">
+      <section className="pb-24 md:pb-32 px-6">
+        <div className="max-w-3xl mx-auto">
           <ScrollReveal>
             <div
-              className="rounded-2xl p-10 md:p-14"
               style={{
-                background:
-                  "linear-gradient(135deg, rgba(124, 92, 252, 0.12) 0%, rgba(124, 92, 252, 0.04) 100%)",
-                border: "1px solid rgba(124, 92, 252, 0.2)",
+                background: "#0a0a0a",
+                color: "#fff",
+                borderRadius: 16,
+                padding: "48px 40px",
+                textAlign: "center",
               }}
             >
-              <h2 className="text-2xl md:text-3xl font-semibold mb-4">
+              <h2
+                style={{
+                  fontSize: "1.75rem",
+                  fontWeight: 600,
+                  letterSpacing: "-0.01em",
+                  margin: "0 0 12px",
+                  lineHeight: 1.2,
+                }}
+              >
                 Bereit für den nächsten Schritt?
               </h2>
               <p
-                className="text-lg leading-relaxed mb-8 max-w-xl mx-auto"
-                style={{ color: "var(--text-secondary)" }}
+                style={{
+                  fontSize: "1.05rem",
+                  lineHeight: 1.7,
+                  color: "rgba(255,255,255,0.75)",
+                  maxWidth: 540,
+                  margin: "0 auto 28px",
+                }}
               >
-                Lassen Sie uns in einem kostenlosen Erstgespräch herausfinden,
-                wie KI Ihre Prozesse konkret verbessern kann. Unverbindlich,
-                praxisnah und auf Ihr Unternehmen zugeschnitten.
+                In einem kostenlosen Erstgespräch analysieren wir Ihre
+                Hypotheken-Situation und vergleichen Angebote zahlreicher Banken,
+                Versicherungen und Pensionskassen — transparent und unabhängig.
               </p>
-              <Link href="/termin" className="btn-primary">
-                Kostenloses Erstgespräch buchen
+              <Link
+                href="/termin"
+                style={{
+                  display: "inline-block",
+                  padding: "12px 24px",
+                  background: "#fff",
+                  color: "#0a0a0a",
+                  borderRadius: 8,
+                  textDecoration: "none",
+                  fontWeight: 500,
+                  fontSize: 14,
+                  transition: "opacity 0.15s",
+                }}
+              >
+                Beratung buchen →
               </Link>
             </div>
           </ScrollReveal>

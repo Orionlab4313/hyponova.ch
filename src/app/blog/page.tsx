@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import BlogCard from "@/components/blog/BlogCard";
 import { getVisibleBlogPosts, effectivePublishDate } from "@/lib/blog-posts";
 
 // Dynamisch rendern, damit neue/umbenannte DB-Posts sofort im Grid
@@ -23,15 +23,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
-
-function formatDate(dateStr: string) {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("de-CH", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
 
 export default async function BlogPage() {
   const dbPosts = await getVisibleBlogPosts();
@@ -98,108 +89,15 @@ export default async function BlogPage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {allPosts.map((post, i) => (
                 <ScrollReveal key={post.slug} delay={i * 80}>
-                  <Link href={`/blog/${post.slug}`} className="block h-full">
-                    <article
-                      style={{
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        background: "#fff",
-                        border: "1px solid #e5e5e5",
-                        borderRadius: 12,
-                        overflow: "hidden",
-                        transition: "border-color 0.2s, transform 0.2s",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = "#c8553d";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = "#e5e5e5";
-                      }}
-                    >
-                      <div className="aspect-[16/10] overflow-hidden">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={post.image}
-                          alt={post.title}
-                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                        />
-                      </div>
-                      <div
-                        style={{
-                          padding: 24,
-                          display: "flex",
-                          flexDirection: "column",
-                          flex: 1,
-                        }}
-                      >
-                        {post.badge && (
-                          <span
-                            style={{
-                              display: "inline-block",
-                              fontSize: 10,
-                              fontWeight: 600,
-                              letterSpacing: "0.1em",
-                              textTransform: "uppercase",
-                              color: "#c8553d",
-                              marginBottom: 10,
-                            }}
-                          >
-                            {post.badge}
-                          </span>
-                        )}
-                        <h2
-                          style={{
-                            fontSize: 17,
-                            fontWeight: 600,
-                            lineHeight: 1.35,
-                            margin: "0 0 8px",
-                            color: "#1a1a1a",
-                            display: "-webkit-box",
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {post.title}
-                        </h2>
-                        <p
-                          style={{
-                            fontSize: 14,
-                            lineHeight: 1.6,
-                            color: "#555",
-                            flex: 1,
-                            margin: 0,
-                            display: "-webkit-box",
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: "vertical",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {post.excerpt}
-                        </p>
-                        <div
-                          style={{
-                            marginTop: 16,
-                            paddingTop: 16,
-                            borderTop: "1px solid #f0f0f0",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            fontSize: 12,
-                            color: "#888",
-                          }}
-                        >
-                          <span>
-                            {formatDate(post.date)} · {post.readingTime}
-                          </span>
-                          <span style={{ color: "#1a1a1a", fontWeight: 500 }}>
-                            Weiterlesen →
-                          </span>
-                        </div>
-                      </div>
-                    </article>
-                  </Link>
+                  <BlogCard
+                    slug={post.slug}
+                    title={post.title}
+                    excerpt={post.excerpt}
+                    image={post.image}
+                    badge={post.badge}
+                    date={post.date}
+                    readingTime={post.readingTime}
+                  />
                 </ScrollReveal>
               ))}
             </div>

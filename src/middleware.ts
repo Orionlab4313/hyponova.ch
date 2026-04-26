@@ -26,11 +26,13 @@ export const config = {
   matcher: [
     /*
      * Match all paths except:
-     * - /api/auth (password endpoint)
+     * - /api/* (alle API-Routen, /api/auth haendelt das Passwort)
+     * - /admin (eigener Auth-Layer)
      * - /_next (Next.js internals)
-     * - /favicon.ico
+     * - /favicon.ico, /icon-light.png, /icon-dark.png, /apple-icon.png (Favicons sollen
+     *   auch ohne Login geladen werden, sonst zeigt der Browser-Tab kein Icon)
      */
-    "/((?!api/|admin|_next|favicon.ico).*)",
+    "/((?!api/|admin|_next|favicon\\.ico|icon-light\\.png|icon-dark\\.png|apple-icon\\.png).*)",
   ],
 };
 
@@ -43,6 +45,10 @@ function getLoginHTML() {
   <title>HYPONOVA – Zugang</title>
   <meta name="description" content="HYPONOVA – Ihr unabhängiger Hypothekenpartner in der Schweiz. Webseite in Bearbeitung." />
   <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="/icon-light.png" media="(prefers-color-scheme: light)" />
+  <link rel="icon" type="image/png" href="/icon-dark.png" media="(prefers-color-scheme: dark)" />
+  <link rel="icon" type="image/png" href="/icon-light.png" />
+  <link rel="apple-touch-icon" href="/apple-icon.png" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {

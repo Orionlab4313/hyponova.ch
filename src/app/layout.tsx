@@ -20,6 +20,14 @@ export const metadata: Metadata = {
     "Hypothek verlängern",
     "Tragbarkeit berechnen",
   ],
+  icons: {
+    icon: [
+      { url: "/icon-light.png", media: "(prefers-color-scheme: light)", type: "image/png" },
+      { url: "/icon-dark.png", media: "(prefers-color-scheme: dark)", type: "image/png" },
+      { url: "/icon-light.png", type: "image/png" }, // Fallback fuer Browser ohne media-Support
+    ],
+    apple: "/apple-icon.png",
+  },
 };
 
 export default function RootLayout({

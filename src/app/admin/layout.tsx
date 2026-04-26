@@ -13,38 +13,92 @@ const navItems = [
   { href: "/admin/pipeline", label: "Pipeline", icon: "📈" },
   { href: "/admin/dokumente", label: "Dokumente", icon: "📁" },
   { href: "/admin/blogposts", label: "Blog", icon: "📝" },
+  { href: "/admin/einstellungen", label: "Einstellungen", icon: "⚙️" },
 ];
 
+// Pfade die NICHT durch den Admin-Login geschuetzt sind (per Token-URL erreichbar)
+const PUBLIC_ADMIN_PATHS = ["/admin/einstellungen/passwort-bestaetigen"];
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const [authenticated, setAuthenticated] = useState(false);
+  const [authStage, setAuthStage] = useState<"checking" | "password" | "totp" | "ok">("checking");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [totpCode, setTotpCode] = useState("");
+  const [useBackup, setUseBackup] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = usePathname();
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && sessionStorage.getItem("admin-auth") === "true") {
-      setAuthenticated(true);
-    }
-  }, []);
+  const isPublicAdminPath = PUBLIC_ADMIN_PATHS.some((p) => pathname.startsWith(p));
 
-  const handleLogin = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (isPublicAdminPath) {
+      setAuthStage("ok");
+      return;
+    }
+    fetch("/api/admin/auth")
+      .then((r) => (r.ok ? "ok" : "password"))
+      .then((s) => setAuthStage(s as "ok" | "password"))
+      .catch(() => setAuthStage("password"));
+  }, [pathname, isPublicAdminPath]);
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     const res = await fetch("/api/admin/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password }),
     });
+    const data = await res.json().catch(() => ({}));
     if (res.ok) {
-      sessionStorage.setItem("admin-auth", "true");
-      setAuthenticated(true);
+      if (data.needsTotp) {
+        setAuthStage("totp");
+        setPassword("");
+      } else {
+        setAuthStage("ok");
+        setPassword("");
+      }
     } else {
-      setError(true);
+      setError(data.error || "Falsches Passwort");
       setPassword("");
     }
   };
 
-  if (!authenticated) {
+  const handleTotpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    const body = useBackup ? { backupCode: totpCode } : { totpCode };
+    const res = await fetch("/api/admin/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      setAuthStage("ok");
+      setTotpCode("");
+    } else {
+      setError(data.error || "Code falsch");
+      setTotpCode("");
+    }
+  };
+
+  const handleLogout = async () => {
+    await fetch("/api/admin/auth", { method: "DELETE" });
+    setAuthStage("password");
+  };
+
+  if (authStage === "checking") {
+    return (
+      <html lang="de">
+        <body style={{ margin: 0, fontFamily: "-apple-system, sans-serif", background: "#0a0a0a", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
+          <div style={{ color: "#666", fontSize: 13 }}>...</div>
+        </body>
+      </html>
+    );
+  }
+
+  if (authStage === "password" || authStage === "totp") {
     return (
       <html lang="de">
         <body style={{ margin: 0, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", background: "#0a0a0a", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", position: "relative" }}>
@@ -58,22 +112,64 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
           <div style={{ textAlign: "center", maxWidth: 320, padding: "0 16px" }}>
             <h1 style={{ fontSize: 22, fontWeight: 300, marginBottom: 6 }}>HYPONOVA Admin</h1>
-            <p style={{ fontSize: 13, color: "#666", marginBottom: 24 }}>Bitte melden Sie sich an</p>
-            <form onSubmit={handleLogin}>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => { setPassword(e.target.value); setError(false); }}
-                placeholder="Admin-Passwort"
-                autoFocus
-                style={{ width: "100%", padding: "10px 14px", fontSize: 14, background: "#1a1a1a", border: "1px solid #333", borderRadius: 6, color: "#fff", outline: "none", marginBottom: 10, boxSizing: "border-box" }}
-              />
-              <button type="submit" style={{ width: "100%", padding: 10, fontSize: 14, fontWeight: 500, background: "#fff", color: "#000", border: "none", borderRadius: 6, cursor: "pointer" }}>
-                Anmelden
-              </button>
-              {error && <p style={{ color: "#c8553d", fontSize: 12, marginTop: 8 }}>Falsches Passwort</p>}
-            </form>
+            <p style={{ fontSize: 13, color: "#666", marginBottom: 24 }}>
+              {authStage === "password" ? "Bitte melden Sie sich an" : useBackup ? "Backup-Code eingeben" : "Code aus Authenticator-App"}
+            </p>
+
+            {authStage === "password" ? (
+              <form onSubmit={handlePasswordSubmit}>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); setError(null); }}
+                  placeholder="Admin-Passwort"
+                  autoFocus
+                  style={inputDarkAuth}
+                />
+                <button type="submit" style={btnDarkAuth}>Anmelden</button>
+                {error && <p style={errorTextStyle}>{error}</p>}
+              </form>
+            ) : (
+              <form onSubmit={handleTotpSubmit}>
+                <input
+                  type="text"
+                  value={totpCode}
+                  onChange={(e) => {
+                    setError(null);
+                    if (useBackup) {
+                      setTotpCode(e.target.value.toUpperCase().slice(0, 14));
+                    } else {
+                      setTotpCode(e.target.value.replace(/\D/g, "").slice(0, 6));
+                    }
+                  }}
+                  placeholder={useBackup ? "ABCDE-FGHIJ" : "123456"}
+                  inputMode={useBackup ? "text" : "numeric"}
+                  autoFocus
+                  style={{ ...inputDarkAuth, letterSpacing: useBackup ? "0.05em" : "0.4em", textAlign: "center", fontSize: 18 }}
+                />
+                <button type="submit" style={btnDarkAuth}>Bestaetigen</button>
+                {error && <p style={errorTextStyle}>{error}</p>}
+                <button
+                  type="button"
+                  onClick={() => { setUseBackup(!useBackup); setTotpCode(""); setError(null); }}
+                  style={{ marginTop: 12, fontSize: 11, color: "#888", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}
+                >
+                  {useBackup ? "Mit App-Code anmelden" : "Backup-Code verwenden"}
+                </button>
+              </form>
+            )}
           </div>
+        </body>
+      </html>
+    );
+  }
+
+  // Public admin path (Token-Reset) — kein Sidebar/Layout, nur die Page anzeigen
+  if (isPublicAdminPath) {
+    return (
+      <html lang="de">
+        <body style={{ margin: 0, fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+          {children}
         </body>
       </html>
     );
@@ -146,7 +242,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </aside>
 
-          {/* Mobile overlay */}
           {sidebarOpen && (
             <div
               onClick={() => setSidebarOpen(false)}
@@ -154,9 +249,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             />
           )}
 
-          {/* Main content */}
           <div className="admin-main-content" style={{ flex: 1, marginLeft: 0, background: "#fafafa", minHeight: "100vh", transition: "margin-left 0.3s" }}>
-            {/* Top bar */}
             <header style={{ background: "#fff", borderBottom: "1px solid #e5e5e5", padding: "0 16px", height: 48, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 30 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <button
@@ -170,14 +263,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </span>
               </div>
               <button
-                onClick={() => { sessionStorage.removeItem("admin-auth"); setAuthenticated(false); }}
+                onClick={handleLogout}
                 style={{ fontSize: 11, color: "#888", background: "none", border: "1px solid #ddd", borderRadius: 5, padding: "4px 10px", cursor: "pointer" }}
               >
                 Abmelden
               </button>
             </header>
 
-            {/* Page content */}
             <main style={{ padding: 16, maxWidth: 1100, margin: "0 auto" }}>
               {children}
             </main>
@@ -206,3 +298,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </html>
   );
 }
+
+const inputDarkAuth: React.CSSProperties = {
+  width: "100%",
+  padding: "10px 14px",
+  fontSize: 14,
+  background: "#1a1a1a",
+  border: "1px solid #333",
+  borderRadius: 6,
+  color: "#fff",
+  outline: "none",
+  marginBottom: 10,
+  boxSizing: "border-box",
+};
+
+const btnDarkAuth: React.CSSProperties = {
+  width: "100%",
+  padding: 10,
+  fontSize: 14,
+  fontWeight: 500,
+  background: "#fff",
+  color: "#000",
+  border: "none",
+  borderRadius: 6,
+  cursor: "pointer",
+};
+
+const errorTextStyle: React.CSSProperties = {
+  color: "#c8553d",
+  fontSize: 12,
+  marginTop: 8,
+};

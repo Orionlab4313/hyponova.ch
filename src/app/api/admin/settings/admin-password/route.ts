@@ -15,12 +15,30 @@ export async function POST(request: NextRequest) {
   const { action, token, newPassword } = await request.json();
 
   if (action === "request") {
-    if (!isAdminAuthenticated(request)) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    const settings = await getAdminSettings();
+    // Erlaubt sowohl angemeldete Admin-Sessions (aus den Einstellungen)
+    // als auch nicht angemeldete "Passwort vergessen"-Anfragen vom Login-Screen.
+    // Spam-Schutz: pro 60 Sekunden hoechstens 1 ausstehendes Token.
     const sb = createServiceClient();
+    const { data: recent } = await sb
+      .from("admin_password_reset_tokens")
+      .select("created_at")
+      .eq("used", false)
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(1);
 
+    if (recent && recent.length > 0) {
+      const ageSec = (Date.now() - new Date(recent[0].created_at).getTime()) / 1000;
+      if (ageSec < 60) {
+        // Generische Antwort, damit Angreifer keine Info bekommen
+        return NextResponse.json({
+          success: true,
+          ttlMinutes: TOKEN_TTL_MIN,
+        });
+      }
+    }
+
+    const settings = await getAdminSettings();
     const newToken = randomBytes(24).toString("hex");
     const expiresAt = new Date(Date.now() + TOKEN_TTL_MIN * 60 * 1000).toISOString();
 
@@ -52,18 +70,28 @@ export async function POST(request: NextRequest) {
     });
 
     if (!fnRes.ok) {
-      const text = await fnRes.text().catch(() => "");
-      return NextResponse.json(
-        { error: `E-Mail-Versand fehlgeschlagen: ${text}` },
-        { status: 500 }
-      );
+      // Fuer nicht angemeldete Anfragen geben wir trotzdem generischen Erfolg zurueck.
+      // Fuer angemeldete Admin-Anfragen koennen wir den Fehler durchreichen, damit
+      // der Admin in den Einstellungen sieht, dass etwas schiefging.
+      if (isAdminAuthenticated(request)) {
+        const text = await fnRes.text().catch(() => "");
+        return NextResponse.json(
+          { error: `E-Mail-Versand fehlgeschlagen: ${text}` },
+          { status: 500 },
+        );
+      }
+      return NextResponse.json({ success: true, ttlMinutes: TOKEN_TTL_MIN });
     }
 
-    return NextResponse.json({
-      success: true,
-      sentTo: settings.notification_email,
-      ttlMinutes: TOKEN_TTL_MIN,
-    });
+    // Sensitive Info (sentTo) nur an angemeldete Sessions zurueckgeben
+    if (isAdminAuthenticated(request)) {
+      return NextResponse.json({
+        success: true,
+        sentTo: settings.notification_email,
+        ttlMinutes: TOKEN_TTL_MIN,
+      });
+    }
+    return NextResponse.json({ success: true, ttlMinutes: TOKEN_TTL_MIN });
   }
 
   if (action === "confirm") {

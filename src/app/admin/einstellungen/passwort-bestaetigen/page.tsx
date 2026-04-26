@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import PasswordInput from "@/components/ui/PasswordInput";
 
 function Inner() {
   const params = useSearchParams();
@@ -93,29 +94,27 @@ function Inner() {
           </div>
         ) : (
           <form onSubmit={submit} style={{ textAlign: "left" }}>
-            <label style={{ display: "block", marginBottom: 12 }}>
+            <label style={{ display: "block", marginBottom: 12, color: "#fff" }}>
               <span style={{ display: "block", fontSize: 11, color: "#aaa", marginBottom: 4 }}>
                 Neues Passwort (mind. 8 Zeichen)
               </span>
-              <input
-                type="password"
+              <PasswordInput
                 value={pw1}
-                onChange={(e) => setPw1(e.target.value)}
+                onChange={setPw1}
                 disabled={!token}
                 autoFocus
-                style={inputDark}
+                inputStyle={inputDark}
               />
             </label>
-            <label style={{ display: "block", marginBottom: 16 }}>
+            <label style={{ display: "block", marginBottom: 16, color: "#fff" }}>
               <span style={{ display: "block", fontSize: 11, color: "#aaa", marginBottom: 4 }}>
                 Passwort wiederholen
               </span>
-              <input
-                type="password"
+              <PasswordInput
                 value={pw2}
-                onChange={(e) => setPw2(e.target.value)}
+                onChange={setPw2}
                 disabled={!token}
-                style={inputDark}
+                inputStyle={inputDark}
               />
             </label>
             <button

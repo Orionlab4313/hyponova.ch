@@ -109,7 +109,7 @@ function getLoginHTML() {
     }
     input {
       width: 100%;
-      padding: 14px 18px;
+      padding: 14px 50px 14px 18px;
       font-size: 15px;
       background: #1a1a1a;
       border: 1px solid #333;
@@ -117,9 +117,30 @@ function getLoginHTML() {
       color: #fff;
       outline: none;
       transition: border-color 0.2s;
+      box-sizing: border-box;
     }
     input:focus { border-color: #666; }
     input::placeholder { color: #888; }
+    .toggle-pw {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      color: #888;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+    .toggle-pw:hover { opacity: 1; color: #fff; }
+    .toggle-pw svg { width: 20px; height: 20px; }
     button {
       width: 100%;
       padding: 14px;
@@ -158,6 +179,17 @@ function getLoginHTML() {
     <form id="authForm">
       <div class="input-wrap">
         <input type="password" id="password" placeholder="Passwort eingeben" autocomplete="off" autofocus />
+        <button type="button" class="toggle-pw" id="togglePw" aria-label="Passwort anzeigen" tabindex="-1">
+          <svg id="iconEye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg id="iconEyeOff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none">
+            <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+            <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+            <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+            <line x1="2" y1="2" x2="22" y2="22"/>
+          </svg>
+        </button>
       </div>
       <button type="submit">Zugang erhalten</button>
       <p class="error" id="error">Falsches Passwort. Bitte versuchen Sie es erneut.</p>
@@ -180,6 +212,25 @@ function getLoginHTML() {
         document.getElementById('password').value = '';
         document.getElementById('password').focus();
       }
+    });
+
+    document.getElementById('togglePw').addEventListener('click', () => {
+      const input = document.getElementById('password');
+      const eye = document.getElementById('iconEye');
+      const eyeOff = document.getElementById('iconEyeOff');
+      const btn = document.getElementById('togglePw');
+      if (input.type === 'password') {
+        input.type = 'text';
+        eye.style.display = 'none';
+        eyeOff.style.display = 'block';
+        btn.setAttribute('aria-label', 'Passwort verbergen');
+      } else {
+        input.type = 'password';
+        eye.style.display = 'block';
+        eyeOff.style.display = 'none';
+        btn.setAttribute('aria-label', 'Passwort anzeigen');
+      }
+      input.focus();
     });
   </script>
 </body>

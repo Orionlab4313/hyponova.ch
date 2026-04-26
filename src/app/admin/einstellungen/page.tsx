@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PasswordInput from "@/components/ui/PasswordInput";
 
 type Status = {
   notification_email: string;
@@ -389,27 +390,37 @@ function Field({
   type?: string;
   placeholder?: string;
 }) {
+  const inputStyle: React.CSSProperties = {
+    padding: "9px 12px",
+    fontSize: 14,
+    background: "#fff",
+    border: "1px solid #d4d4d4",
+    borderRadius: 6,
+    outline: "none",
+    color: "#1a1a1a",
+  };
+
   return (
     <label style={{ display: "block" }}>
       <span style={{ display: "block", fontSize: 12, color: "#444", marginBottom: 4, fontWeight: 500 }}>
         {label}
       </span>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        style={{
-          width: "100%",
-          padding: "9px 12px",
-          fontSize: 14,
-          background: "#fff",
-          border: "1px solid #d4d4d4",
-          borderRadius: 6,
-          outline: "none",
-          boxSizing: "border-box",
-        }}
-      />
+      {type === "password" ? (
+        <PasswordInput
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          inputStyle={inputStyle}
+        />
+      ) : (
+        <input
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          style={{ width: "100%", boxSizing: "border-box", ...inputStyle }}
+        />
+      )}
     </label>
   );
 }

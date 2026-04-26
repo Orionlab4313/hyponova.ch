@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import PasswordInput from "@/components/ui/PasswordInput";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: "📊" },
@@ -25,6 +26,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [totpCode, setTotpCode] = useState("");
   const [useBackup, setUseBackup] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [forgotMsg, setForgotMsg] = useState<string | null>(null);
+  const [forgotLoading, setForgotLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const pathname = usePathname();
 
@@ -88,6 +91,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setAuthStage("password");
   };
 
+  const handleForgot = async () => {
+    setForgotLoading(true);
+    setForgotMsg(null);
+    setError(null);
+    const res = await fetch("/api/admin/settings/admin-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "request" }),
+    });
+    setForgotLoading(false);
+    if (res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setForgotMsg(
+        `Falls die Adresse hinterlegt ist, wurde ein Bestätigungs-Link gesendet${data.sentTo ? " an " + maskEmail(data.sentTo) : ""}. Gültig 15 Minuten.`,
+      );
+    } else {
+      // Aus Sicherheitsgründen generische Antwort, auch bei Fehler
+      setForgotMsg(
+        "Falls die Adresse hinterlegt ist, wurde ein Bestätigungs-Link gesendet. Gültig 15 Minuten.",
+      );
+    }
+  };
+
   if (authStage === "checking") {
     return (
       <html lang="de">
@@ -118,16 +144,40 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             {authStage === "password" ? (
               <form onSubmit={handlePasswordSubmit}>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => { setPassword(e.target.value); setError(null); }}
-                  placeholder="Admin-Passwort"
-                  autoFocus
-                  style={inputDarkAuth}
-                />
+                <div style={{ color: "#fff", marginBottom: 10 }}>
+                  <PasswordInput
+                    value={password}
+                    onChange={(v) => { setPassword(v); setError(null); }}
+                    placeholder="Admin-Passwort"
+                    autoFocus
+                    inputStyle={inputDarkAuth}
+                  />
+                </div>
                 <button type="submit" style={btnDarkAuth}>Anmelden</button>
                 {error && <p style={errorTextStyle}>{error}</p>}
+                <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 8 }}>
+                  <button
+                    type="button"
+                    onClick={handleForgot}
+                    disabled={forgotLoading}
+                    style={{
+                      fontSize: 11,
+                      color: "#888",
+                      background: "none",
+                      border: "none",
+                      cursor: forgotLoading ? "default" : "pointer",
+                      textDecoration: "underline",
+                      padding: 0,
+                    }}
+                  >
+                    {forgotLoading ? "Sende E-Mail…" : "Passwort vergessen?"}
+                  </button>
+                  {forgotMsg && (
+                    <p style={{ fontSize: 11, color: "#a7f3d0", margin: 0, lineHeight: 1.5 }}>
+                      {forgotMsg}
+                    </p>
+                  )}
+                </div>
               </form>
             ) : (
               <form onSubmit={handleTotpSubmit}>
@@ -350,3 +400,10 @@ const errorTextStyle: React.CSSProperties = {
   fontSize: 12,
   marginTop: 8,
 };
+
+function maskEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  if (!local || !domain) return email;
+  if (local.length <= 2) return `${local[0] || ""}***@${domain}`;
+  return `${local.slice(0, 2)}***@${domain}`;
+}

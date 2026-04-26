@@ -14,5 +14,6 @@ export async function GET(request: NextRequest) {
     backup_codes_count: s.backup_codes.length,
     site_password_set: !!s.site_password_hash,
     admin_password_set: !!s.admin_password_hash,
+    site_protection_enabled: s.site_protection_enabled,
   });
 }

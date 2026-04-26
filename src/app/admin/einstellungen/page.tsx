@@ -9,6 +9,7 @@ type Status = {
   backup_codes_count: number;
   site_password_set: boolean;
   admin_password_set: boolean;
+  site_protection_enabled: boolean;
 };
 
 export default function EinstellungenPage() {
@@ -38,10 +39,249 @@ export default function EinstellungenPage() {
         </p>
       </div>
 
+      <SiteProtectionSection enabled={status.site_protection_enabled} onChange={reload} />
       <SitePasswordSection onChange={reload} />
       <AdminPasswordSection onChange={reload} email={status.notification_email} />
       <TwoFASection status={status} onChange={reload} />
     </div>
+  );
+}
+
+/* ---------- Site Protection (Schutz an/aus) ---------- */
+
+function SiteProtectionSection({
+  enabled,
+  onChange,
+}: {
+  enabled: boolean;
+  onChange: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  const performToggle = async (next: boolean) => {
+    setBusy(true);
+    setMsg(null);
+    const res = await fetch("/api/admin/settings/site-protection", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ enabled: next }),
+    });
+    setBusy(false);
+    setConfirming(false);
+    if (res.ok) {
+      setMsg({
+        type: "ok",
+        text: next
+          ? "Webseite ist jetzt geschützt. Aktiv innerhalb von 30 Sekunden."
+          : "Webseite ist jetzt öffentlich. Aktiv innerhalb von 30 Sekunden.",
+      });
+      onChange();
+    } else {
+      const data = await res.json().catch(() => ({}));
+      setMsg({ type: "err", text: data.error || "Fehler" });
+    }
+  };
+
+  const onSwitch = () => {
+    if (enabled) {
+      // Aktuell geschützt → Ausschalten verlangt Bestätigung
+      setConfirming(true);
+    } else {
+      // Aktuell öffentlich → Wieder anschalten ohne Rückfrage
+      performToggle(true);
+    }
+  };
+
+  return (
+    <Card
+      title="Webseite öffentlich / geschützt"
+      subtitle={
+        enabled
+          ? "Aktuell geschützt. Besucher müssen das Webseiten-Passwort eingeben."
+          : "Aktuell öffentlich. Jeder kann die Seite ohne Passwort sehen."
+      }
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 16,
+          maxWidth: 540,
+        }}
+      >
+        <div style={{ flex: 1 }}>
+          <p style={{ margin: 0, fontSize: 13, color: "#444" }}>
+            <strong style={{ color: enabled ? "#c8553d" : "#16a34a" }}>
+              {enabled ? "Schutz aktiv" : "Öffentlich"}
+            </strong>
+          </p>
+          <p style={{ margin: "4px 0 0", fontSize: 12, color: "#888", lineHeight: 1.5 }}>
+            {enabled
+              ? "Schutz ausschalten, sobald die Webseite live gehen soll."
+              : "Schutz wieder einschalten, falls die Seite vorübergehend nicht erreichbar sein soll."}
+          </p>
+        </div>
+        <Switch checked={enabled} disabled={busy} onChange={onSwitch} />
+      </div>
+      {msg && (
+        <div style={{ marginTop: 12 }}>
+          <Msg msg={msg} />
+        </div>
+      )}
+      {confirming && (
+        <ConfirmDialog
+          title="Webseite öffentlich machen?"
+          body="Die Seite ist danach für alle ohne Passwort erreichbar. Die Änderung wird innerhalb von 30 Sekunden wirksam."
+          confirmLabel="Ja, öffentlich machen"
+          cancelLabel="Abbrechen"
+          danger
+          loading={busy}
+          onConfirm={() => performToggle(false)}
+          onCancel={() => setConfirming(false)}
+        />
+      )}
+    </Card>
+  );
+}
+
+function ConfirmDialog({
+  title,
+  body,
+  confirmLabel,
+  cancelLabel,
+  danger,
+  loading,
+  onConfirm,
+  onCancel,
+}: {
+  title: string;
+  body: string;
+  confirmLabel: string;
+  cancelLabel: string;
+  danger?: boolean;
+  loading?: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      onClick={onCancel}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.5)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 100,
+        padding: 16,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#fff",
+          borderRadius: 12,
+          padding: 24,
+          maxWidth: 420,
+          width: "100%",
+          boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+        }}
+      >
+        <h3 style={{ margin: "0 0 8px", fontSize: 16, fontWeight: 600, color: "#1a1a1a" }}>
+          {title}
+        </h3>
+        <p style={{ margin: "0 0 20px", fontSize: 13, color: "#555", lineHeight: 1.6 }}>
+          {body}
+        </p>
+        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={loading}
+            style={{
+              padding: "9px 16px",
+              fontSize: 13,
+              background: "#fff",
+              color: "#444",
+              border: "1px solid #d4d4d4",
+              borderRadius: 6,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+          >
+            {cancelLabel}
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={loading}
+            style={{
+              padding: "9px 16px",
+              fontSize: 13,
+              fontWeight: 500,
+              background: danger ? "#c8553d" : "#1a1a1a",
+              color: "#fff",
+              border: "none",
+              borderRadius: 6,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+          >
+            {loading ? "…" : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Switch({
+  checked,
+  onChange,
+  disabled,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={onChange}
+      disabled={disabled}
+      style={{
+        position: "relative",
+        width: 48,
+        height: 28,
+        borderRadius: 14,
+        border: "none",
+        background: checked ? "#c8553d" : "#d4d4d4",
+        cursor: disabled ? "not-allowed" : "pointer",
+        transition: "background 0.2s",
+        padding: 0,
+        flexShrink: 0,
+      }}
+    >
+      <span
+        style={{
+          position: "absolute",
+          top: 3,
+          left: checked ? 23 : 3,
+          width: 22,
+          height: 22,
+          borderRadius: "50%",
+          background: "#fff",
+          transition: "left 0.2s",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+        }}
+      />
+    </button>
   );
 }
 

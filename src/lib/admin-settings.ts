@@ -19,6 +19,7 @@ export type AdminSettings = {
   totp_enabled: boolean;
   backup_codes: string[];
   notification_email: string;
+  site_protection_enabled: boolean;
   updated_at: string;
 };
 

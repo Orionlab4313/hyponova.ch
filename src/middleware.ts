@@ -1,21 +1,65 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const SITE_PASSWORD = "Möhlin4313";
 const COOKIE_NAME = "hyponova-auth";
 
-export function middleware(request: NextRequest) {
-  // Check if already authenticated
+/**
+ * Modul-scope Cache für den Site-Protection-Flag.
+ * 30s TTL: Toggle wirkt innerhalb von max 30 Sekunden, ohne dass
+ * die Middleware bei jedem Request einen DB-Roundtrip macht.
+ */
+let protectionCache: { enabled: boolean; expiresAt: number } | null = null;
+const CACHE_TTL_MS = 30_000;
+
+async function isProtectionEnabled(): Promise<boolean> {
+  if (protectionCache && protectionCache.expiresAt > Date.now()) {
+    return protectionCache.enabled;
+  }
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !supabaseKey) {
+    return true; // fail closed
+  }
+  try {
+    const res = await fetch(
+      `${supabaseUrl}/rest/v1/admin_settings?select=site_protection_enabled&id=eq.1`,
+      {
+        headers: {
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+      },
+    );
+    if (!res.ok) {
+      return true; // fail closed
+    }
+    const data = await res.json();
+    const enabled = !(Array.isArray(data) && data[0]?.site_protection_enabled === false);
+    protectionCache = { enabled, expiresAt: Date.now() + CACHE_TTL_MS };
+    return enabled;
+  } catch {
+    return true; // fail closed
+  }
+}
+
+export async function middleware(request: NextRequest) {
+  // Wenn Schutz deaktiviert → durchwinken
+  const protectionEnabled = await isProtectionEnabled();
+  if (!protectionEnabled) {
+    return NextResponse.next();
+  }
+
+  // Bereits authentifiziert?
   const authCookie = request.cookies.get(COOKIE_NAME);
   if (authCookie?.value === "authenticated") {
     return NextResponse.next();
   }
 
-  // Handle password submission
+  // Passwort-Submit
   if (request.method === "POST" && request.nextUrl.pathname === "/api/auth") {
-    return; // Let the API route handle it
+    return;
   }
 
-  // Show login page
+  // Login-Page zeigen
   return new NextResponse(getLoginHTML(), {
     status: 200,
     headers: { "Content-Type": "text/html; charset=utf-8" },

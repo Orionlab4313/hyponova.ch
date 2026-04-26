@@ -86,9 +86,9 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <div className="mb-5">
               <img
-                src="https://dqryxcdwvuborlayjain.supabase.co/storage/v1/object/public/logos/hyponova-logo.png"
+                src="https://dqryxcdwvuborlayjain.supabase.co/storage/v1/object/public/logos/hyponova-logo-white.png"
                 alt="HYPONOVA"
-                className="h-16 lg:h-20 w-auto brightness-0 invert"
+                className="h-12 lg:h-14 w-auto"
               />
             </div>
             <p className="text-[14px] leading-relaxed" style={{ color: "#888" }}>

@@ -146,10 +146,9 @@ function getLoginHTML() {
   <main>
   <div class="container">
     <img
-      src="https://dqryxcdwvuborlayjain.supabase.co/storage/v1/object/public/logos/hyponova-logo.png"
+      src="https://dqryxcdwvuborlayjain.supabase.co/storage/v1/object/public/logos/hyponova-logo-white.png"
       alt="HYPONOVA"
       class="logo"
-      style="filter: brightness(0) invert(1);"
     />
     <div class="badge">In Bearbeitung</div>
     <h1>Webseite wird gerade erstellt</h1>

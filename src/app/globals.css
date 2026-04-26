@@ -52,3 +52,192 @@ body {
   border-radius: 2px;
   background: transparent;
 }
+
+/* Blog Prose ---------------------------------------------------------- */
+/* Tailwind Preflight resettet h1-h6, ul, ol, blockquote etc. global.
+   Diese Regeln stellen typografische Hierarchie im oeffentlichen Blog
+   wieder her. TipTap im Admin nutzt eigene Styles in BlogPostEditor. */
+
+.blog-prose h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1a1a1a;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.blog-prose h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #1a1a1a;
+  margin-top: 2.25rem;
+  margin-bottom: 0.9rem;
+  letter-spacing: -0.01em;
+}
+
+.blog-prose h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: #1a1a1a;
+  margin-top: 1.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.blog-prose p {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: #3a3a3a;
+  margin-bottom: 1.15rem;
+}
+
+.blog-prose strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.blog-prose em {
+  font-style: italic;
+}
+
+.blog-prose u {
+  text-decoration: underline;
+}
+
+.blog-prose a {
+  color: #c8553d;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s ease;
+}
+
+.blog-prose a:hover {
+  color: #b44a35;
+}
+
+.blog-prose ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+}
+
+.blog-prose ul li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.55rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #3a3a3a;
+}
+
+.blog-prose ul li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.7rem;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #c8553d;
+}
+
+.blog-prose ol {
+  list-style: decimal outside;
+  padding-left: 1.5rem;
+  margin: 0 0 1.5rem 0;
+}
+
+.blog-prose ol li {
+  margin-bottom: 0.55rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #3a3a3a;
+  padding-left: 0.25rem;
+}
+
+.blog-prose ol li::marker {
+  color: #c8553d;
+  font-weight: 600;
+}
+
+.blog-prose blockquote {
+  border-left: 3px solid #c8553d;
+  background: rgba(200, 85, 61, 0.05);
+  padding: 1rem 1.25rem;
+  margin: 1.75rem 0;
+  border-radius: 0 6px 6px 0;
+  color: #1a1a1a;
+  font-style: italic;
+}
+
+.blog-prose blockquote p {
+  margin-bottom: 0;
+  color: #1a1a1a;
+}
+
+.blog-prose code {
+  background: #f3f3f3;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.92em;
+  color: #1a1a1a;
+}
+
+.blog-prose pre {
+  background: #1a1a1a;
+  color: #f5f5f5;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.blog-prose pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+.blog-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  display: block;
+  margin: 1.75rem 0;
+}
+
+.blog-prose hr {
+  border: none;
+  border-top: 1px solid #e5e5e5;
+  margin: 2.5rem 0;
+}
+
+/* Custom-Bloecke aus dem Editor */
+.blog-prose .highlight-box {
+  background: rgba(200, 85, 61, 0.06);
+  border-left: 3px solid #c8553d;
+  padding: 1.25rem 1.5rem;
+  border-radius: 0 8px 8px 0;
+  margin: 2rem 0;
+}
+
+.blog-prose .highlight-box p {
+  margin-bottom: 0;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+/* Erstes Element ohne oberen Margin, damit die Hero-Distanz nicht doppelt wirkt */
+.blog-prose > div:first-child > h1:first-child,
+.blog-prose > div:first-child > h2:first-child,
+.blog-prose > div:first-child > h3:first-child,
+.blog-prose > div:first-child > p:first-child {
+  margin-top: 0;
+}

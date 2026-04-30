@@ -8,7 +8,7 @@ import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 const TOKEN_TTL_MIN = 15;
 
 const RL_BUCKET = "admin-pw-reset";
-const RL_MAX = 3;
+const RL_MAX = 20;
 const RL_WINDOW = 60 * 60; // 1h
 
 /**
@@ -28,8 +28,13 @@ export async function POST(request: NextRequest) {
       windowSeconds: RL_WINDOW,
     });
     if (!limit.ok) {
-      // Generische Antwort, kein Hinweis auf Limit fuer anonyme Anfragen
-      return NextResponse.json({ success: true, ttlMinutes: TOKEN_TTL_MIN });
+      // Echtes Limit-Feedback — sonst denkt der User die Email kommt und sie kommt nie.
+      return NextResponse.json(
+        {
+          error: `Zu viele Reset-Anfragen. Bitte in ${Math.ceil(limit.retryAfterSeconds / 60)} Minuten erneut versuchen.`,
+        },
+        { status: 429 }
+      );
     }
 
     // Spam-Schutz: pro 60 Sekunden hoechstens 1 ausstehendes Token (DB-side).

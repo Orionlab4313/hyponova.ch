@@ -1,6 +1,21 @@
 # HYPONOVA – Entwicklungsnotizen
 
-## Status: Admin + i18n FERTIG — Stand 02.04.2026
+## Status: Admin + i18n + Rechtliches editierbar — Stand 30.04.2026
+
+## Phase 11: Rechtliche Seiten editierbar (DE/EN) ✅ FERTIG (30.04.2026)
+- [x] **Tabelle** `legal_pages` (id text PK: 'impressum'|'agb'|'datenschutz'), pro Seite jeweils DE+EN Felder fuer title, title_highlight, content_html, meta_description
+- [x] **Initial-Seed** mit aktuellen DE-Texten aus den hartkodierten Seiten; EN-Felder leer (Simon ergaenzt)
+- [x] **Admin** `/admin/rechtliches` (Liste mit 3 Karten + DE/EN-Status-Badges) und `/admin/rechtliches/[id]` (Editor mit DE/EN-Tabs)
+- [x] **Editor**: Wiederverwendung von `BlogPostEditor` (Tiptap) — beide Sprachen werden im DOM gehalten, nur visuell ge-toggled, kein State-Verlust beim Sprachwechsel
+- [x] **Public** `/impressum`, `/agb`, `/datenschutz`: Server-Components, lesen `hyponova-lang` Cookie + Inhalt aus Supabase, EN faellt auf DE zurueck wenn leer
+- [x] **Hinweis-Banner** im Editor fuer AGB/Datenschutz: juristisch pruefen lassen
+- [x] **revalidatePath** beim Speichern fuer sofortige Sichtbarkeit
+- APIs: `/api/admin/legal-pages` (GET), `/api/admin/legal-pages/[id]` (GET/PATCH)
+- Komponenten: `src/components/admin/legal/LegalPageForm.tsx`, `src/components/legal/LegalPageView.tsx`
+- Lib: `src/lib/legal-pages.ts`
+- Migration: `supabase/migrations/20260430_legal_pages.sql` (bereits via MCP angewendet)
+
+
 
 ---
 
@@ -111,7 +126,9 @@
 | SEO (Schema.org, Sitemap) | ✅ Erledigt |
 | Gründer-Foto für Über-uns | Vom Kunden nötig |
 | UID-Nummer für Impressum | Vom Kunden nötig |
-| AGB/Datenschutz vom Anwalt prüfen | Vom Kunden nötig |
+| AGB/Datenschutz vom Anwalt prüfen | Vom Kunden nötig (Texte jetzt in DB editierbar) |
+| EN-Versionen Impressum/AGB/Datenschutz | Simon muss im Admin nachtragen |
+| Blog zweisprachig (DE/EN-Editor wie Rechtliches) | Phase B — noch ausstehend |
 
 ---
 

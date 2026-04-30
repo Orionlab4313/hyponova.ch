@@ -14,6 +14,7 @@ const navItems = [
   { href: "/admin/pipeline", label: "Pipeline", icon: "📈" },
   { href: "/admin/dokumente", label: "Dokumente", icon: "📁" },
   { href: "/admin/blogposts", label: "Blog", icon: "📝" },
+  { href: "/admin/rechtliches", label: "Rechtliches", icon: "⚖️" },
   { href: "/admin/einstellungen", label: "Einstellungen", icon: "⚙️" },
 ];
 

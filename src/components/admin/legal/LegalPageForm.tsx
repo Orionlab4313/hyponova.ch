@@ -158,7 +158,7 @@ export default function LegalPageForm({ initial }: Props) {
                   padding: "10px 18px",
                   background: "transparent",
                   border: "none",
-                  borderBottom: active ? "2px solid #7c5cfc" : "2px solid transparent",
+                  borderBottom: active ? "2px solid #c8553d" : "2px solid transparent",
                   marginBottom: -1,
                   fontSize: 14,
                   fontWeight: active ? 700 : 500,
@@ -328,7 +328,7 @@ export default function LegalPageForm({ initial }: Props) {
             style={{
               width: "100%",
               padding: "12px 0",
-              background: "#7c5cfc",
+              background: "#c8553d",
               color: "#fff",
               border: "none",
               borderRadius: 4,

@@ -155,17 +155,17 @@ export default function BlogPostEditor({ initialHtml, onChange }: Props) {
           margin: 0;
         }
         .tiptap-editor-content li::marker {
-          color: #7c5cfc;
+          color: #c8553d;
         }
         .tiptap-editor-content blockquote {
-          border-left: 3px solid #7c5cfc;
+          border-left: 3px solid #c8553d;
           padding: 0.5em 1em;
           color: #555;
           margin: 1em 0;
-          background: rgba(124, 92, 252, 0.04);
+          background: rgba(200, 85, 61, 0.04);
         }
         .tiptap-editor-content img { max-width: 100%; height: auto; border-radius: 6px; margin: 1em 0; }
-        .tiptap-editor-content a { color: #7c5cfc; text-decoration: underline; }
+        .tiptap-editor-content a { color: #c8553d; text-decoration: underline; }
         .tiptap-editor-content strong { font-weight: 700; }
         .tiptap-editor-content em { font-style: italic; }
         .tiptap-editor-content u { text-decoration: underline; }
@@ -197,8 +197,8 @@ export default function BlogPostEditor({ initialHtml, onChange }: Props) {
           height: 0;
         }
         .tiptap-editor-content .tiptap-highlight-box {
-          background: rgba(124, 92, 252, 0.06);
-          border-left: 3px solid #7c5cfc;
+          background: rgba(200, 85, 61, 0.06);
+          border-left: 3px solid #c8553d;
           padding: 1rem 1.25rem;
           border-radius: 0 8px 8px 0;
           margin: 1.5rem 0;
@@ -219,7 +219,7 @@ export default function BlogPostEditor({ initialHtml, onChange }: Props) {
           display: inline-block;
           margin: 1rem 0;
           padding: 10px 20px;
-          background: #7c5cfc;
+          background: #c8553d;
           color: #fff;
           border-radius: 4px;
           font-weight: 600;
@@ -227,7 +227,7 @@ export default function BlogPostEditor({ initialHtml, onChange }: Props) {
           cursor: pointer;
         }
         .tiptap-editor-content .ProseMirror-selectednode {
-          outline: 2px solid #7c5cfc;
+          outline: 2px solid #c8553d;
           outline-offset: 2px;
         }
       `}</style>

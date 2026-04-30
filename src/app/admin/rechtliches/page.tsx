@@ -209,8 +209,8 @@ export default function RechtlichesListPage() {
 
       <style>{`
         .legal-card:hover {
-          border-color: #7c5cfc !important;
-          box-shadow: 0 2px 8px rgba(124,92,252,0.08);
+          border-color: #c8553d !important;
+          box-shadow: 0 2px 8px rgba(200,85,61,0.08);
         }
       `}</style>
     </div>

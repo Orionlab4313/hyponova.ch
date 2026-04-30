@@ -15,7 +15,7 @@ const statusConfig: Record<
 > = {
   draft: { label: "Entwurf", color: "#666", background: "#eee" },
   published: { label: "Live", color: "#0a7a2e", background: "#e6f4ea" },
-  scheduled: { label: "Geplant", color: "#7c5cfc", background: "rgba(124,92,252,0.12)" },
+  scheduled: { label: "Geplant", color: "#c8553d", background: "rgba(200,85,61,0.12)" },
 };
 
 function formatDate(dateStr: string) {
@@ -182,7 +182,7 @@ export default function BlogpostsListPage() {
           href="/admin/blogposts/new"
           style={{
             padding: "10px 16px",
-            background: "#7c5cfc",
+            background: "#c8553d",
             color: "#fff",
             textDecoration: "none",
             borderRadius: 4,
@@ -234,9 +234,9 @@ export default function BlogpostsListPage() {
             onClick={() => setFilter(k)}
             style={{
               padding: "6px 12px",
-              background: filter === k ? "#7c5cfc" : "#fff",
+              background: filter === k ? "#c8553d" : "#fff",
               color: filter === k ? "#fff" : "#333",
-              border: "1px solid " + (filter === k ? "#7c5cfc" : "#ddd"),
+              border: "1px solid " + (filter === k ? "#c8553d" : "#ddd"),
               borderRadius: 4,
               fontSize: 13,
               fontWeight: 500,

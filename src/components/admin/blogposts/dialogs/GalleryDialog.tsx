@@ -60,7 +60,7 @@ export default function GalleryDialog({ onClose, onSubmit }: Props) {
         disabled={uploading}
       />
       {uploading && (
-        <div style={{ fontSize: 13, color: "#7c5cfc", marginTop: 8 }}>
+        <div style={{ fontSize: 13, color: "#c8553d", marginTop: 8 }}>
           Hochladen …
         </div>
       )}
@@ -130,9 +130,9 @@ export default function GalleryDialog({ onClose, onSubmit }: Props) {
             style={{
               flex: 1,
               padding: "10px 12px",
-              border: "1px solid " + (columns === c ? "#7c5cfc" : "#ddd"),
-              background: columns === c ? "rgba(124,92,252,0.1)" : "#fff",
-              color: columns === c ? "#7c5cfc" : "#333",
+              border: "1px solid " + (columns === c ? "#c8553d" : "#ddd"),
+              background: columns === c ? "rgba(200,85,61,0.1)" : "#fff",
+              color: columns === c ? "#c8553d" : "#333",
               borderRadius: 4,
               fontSize: 14,
               fontWeight: 600,

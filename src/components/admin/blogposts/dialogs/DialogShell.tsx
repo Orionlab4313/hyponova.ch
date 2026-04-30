@@ -93,7 +93,7 @@ export const labelStyle: React.CSSProperties = {
 
 export const primaryBtnStyle: React.CSSProperties = {
   padding: "10px 20px",
-  background: "#7c5cfc",
+  background: "#c8553d",
   color: "#fff",
   border: "none",
   borderRadius: 4,

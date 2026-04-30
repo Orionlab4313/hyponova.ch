@@ -146,7 +146,7 @@ export default function SetupNotice() {
             onClick={copy}
             style={{
               padding: "6px 14px",
-              background: copied ? "#0a7a2e" : "#7c5cfc",
+              background: copied ? "#0a7a2e" : "#c8553d",
               color: "#fff",
               border: "none",
               borderRadius: 4,
@@ -184,8 +184,8 @@ export default function SetupNotice() {
         style={{
           marginTop: 20,
           padding: "12px 16px",
-          background: "rgba(124,92,252,0.06)",
-          border: "1px solid rgba(124,92,252,0.2)",
+          background: "rgba(200,85,61,0.06)",
+          border: "1px solid rgba(200,85,61,0.2)",
           borderRadius: 4,
           fontSize: 13,
           color: "#555",

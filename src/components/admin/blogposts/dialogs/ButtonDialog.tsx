@@ -50,9 +50,9 @@ export default function ButtonDialog({ onClose, onSubmit }: Props) {
             style={{
               flex: 1,
               padding: "10px 12px",
-              border: "1px solid " + (variant === v ? "#7c5cfc" : "#ddd"),
-              background: variant === v ? "rgba(124,92,252,0.1)" : "#fff",
-              color: variant === v ? "#7c5cfc" : "#333",
+              border: "1px solid " + (variant === v ? "#c8553d" : "#ddd"),
+              background: variant === v ? "rgba(200,85,61,0.1)" : "#fff",
+              color: variant === v ? "#c8553d" : "#333",
               borderRadius: 4,
               fontSize: 14,
               fontWeight: 600,

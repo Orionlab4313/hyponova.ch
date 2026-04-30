@@ -271,7 +271,7 @@ export default function BlogPostForm({ initial }: Props) {
                   padding: "10px 18px",
                   background: "transparent",
                   border: "none",
-                  borderBottom: active ? "2px solid #7c5cfc" : "2px solid transparent",
+                  borderBottom: active ? "2px solid #c8553d" : "2px solid transparent",
                   marginBottom: -1,
                   fontSize: 14,
                   fontWeight: active ? 700 : 500,
@@ -312,13 +312,13 @@ export default function BlogPostForm({ initial }: Props) {
               ? onTitleDeChange(e.target.value)
               : update("title_en", e.target.value)
           }
-          placeholder={lang === "de" ? "z.B. KI im Finanzwesen" : "e.g. AI in Finance"}
+          placeholder={lang === "de" ? "z.B. Eigenheim finanzieren" : "e.g. Financing your home"}
           style={{ ...inputStyle, fontSize: 18, fontWeight: 600 }}
         />
 
         <div className="blogpost-row">
           <div>
-            <label style={labelStyle}>Titel-Highlight (violett, optional)</label>
+            <label style={labelStyle}>Titel-Highlight (orange, optional)</label>
             <input
               value={titleHighlightVal}
               onChange={(e) =>
@@ -327,7 +327,7 @@ export default function BlogPostForm({ initial }: Props) {
                   e.target.value
                 )
               }
-              placeholder={lang === "de" ? "z.B. Finanzwesen" : "e.g. Finance"}
+              placeholder={lang === "de" ? "z.B. finanzieren" : "e.g. financing"}
               style={compactInputStyle}
             />
           </div>
@@ -338,7 +338,7 @@ export default function BlogPostForm({ initial }: Props) {
               onChange={(e) =>
                 update(lang === "de" ? "badge_de" : "badge_en", e.target.value)
               }
-              placeholder={lang === "de" ? "z.B. Finanzwesen" : "e.g. Finance"}
+              placeholder={lang === "de" ? "z.B. Hypothek" : "e.g. Mortgage"}
               style={compactInputStyle}
             />
           </div>
@@ -657,7 +657,7 @@ export default function BlogPostForm({ initial }: Props) {
               width: "100%",
               marginTop: 14,
               padding: "12px 0",
-              background: "#7c5cfc",
+              background: "#c8553d",
               color: "#fff",
               border: "none",
               borderRadius: 4,

@@ -3,8 +3,17 @@ import { randomBytes } from "crypto";
 import * as OTPAuth from "otpauth";
 import QRCode from "qrcode";
 import bcrypt from "bcryptjs";
-import { getAdminSettings, updateAdminSettings, verifyAdminPassword } from "@/lib/admin-settings";
-import { isAdminAuthenticated } from "@/lib/admin-guard";
+import {
+  getAdminSettings,
+  getTotpSecret,
+  setTotpSecret,
+  updateAdminSettings,
+  verifyAdminPassword,
+} from "@/lib/admin-settings";
+import { requireAdmin } from "@/lib/admin-guard";
+
+const BACKUP_CODE_BYTES = 10; // 80 Bits Entropy pro Code
+const BCRYPT_COST = 12;
 
 /**
  * POST /api/admin/settings/twofa
@@ -13,9 +22,8 @@ import { isAdminAuthenticated } from "@/lib/admin-guard";
  *   { action: "disable", adminPassword, code }          → deaktiviert
  */
 export async function POST(request: NextRequest) {
-  if (!isAdminAuthenticated(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const guard = requireAdmin(request);
+  if (guard) return guard;
 
   const body = await request.json();
   const action = body.action;
@@ -57,13 +65,13 @@ export async function POST(request: NextRequest) {
     const plainCodes: string[] = [];
     const hashedCodes: string[] = [];
     for (let i = 0; i < 8; i++) {
-      const c = randomBytes(5).toString("hex").toUpperCase().match(/.{1,5}/g)!.join("-");
+      const c = randomBytes(BACKUP_CODE_BYTES).toString("hex").toUpperCase().match(/.{1,5}/g)!.join("-");
       plainCodes.push(c);
-      hashedCodes.push(bcrypt.hashSync(c, 10));
+      hashedCodes.push(await bcrypt.hash(c, BCRYPT_COST));
     }
 
+    await setTotpSecret(String(secret));
     await updateAdminSettings({
-      totp_secret: String(secret),
       totp_enabled: true,
       backup_codes: hashedCodes,
     });
@@ -77,23 +85,23 @@ export async function POST(request: NextRequest) {
     if (!ok) {
       return NextResponse.json({ error: "Admin-Passwort falsch" }, { status: 401 });
     }
-    const settings = await getAdminSettings();
-    if (settings.totp_secret) {
+    const totpSecret = await getTotpSecret();
+    if (totpSecret) {
       const totp = new OTPAuth.TOTP({
         issuer: "HYPONOVA",
         label: "Admin",
         algorithm: "SHA1",
         digits: 6,
         period: 30,
-        secret: OTPAuth.Secret.fromBase32(settings.totp_secret),
+        secret: OTPAuth.Secret.fromBase32(totpSecret),
       });
       const delta = totp.validate({ token: String(code || ""), window: 1 });
       if (delta === null) {
         return NextResponse.json({ error: "Code falsch" }, { status: 400 });
       }
     }
+    await setTotpSecret(null);
     await updateAdminSettings({
-      totp_secret: null,
       totp_enabled: false,
       backup_codes: [],
     });
@@ -102,4 +110,3 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ error: "Unbekannte Aktion" }, { status: 400 });
 }
-

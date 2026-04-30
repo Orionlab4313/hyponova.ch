@@ -1,7 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
+import { requireAdmin } from "@/lib/admin-guard";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
+
   try {
     const supabase = createServiceClient();
     const { data, error } = await supabase
@@ -10,7 +14,7 @@ export async function GET() {
       .order("id", { ascending: true });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: "Datenbankfehler" }, { status: 500 });
     }
     return NextResponse.json(data);
   } catch (err) {

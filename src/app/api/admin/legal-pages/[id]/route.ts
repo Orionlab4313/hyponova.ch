@@ -1,18 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createServiceClient } from "@/lib/supabase";
+import { requireAdmin } from "@/lib/admin-guard";
+import { sanitizeBlogHtml } from "@/lib/sanitize";
 
 const ALLOWED_IDS = ["impressum", "agb", "datenschutz"] as const;
 type AllowedId = (typeof ALLOWED_IDS)[number];
+
+const HTML_FIELDS = new Set(["content_html_de", "content_html_en"]);
 
 function isAllowed(id: string): id is AllowedId {
   return (ALLOWED_IDS as readonly string[]).includes(id);
 }
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
+
   try {
     const { id } = await context.params;
     if (!isAllowed(id)) {
@@ -26,7 +33,7 @@ export async function GET(
       .maybeSingle();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: "Datenbankfehler" }, { status: 500 });
     }
     if (!data) {
       return NextResponse.json({ error: "Nicht gefunden" }, { status: 404 });
@@ -42,6 +49,9 @@ export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
+
   try {
     const { id } = await context.params;
     if (!isAllowed(id)) {
@@ -62,7 +72,10 @@ export async function PATCH(
     ];
     const updates: Record<string, unknown> = {};
     for (const key of allowed) {
-      if (key in body) updates[key] = body[key] ?? "";
+      if (key in body) {
+        const raw = String(body[key] ?? "");
+        updates[key] = HTML_FIELDS.has(key) ? sanitizeBlogHtml(raw) : raw;
+      }
     }
 
     const { data, error } = await supabase
@@ -73,10 +86,9 @@ export async function PATCH(
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: "Datenbankfehler" }, { status: 500 });
     }
 
-    // Public-Page Cache invalidieren
     revalidatePath(`/${id}`);
 
     return NextResponse.json(data);

@@ -9,11 +9,14 @@ import { createHmac, randomBytes, timingSafeEqual } from "crypto";
  */
 
 function getSecret(): string {
-  return (
-    process.env.ADMIN_SESSION_SECRET ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    "fallback-dev-secret-change-me"
-  );
+  const secret = process.env.ADMIN_SESSION_SECRET;
+  if (!secret || secret.length < 32) {
+    throw new Error(
+      "ADMIN_SESSION_SECRET fehlt oder ist zu kurz (mindestens 32 Zeichen). " +
+        "In Vercel als Env-Variable setzen."
+    );
+  }
+  return secret;
 }
 
 function b64url(buf: Buffer): string {
@@ -27,12 +30,12 @@ function unb64url(s: string): Buffer {
 }
 
 export type AdminTokenPayload = {
-  stage: "pw-ok" | "full";
+  stage: "pw-ok" | "full" | "site";
   exp: number;
   nonce: string;
 };
 
-export function signAdminToken(stage: "pw-ok" | "full", ttlSeconds: number): string {
+export function signAdminToken(stage: "pw-ok" | "full" | "site", ttlSeconds: number): string {
   const payload: AdminTokenPayload = {
     stage,
     exp: Math.floor(Date.now() / 1000) + ttlSeconds,
@@ -47,7 +50,14 @@ export function verifyAdminToken(token: string | undefined | null): AdminTokenPa
   if (!token) return null;
   const [body, sig] = token.split(".");
   if (!body || !sig) return null;
-  const expected = createHmac("sha256", getSecret()).update(body).digest();
+  let secret: string;
+  try {
+    secret = getSecret();
+  } catch {
+    // Env fehlt → kein Token kann gueltig sein
+    return null;
+  }
+  const expected = createHmac("sha256", secret).update(body).digest();
   const actual = unb64url(sig);
   if (expected.length !== actual.length) return null;
   if (!timingSafeEqual(expected, actual)) return null;

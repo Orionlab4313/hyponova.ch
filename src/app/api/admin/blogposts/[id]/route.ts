@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createServiceClient } from "@/lib/supabase";
+import { requireAdmin } from "@/lib/admin-guard";
+import { sanitizeBlogHtml } from "@/lib/sanitize";
+
+const HTML_FIELDS = new Set(["content_html_de", "content_html_en"]);
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
+
   try {
     const { id } = await context.params;
     const supabase = createServiceClient();
@@ -16,7 +23,7 @@ export async function GET(
       .maybeSingle();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: "Datenbankfehler" }, { status: 500 });
     }
     if (!data) {
       return NextResponse.json({ error: "Nicht gefunden" }, { status: 404 });
@@ -32,6 +39,9 @@ export async function PATCH(
   request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
+
   try {
     const { id } = await context.params;
     const supabase = createServiceClient();
@@ -81,7 +91,11 @@ export async function PATCH(
     ];
     const updates: Record<string, unknown> = {};
     for (const key of allowed) {
-      if (key in body) updates[key] = body[key];
+      if (key in body) {
+        updates[key] = HTML_FIELDS.has(key)
+          ? sanitizeBlogHtml(String(body[key] ?? ""))
+          : body[key];
+      }
     }
 
     const { data, error } = await supabase
@@ -92,7 +106,7 @@ export async function PATCH(
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: "Datenbankfehler" }, { status: 500 });
     }
 
     revalidatePath("/blog");
@@ -107,9 +121,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
+
   try {
     const { id } = await context.params;
     const supabase = createServiceClient();
@@ -124,7 +141,7 @@ export async function DELETE(
     const { error } = await supabase.from("blog_posts").delete().eq("id", id);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: "Datenbankfehler" }, { status: 500 });
     }
 
     revalidatePath("/blog");

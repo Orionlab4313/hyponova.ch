@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createServiceClient } from "@/lib/supabase";
+import { requireAdmin } from "@/lib/admin-guard";
+import { sanitizeBlogHtml } from "@/lib/sanitize";
 
 async function promoteScheduledPosts(
   supabase: ReturnType<typeof createServiceClient>
@@ -16,7 +18,10 @@ async function promoteScheduledPosts(
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
+
   try {
     const supabase = createServiceClient();
 
@@ -28,7 +33,7 @@ export async function GET() {
       .order("created_at", { ascending: false });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: "Datenbankfehler" }, { status: 500 });
     }
     return NextResponse.json(data);
   } catch (err) {
@@ -38,6 +43,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
+
   try {
     const supabase = createServiceClient();
     const body = await request.json();
@@ -81,8 +89,8 @@ export async function POST(request: NextRequest) {
         excerpt_de: body.excerpt_de || "",
         excerpt_en: body.excerpt_en || "",
         hero_image: body.hero_image || "",
-        content_html_de: body.content_html_de || "",
-        content_html_en: body.content_html_en || "",
+        content_html_de: sanitizeBlogHtml(body.content_html_de || ""),
+        content_html_en: sanitizeBlogHtml(body.content_html_en || ""),
         reading_time_de: body.reading_time_de || "5 min",
         reading_time_en: body.reading_time_en || "5 min",
         status: body.status || "draft",
@@ -94,7 +102,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json({ error: "Datenbankfehler" }, { status: 500 });
     }
 
     revalidatePath("/blog");

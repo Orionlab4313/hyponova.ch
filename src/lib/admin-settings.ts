@@ -5,11 +5,14 @@ import { createServiceClient } from "./supabase";
  * Admin Settings Layer
  * --------------------
  * Liest Hashes und 2FA-Konfiguration aus der DB.
- * Fällt auf process.env zurück, wenn die DB-Hashes leer sind
- * (z.B. unmittelbar nach dem Migrations-Apply).
+ *
+ * KEIN Fallback auf hartkodierte Defaults — das war ein Sicherheitsrisiko.
+ * Das initiale Passwort muss via Migration oder einmaligem Setup gesetzt werden.
  *
  * Dieses Modul ist NUR für Server-Code gedacht (API-Routes).
  */
+
+import { decryptSecret, encryptSecret } from "./crypto-helper";
 
 export type AdminSettings = {
   id: number;
@@ -23,8 +26,7 @@ export type AdminSettings = {
   updated_at: string;
 };
 
-const ENV_FALLBACK_SITE_PW = "Möhlin4313";
-const ENV_FALLBACK_ADMIN_PW = process.env.ADMIN_PASSWORD || "HypoAdmin2026!";
+const BCRYPT_COST = 12;
 
 export async function getAdminSettings(): Promise<AdminSettings> {
   const sb = createServiceClient();
@@ -49,17 +51,15 @@ export async function updateAdminSettings(patch: Partial<AdminSettings>) {
 export async function verifySitePassword(input: string): Promise<boolean> {
   try {
     const s = await getAdminSettings();
-    if (s.site_password_hash) {
-      return bcrypt.compareSync(input, s.site_password_hash);
-    }
+    if (!s.site_password_hash) return false;
+    return await bcrypt.compare(input, s.site_password_hash);
   } catch {
-    // DB nicht erreichbar – falle auf Env-Default zurück
+    return false;
   }
-  return input === ENV_FALLBACK_SITE_PW;
 }
 
 export async function setSitePassword(plain: string) {
-  const hash = bcrypt.hashSync(plain, 10);
+  const hash = await bcrypt.hash(plain, BCRYPT_COST);
   await updateAdminSettings({ site_password_hash: hash });
 }
 
@@ -68,17 +68,15 @@ export async function setSitePassword(plain: string) {
 export async function verifyAdminPassword(input: string): Promise<boolean> {
   try {
     const s = await getAdminSettings();
-    if (s.admin_password_hash) {
-      return bcrypt.compareSync(input, s.admin_password_hash);
-    }
+    if (!s.admin_password_hash) return false;
+    return await bcrypt.compare(input, s.admin_password_hash);
   } catch {
-    // DB nicht erreichbar – Fallback
+    return false;
   }
-  return input === ENV_FALLBACK_ADMIN_PW;
 }
 
 export async function setAdminPassword(plain: string) {
-  const hash = bcrypt.hashSync(plain, 10);
+  const hash = await bcrypt.hash(plain, BCRYPT_COST);
   await updateAdminSettings({ admin_password_hash: hash });
 }
 
@@ -91,4 +89,17 @@ export async function isTotpEnabled(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+/** Liefert das entschluesselte TOTP-Secret oder null. */
+export async function getTotpSecret(): Promise<string | null> {
+  const s = await getAdminSettings();
+  if (!s.totp_secret) return null;
+  return decryptSecret(s.totp_secret);
+}
+
+/** Speichert das TOTP-Secret verschluesselt. */
+export async function setTotpSecret(plainSecret: string | null) {
+  const enc = plainSecret ? encryptSecret(plainSecret) : null;
+  await updateAdminSettings({ totp_secret: enc });
 }

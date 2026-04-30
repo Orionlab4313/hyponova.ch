@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAvailability, getBlockedEntries, setAvailability, setBlockedEntries } from "@/lib/availability-store";
+import { requireAdmin } from "@/lib/admin-guard";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
+
   const [availability, blocked] = await Promise.all([
     getAvailability(),
     getBlockedEntries(),
@@ -10,6 +14,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const guard = requireAdmin(request);
+  if (guard) return guard;
+
   const body = await request.json();
   const promises: Promise<void>[] = [];
   if (body.availability) promises.push(setAvailability(body.availability));

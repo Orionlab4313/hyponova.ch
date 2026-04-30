@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as OTPAuth from "otpauth";
 import bcrypt from "bcryptjs";
-import { getAdminSettings, verifyAdminPassword, updateAdminSettings } from "@/lib/admin-settings";
+import {
+  getAdminSettings,
+  getTotpSecret,
+  updateAdminSettings,
+  verifyAdminPassword,
+} from "@/lib/admin-settings";
 import { signAdminToken, verifyAdminToken } from "@/lib/admin-session";
+import { checkRateLimit, clientIp, resetRateLimit } from "@/lib/rate-limit";
 
 const STEP_COOKIE = "hyponova-admin-step";
 const FULL_COOKIE = "hyponova-admin-session";
+
+const RL_BUCKET = "admin-login";
+const RL_MAX = 8;
+const RL_WINDOW = 15 * 60; // 15min
 
 /**
  * Zwei-Stufen-Login für Admin:
@@ -15,6 +25,20 @@ const FULL_COOKIE = "hyponova-admin-session";
  *                                         → full session cookie
  */
 export async function POST(request: NextRequest) {
+  const ip = clientIp(request.headers);
+  const limit = await checkRateLimit({
+    bucket: RL_BUCKET,
+    key: ip,
+    max: RL_MAX,
+    windowSeconds: RL_WINDOW,
+  });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: `Zu viele Login-Versuche. Bitte in ${Math.ceil(limit.retryAfterSeconds / 60)} Minuten erneut versuchen.` },
+      { status: 429 }
+    );
+  }
+
   const body = await request.json().catch(() => ({}));
 
   // Stage 2: 2FA-Code mit Bridge-Token
@@ -26,16 +50,17 @@ export async function POST(request: NextRequest) {
     }
 
     const settings = await getAdminSettings();
+    const totpSecret = await getTotpSecret();
     let ok = false;
 
-    if (body.totpCode && settings.totp_secret) {
+    if (body.totpCode && totpSecret) {
       const totp = new OTPAuth.TOTP({
         issuer: "HYPONOVA",
         label: "Admin",
         algorithm: "SHA1",
         digits: 6,
         period: 30,
-        secret: OTPAuth.Secret.fromBase32(settings.totp_secret),
+        secret: OTPAuth.Secret.fromBase32(totpSecret),
       });
       const delta = totp.validate({ token: String(body.totpCode), window: 1 });
       ok = delta !== null;
@@ -43,7 +68,7 @@ export async function POST(request: NextRequest) {
       const code = String(body.backupCode).trim();
       // Backup-Codes sind gehasht gespeichert
       for (let i = 0; i < settings.backup_codes.length; i++) {
-        if (bcrypt.compareSync(code, settings.backup_codes[i])) {
+        if (await bcrypt.compare(code, settings.backup_codes[i])) {
           ok = true;
           // Verbrauchten Code entfernen
           const remaining = settings.backup_codes.filter((_, idx) => idx !== i);
@@ -56,6 +81,8 @@ export async function POST(request: NextRequest) {
     if (!ok) {
       return NextResponse.json({ error: "Code ungültig" }, { status: 401 });
     }
+
+    await resetRateLimit(RL_BUCKET, ip);
 
     const fullToken = signAdminToken("full", 60 * 60 * 8); // 8h
     const res = NextResponse.json({ success: true });
@@ -92,6 +119,7 @@ export async function POST(request: NextRequest) {
   }
 
   // 2FA nicht aktiv → direkt full session
+  await resetRateLimit(RL_BUCKET, ip);
   const fullToken = signAdminToken("full", 60 * 60 * 8);
   const res = NextResponse.json({ success: true });
   res.cookies.set(FULL_COOKIE, fullToken, {

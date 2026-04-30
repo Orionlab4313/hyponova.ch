@@ -2,6 +2,26 @@
 
 ## Status: Admin + i18n + Rechtliches editierbar — Stand 30.04.2026
 
+## Phase 13: Security-Hardening ✅ FERTIG (30.04.2026)
+- [x] **C1 Auth-Guards**: 11 ungeschuetzte Admin-API-Routen jetzt mit `requireAdmin()` (leads, appointments, messages, replies, availability, blogposts, blogposts/[id], blogposts/upload, legal-pages, legal-pages/[id])
+- [x] **C2 Default-Passwoerter raus**: hartkodierte Strings `Möhlin4313` und `HypoAdmin2026!` aus `admin-settings.ts` entfernt; DB-Hash ueber Migration gesetzt
+- [x] **C3 HTML-Sanitization**: `isomorphic-dompurify` in `src/lib/sanitize.ts`, Allowlist von Tags + Attributen, keine `<script>`/Inline-Handler/`javascript:`-URLs mehr durchsetzbar; in Blog + Legal API beim Save angewendet
+- [x] **H1 Rate-Limiting**: DB-Tabelle `rate_limit_attempts`, Limiter in `src/lib/rate-limit.ts`. Admin-Login: 8/15min/IP, Site-Login: 12/15min/IP, Reset: 3/h/IP
+- [x] **H2 Session-Secret**: `ADMIN_SESSION_SECRET` ist jetzt Pflicht (≥32 Zeichen), kein Fallback mehr; in Vercel als Env gesetzt
+- [x] **H3 Mass-Assignment**: Allowlists in leads/appointments/messages
+- [x] **H4 bcrypt async**: alle 6 Stellen von `compareSync`/`hashSync` zu `compare`/`hash` migriert
+- [x] **H5 TOTP-Encryption**: `src/lib/crypto-helper.ts` (AES-256-GCM mit Session-Secret-derived Key), `getTotpSecret`/`setTotpSecret` Helper. Legacy-Plain-Strings werden tolerant gelesen + beim naechsten Save verschluesselt
+- [x] **M1 Crypto-Random**: Filenames im Upload nutzen `crypto.randomBytes` statt `Math.random`
+- [x] **M2 Site-Cookie HMAC**: `/api/auth` setzt jetzt signiertes Token (`stage:"site"`); Middleware verifiziert via WebCrypto (Edge-kompatibel)
+- [x] **M3 Reset-Limit**: IP-basierter Limiter zusaetzlich zum 60s-DB-Cooldown
+- [x] **M4 Backup-Codes 80 Bits**: `randomBytes(10)` statt `randomBytes(5)`
+- [x] **L1 SVG-Upload raus**: `image/svg+xml` aus Allowlist entfernt
+- [x] **L3 Error-Masking**: Postgres-Errors werden nicht mehr 1:1 ans Frontend geleakt, generisches "Datenbankfehler"
+- [x] **bcrypt cost** von 10 auf 12 erhoeht
+- [x] **.claude/notes.md** Klartext-Passwoerter entfernt
+- Migration: `supabase/migrations/20260430_security_hardening.sql`
+- Vercel-Env: `ADMIN_SESSION_SECRET` (Production + Preview)
+
 ## Phase 12: Blog zweisprachig (DE/EN) ✅ FERTIG (30.04.2026)
 - [x] **Migration**: blog_posts Spalten zu `_de` umbenannt + `_en` ergaenzt fuer title, title_highlight, badge, excerpt, content_html, reading_time, meta_description. Slug, hero_image, status, publish_at bleiben sprachunabhaengig.
 - [x] **Editor** mit DE/EN-Tabs analog zu LegalPageForm. Slug wird nur aus DE-Titel auto-generiert. Reading-Time pro Sprache automatisch berechnet aus content_html_de/en.
@@ -86,7 +106,7 @@
 - **MCP**: `mcp__supabase-hyponova__*` (Simons Account, für Edge Functions + SQL)
 
 ### Infomaniak
-- **E-Mail**: info@hyponova.ch (Passwort: Admin.Simon.4313!)
+- **E-Mail**: info@hyponova.ch (Passwort in Supabase Secret SMTP_PASS, nicht hier ablegen)
 - **CalDAV**: ST07312 / nCk8AYvrg7FUouEg
 - **Kalender-URL**: https://sync.infomaniak.com/calendars/ST07312/b5c18253-12b3-4eb0-8bb6-143e6f639fef/
 - **Kontakte-URL**: https://sync.infomaniak.com/addressbooks/ST07312/b4f935a8-0005-4550-8219-bad56b33b084/
@@ -144,8 +164,8 @@
 ---
 
 ## Zugang
-- **Website**: hyponova.ch (Passwort: Möhlin4313)
-- **Admin**: hyponova.ch/admin (Passwort: HypoAdmin2026!)
+- **Website**: hyponova.ch (Site-PW liegt in `admin_settings.site_password_hash`, Aenderung via /admin/einstellungen)
+- **Admin**: hyponova.ch/admin (Admin-PW liegt in `admin_settings.admin_password_hash`, Reset via "Passwort vergessen" auf Login-Screen)
 - **Git**: Orionlab4313/hyponova.ch (Email: 224979510+Orionlab4313@users.noreply.github.com)
 - **Vercel**: hyponova / info-35941487 (Pro Trial, läuft ab ~10.04.2026)
 - **Supabase**: dqryxcdwvuborlayjain (info@hyponova.ch Account, MCP: mcp__supabase-hyponova__)

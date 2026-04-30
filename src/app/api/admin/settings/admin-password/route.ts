@@ -3,8 +3,13 @@ import { randomBytes } from "crypto";
 import { getAdminSettings, setAdminPassword } from "@/lib/admin-settings";
 import { isAdminAuthenticated } from "@/lib/admin-guard";
 import { createServiceClient } from "@/lib/supabase";
+import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 
 const TOKEN_TTL_MIN = 15;
+
+const RL_BUCKET = "admin-pw-reset";
+const RL_MAX = 3;
+const RL_WINDOW = 60 * 60; // 1h
 
 /**
  * POST /api/admin/settings/admin-password
@@ -15,9 +20,19 @@ export async function POST(request: NextRequest) {
   const { action, token, newPassword } = await request.json();
 
   if (action === "request") {
-    // Erlaubt sowohl angemeldete Admin-Sessions (aus den Einstellungen)
-    // als auch nicht angemeldete "Passwort vergessen"-Anfragen vom Login-Screen.
-    // Spam-Schutz: pro 60 Sekunden hoechstens 1 ausstehendes Token.
+    const ip = clientIp(request.headers);
+    const limit = await checkRateLimit({
+      bucket: RL_BUCKET,
+      key: ip,
+      max: RL_MAX,
+      windowSeconds: RL_WINDOW,
+    });
+    if (!limit.ok) {
+      // Generische Antwort, kein Hinweis auf Limit fuer anonyme Anfragen
+      return NextResponse.json({ success: true, ttlMinutes: TOKEN_TTL_MIN });
+    }
+
+    // Spam-Schutz: pro 60 Sekunden hoechstens 1 ausstehendes Token (DB-side).
     const sb = createServiceClient();
     const { data: recent } = await sb
       .from("admin_password_reset_tokens")
@@ -30,7 +45,6 @@ export async function POST(request: NextRequest) {
     if (recent && recent.length > 0) {
       const ageSec = (Date.now() - new Date(recent[0].created_at).getTime()) / 1000;
       if (ageSec < 60) {
-        // Generische Antwort, damit Angreifer keine Info bekommen
         return NextResponse.json({
           success: true,
           ttlMinutes: TOKEN_TTL_MIN,
@@ -39,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     const settings = await getAdminSettings();
-    const newToken = randomBytes(24).toString("hex");
+    const newToken = randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + TOKEN_TTL_MIN * 60 * 1000).toISOString();
 
     const { error } = await sb
@@ -70,9 +84,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!fnRes.ok) {
-      // Fuer nicht angemeldete Anfragen geben wir trotzdem generischen Erfolg zurueck.
-      // Fuer angemeldete Admin-Anfragen koennen wir den Fehler durchreichen, damit
-      // der Admin in den Einstellungen sieht, dass etwas schiefging.
+      // Fuer angemeldete Sessions geben wir den Fehler durch.
       if (isAdminAuthenticated(request)) {
         const text = await fnRes.text().catch(() => "");
         return NextResponse.json(

@@ -41,6 +41,61 @@ async function isProtectionEnabled(): Promise<boolean> {
   }
 }
 
+/**
+ * Edge-kompatible Verifikation des Site-Cookies (HMAC-SHA256 via WebCrypto).
+ * Token-Format identisch zu lib/admin-session.ts: base64url(payload).base64url(sig)
+ */
+function b64urlDecode(s: string): Uint8Array {
+  s = s.replace(/-/g, "+").replace(/_/g, "/");
+  while (s.length % 4) s += "=";
+  const bin = atob(s);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  return diff === 0;
+}
+
+async function verifySiteToken(token: string | undefined): Promise<boolean> {
+  if (!token) return false;
+  const secret = process.env.ADMIN_SESSION_SECRET;
+  if (!secret || secret.length < 32) return false;
+
+  const dot = token.indexOf(".");
+  if (dot < 0) return false;
+  const body = token.slice(0, dot);
+  const sig = token.slice(dot + 1);
+
+  try {
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"],
+    );
+    const expected = new Uint8Array(
+      await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(body)),
+    );
+    const got = b64urlDecode(sig);
+    if (!bytesEqual(expected, got)) return false;
+
+    const payloadJson = new TextDecoder().decode(b64urlDecode(body));
+    const payload = JSON.parse(payloadJson) as { stage?: string; exp?: number };
+    if (payload.stage !== "site") return false;
+    if (typeof payload.exp !== "number") return false;
+    if (payload.exp < Math.floor(Date.now() / 1000)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function middleware(request: NextRequest) {
   // Wenn Schutz deaktiviert → durchwinken
   const protectionEnabled = await isProtectionEnabled();
@@ -48,9 +103,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Bereits authentifiziert?
-  const authCookie = request.cookies.get(COOKIE_NAME);
-  if (authCookie?.value === "authenticated") {
+  // Bereits authentifiziert? HMAC-signiertes Token pruefen.
+  const authCookie = request.cookies.get(COOKIE_NAME)?.value;
+  if (await verifySiteToken(authCookie)) {
     return NextResponse.next();
   }
 

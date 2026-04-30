@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import { useI18n } from "@/i18n/context";
 
 interface BlogArticleProps {
   badge: string;
@@ -14,9 +17,28 @@ interface BlogArticleProps {
 const HYPONOVA_LOGO =
   "https://dqryxcdwvuborlayjain.supabase.co/storage/v1/object/public/logos/hyponova-logo.png";
 
-function formatDate(dateStr: string) {
+const COPY = {
+  de: {
+    backToBlog: "← Zurück zum Blog",
+    readingSuffix: "Lesezeit",
+    ctaTitle: "Bereit für den nächsten Schritt?",
+    ctaDesc:
+      "In einem kostenlosen Erstgespräch analysieren wir Ihre Hypotheken-Situation und vergleichen Angebote zahlreicher Banken, Versicherungen und Pensionskassen — transparent und unabhängig.",
+    ctaButton: "Beratung buchen →",
+  },
+  en: {
+    backToBlog: "← Back to blog",
+    readingSuffix: "read",
+    ctaTitle: "Ready for the next step?",
+    ctaDesc:
+      "In a free initial consultation, we analyse your mortgage situation and compare offers from numerous banks, insurance companies and pension funds — transparently and independently.",
+    ctaButton: "Book consultation →",
+  },
+} as const;
+
+function formatDate(dateStr: string, lang: "de" | "en") {
   const date = new Date(dateStr);
-  return date.toLocaleDateString("de-CH", {
+  return date.toLocaleDateString(lang === "de" ? "de-CH" : "en-GB", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -32,6 +54,9 @@ export default function BlogArticle({
   heroImage,
   children,
 }: BlogArticleProps) {
+  const { lang } = useI18n();
+  const c = COPY[lang];
+
   const fullTitle = `${title} ${titleHighlight}`.trim();
   const articleSchema = {
     "@context": "https://schema.org",
@@ -80,7 +105,7 @@ export default function BlogArticle({
               href="/blog"
               className="inline-flex items-center gap-2 text-sm mb-6 transition-colors text-white/70 hover:text-white"
             >
-              ← Zurück zum Blog
+              {c.backToBlog}
             </Link>
             <span
               style={{
@@ -109,7 +134,7 @@ export default function BlogArticle({
               ) : null}
             </h1>
             <div className="flex items-center justify-center gap-3 text-sm text-white/70">
-              <time dateTime={date}>{formatDate(date)}</time>
+              <time dateTime={date}>{formatDate(date, lang)}</time>
               <span
                 style={{
                   width: 4,
@@ -119,7 +144,9 @@ export default function BlogArticle({
                   display: "inline-block",
                 }}
               />
-              <span>{readingTime} Lesezeit</span>
+              <span>
+                {readingTime} {c.readingSuffix}
+              </span>
             </div>
           </ScrollReveal>
         </div>
@@ -154,7 +181,7 @@ export default function BlogArticle({
                   lineHeight: 1.2,
                 }}
               >
-                Bereit für den nächsten Schritt?
+                {c.ctaTitle}
               </h2>
               <p
                 style={{
@@ -165,9 +192,7 @@ export default function BlogArticle({
                   margin: "0 auto 28px",
                 }}
               >
-                In einem kostenlosen Erstgespräch analysieren wir Ihre
-                Hypotheken-Situation und vergleichen Angebote zahlreicher Banken,
-                Versicherungen und Pensionskassen — transparent und unabhängig.
+                {c.ctaDesc}
               </p>
               <Link
                 href="/termin"
@@ -183,7 +208,7 @@ export default function BlogArticle({
                   transition: "opacity 0.15s",
                 }}
               >
-                Beratung buchen →
+                {c.ctaButton}
               </Link>
             </div>
           </ScrollReveal>

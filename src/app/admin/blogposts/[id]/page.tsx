@@ -26,17 +26,24 @@ export default function EditBlogpostPage({
         const post = await res.json();
         setData({
           id: post.id,
-          title: post.title || "",
-          title_highlight: post.title_highlight || "",
-          badge: post.badge || "Blog",
+          title_de: post.title_de || "",
+          title_en: post.title_en || "",
+          title_highlight_de: post.title_highlight_de || "",
+          title_highlight_en: post.title_highlight_en || "",
+          badge_de: post.badge_de || "Blog",
+          badge_en: post.badge_en || "Blog",
           slug: post.slug || "",
-          excerpt: post.excerpt || "",
+          excerpt_de: post.excerpt_de || "",
+          excerpt_en: post.excerpt_en || "",
           hero_image: post.hero_image || "",
-          content_html: post.content_html || "",
-          reading_time: post.reading_time || "5 min",
+          content_html_de: post.content_html_de || "",
+          content_html_en: post.content_html_en || "",
+          reading_time_de: post.reading_time_de || "5 min",
+          reading_time_en: post.reading_time_en || "5 min",
           status: post.status || "draft",
           publish_at: post.publish_at || null,
-          meta_description: post.meta_description || "",
+          meta_description_de: post.meta_description_de || "",
+          meta_description_en: post.meta_description_en || "",
         });
       } catch {
         setError("Fehler beim Laden");

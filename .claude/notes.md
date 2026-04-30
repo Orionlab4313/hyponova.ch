@@ -2,6 +2,17 @@
 
 ## Status: Admin + i18n + Rechtliches editierbar — Stand 30.04.2026
 
+## Phase 12: Blog zweisprachig (DE/EN) ✅ FERTIG (30.04.2026)
+- [x] **Migration**: blog_posts Spalten zu `_de` umbenannt + `_en` ergaenzt fuer title, title_highlight, badge, excerpt, content_html, reading_time, meta_description. Slug, hero_image, status, publish_at bleiben sprachunabhaengig.
+- [x] **Editor** mit DE/EN-Tabs analog zu LegalPageForm. Slug wird nur aus DE-Titel auto-generiert. Reading-Time pro Sprache automatisch berechnet aus content_html_de/en.
+- [x] **Public** `/blog` und `/blog/[slug]` lesen `hyponova-lang` Cookie + zeigen passende Sprache, EN faellt auf DE zurueck wenn leer
+- [x] **Hero-Texte** der Liste in DE + EN (`BlogPageView` Client-Component)
+- [x] **OpenGraph locale** sprachabhaengig (`de_CH` / `en_US`)
+- [x] **Admin-Liste**: zeigt DE-Titel + Badge "DE/EN" wenn EN vorhanden
+- [x] **SetupNotice SQL** auf neues Schema aktualisiert
+- Files: `src/lib/blog-posts.ts`, `src/app/api/admin/blogposts/{route.ts,[id]/route.ts}`, `src/components/admin/blogposts/BlogPostForm.tsx`, `src/app/admin/blogposts/{new,[id]}/page.tsx`, `src/app/blog/{page.tsx,[slug]/page.tsx}`, `src/components/blog/BlogPageView.tsx`
+- Migration: `supabase/migrations/20260430_blog_posts_bilingual.sql` (via MCP angewendet)
+
 ## Phase 11: Rechtliche Seiten editierbar (DE/EN) ✅ FERTIG (30.04.2026)
 - [x] **Tabelle** `legal_pages` (id text PK: 'impressum'|'agb'|'datenschutz'), pro Seite jeweils DE+EN Felder fuer title, title_highlight, content_html, meta_description
 - [x] **Initial-Seed** mit aktuellen DE-Texten aus den hartkodierten Seiten; EN-Felder leer (Simon ergaenzt)
@@ -128,7 +139,7 @@
 | UID-Nummer für Impressum | Vom Kunden nötig |
 | AGB/Datenschutz vom Anwalt prüfen | Vom Kunden nötig (Texte jetzt in DB editierbar) |
 | EN-Versionen Impressum/AGB/Datenschutz | Simon muss im Admin nachtragen |
-| Blog zweisprachig (DE/EN-Editor wie Rechtliches) | Phase B — noch ausstehend |
+| Blog zweisprachig (DE/EN-Editor) | ✅ Erledigt (Phase 12) |
 
 ---
 

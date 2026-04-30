@@ -7,17 +7,26 @@ import { resizeImage } from "./imageResize";
 
 export interface BlogPostFormData {
   id?: string;
-  title: string;
-  title_highlight: string;
-  badge: string;
+  // Sprachabhaengig
+  title_de: string;
+  title_en: string;
+  title_highlight_de: string;
+  title_highlight_en: string;
+  badge_de: string;
+  badge_en: string;
+  excerpt_de: string;
+  excerpt_en: string;
+  content_html_de: string;
+  content_html_en: string;
+  reading_time_de: string;
+  reading_time_en: string;
+  meta_description_de: string;
+  meta_description_en: string;
+  // Sprachunabhaengig
   slug: string;
-  excerpt: string;
   hero_image: string;
-  content_html: string;
-  reading_time: string;
   status: "draft" | "published" | "scheduled";
   publish_at: string | null;
-  meta_description: string;
 }
 
 interface Props {
@@ -28,7 +37,7 @@ function slugify(s: string): string {
   return s
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[̀-ͯ]/g, "")
     .replace(/ä/g, "ae")
     .replace(/ö/g, "oe")
     .replace(/ü/g, "ue")
@@ -45,7 +54,6 @@ function computeReadingTime(html: string): string {
   return `${min} min`;
 }
 
-// Alle Inputs mit fontSize: 16 — sonst zoomt iOS Safari beim Fokus automatisch rein.
 const labelStyle: React.CSSProperties = {
   display: "block",
   fontSize: 13,
@@ -60,7 +68,7 @@ const inputStyle: React.CSSProperties = {
   padding: "10px 12px",
   border: "1px solid #ddd",
   borderRadius: 4,
-  fontSize: 16, // iOS-Zoom-Fix
+  fontSize: 16,
   fontFamily: "inherit",
   boxSizing: "border-box",
   background: "#fff",
@@ -86,6 +94,7 @@ const secondaryButtonStyle: React.CSSProperties = {
 export default function BlogPostForm({ initial }: Props) {
   const router = useRouter();
   const [data, setData] = useState<BlogPostFormData>(initial);
+  const [lang, setLang] = useState<"de" | "en">("de");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [slugDirty, setSlugDirty] = useState(!!initial.slug);
@@ -99,16 +108,26 @@ export default function BlogPostForm({ initial }: Props) {
     setData((prev) => ({ ...prev, [key]: value }));
   }
 
-  function onTitleChange(v: string) {
-    update("title", v);
+  // Slug wird nur aus DE-Titel automatisch abgeleitet — EN-Titel-Aenderungen
+  // beruehren den Slug nicht, sonst wuerde er beim Sprachwechsel kippen.
+  function onTitleDeChange(v: string) {
+    update("title_de", v);
     if (!slugDirty) update("slug", slugify(v));
   }
 
-  function onContentChange(html: string) {
+  function onContentDeChange(html: string) {
     setData((prev) => ({
       ...prev,
-      content_html: html,
-      reading_time: computeReadingTime(html),
+      content_html_de: html,
+      reading_time_de: computeReadingTime(html),
+    }));
+  }
+
+  function onContentEnChange(html: string) {
+    setData((prev) => ({
+      ...prev,
+      content_html_en: html,
+      reading_time_en: computeReadingTime(html),
     }));
   }
 
@@ -157,8 +176,8 @@ export default function BlogPostForm({ initial }: Props) {
 
   async function save() {
     setError("");
-    if (!data.title.trim()) {
-      setError("Titel ist erforderlich");
+    if (!data.title_de.trim()) {
+      setError("Deutscher Titel ist erforderlich");
       return;
     }
     if (!data.slug.trim()) {
@@ -214,15 +233,86 @@ export default function BlogPostForm({ initial }: Props) {
     }
   }
 
+  // Aktuelle Werte fuer den aktiven Tab
+  const titleVal = lang === "de" ? data.title_de : data.title_en;
+  const titleHighlightVal =
+    lang === "de" ? data.title_highlight_de : data.title_highlight_en;
+  const badgeVal = lang === "de" ? data.badge_de : data.badge_en;
+  const excerptVal = lang === "de" ? data.excerpt_de : data.excerpt_en;
+  const readingTimeVal =
+    lang === "de" ? data.reading_time_de : data.reading_time_en;
+  const metaVal =
+    lang === "de" ? data.meta_description_de : data.meta_description_en;
+
+  const enContentEmpty = data.content_html_en.trim().length === 0;
+
   return (
     <div className="blogpost-form-grid">
       {/* Hauptspalte */}
       <div style={{ minWidth: 0 }}>
-        <label style={labelStyle}>Titel</label>
+        {/* Sprachen-Tabs */}
+        <div
+          style={{
+            display: "flex",
+            gap: 0,
+            borderBottom: "1px solid #e5e5e5",
+            marginBottom: 16,
+          }}
+        >
+          {(["de", "en"] as const).map((l) => {
+            const active = lang === l;
+            const enWarn = l === "en" && enContentEmpty;
+            return (
+              <button
+                key={l}
+                type="button"
+                onClick={() => setLang(l)}
+                style={{
+                  padding: "10px 18px",
+                  background: "transparent",
+                  border: "none",
+                  borderBottom: active ? "2px solid #7c5cfc" : "2px solid transparent",
+                  marginBottom: -1,
+                  fontSize: 14,
+                  fontWeight: active ? 700 : 500,
+                  color: active ? "#1a1a1a" : "#888",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                {l === "de" ? "Deutsch" : "English"}
+                {enWarn && (
+                  <span
+                    title="EN-Version ist leer — auf der Website wird DE angezeigt"
+                    style={{
+                      fontSize: 10,
+                      padding: "2px 6px",
+                      background: "#fff3cd",
+                      color: "#856404",
+                      borderRadius: 8,
+                      fontWeight: 600,
+                    }}
+                  >
+                    leer
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <label style={labelStyle}>Titel {lang === "de" ? "(Deutsch)" : "(English)"}</label>
         <input
-          value={data.title}
-          onChange={(e) => onTitleChange(e.target.value)}
-          placeholder="z.B. KI im Finanzwesen"
+          value={titleVal}
+          onChange={(e) =>
+            lang === "de"
+              ? onTitleDeChange(e.target.value)
+              : update("title_en", e.target.value)
+          }
+          placeholder={lang === "de" ? "z.B. KI im Finanzwesen" : "e.g. AI in Finance"}
           style={{ ...inputStyle, fontSize: 18, fontWeight: 600 }}
         />
 
@@ -230,101 +320,185 @@ export default function BlogPostForm({ initial }: Props) {
           <div>
             <label style={labelStyle}>Titel-Highlight (violett, optional)</label>
             <input
-              value={data.title_highlight}
-              onChange={(e) => update("title_highlight", e.target.value)}
-              placeholder="z.B. Finanzwesen"
+              value={titleHighlightVal}
+              onChange={(e) =>
+                update(
+                  lang === "de" ? "title_highlight_de" : "title_highlight_en",
+                  e.target.value
+                )
+              }
+              placeholder={lang === "de" ? "z.B. Finanzwesen" : "e.g. Finance"}
               style={compactInputStyle}
             />
           </div>
           <div>
             <label style={labelStyle}>Badge</label>
             <input
-              value={data.badge}
-              onChange={(e) => update("badge", e.target.value)}
-              placeholder="z.B. Finanzwesen"
+              value={badgeVal}
+              onChange={(e) =>
+                update(lang === "de" ? "badge_de" : "badge_en", e.target.value)
+              }
+              placeholder={lang === "de" ? "z.B. Finanzwesen" : "e.g. Finance"}
               style={compactInputStyle}
             />
           </div>
         </div>
 
-        <label style={labelStyle}>Slug (URL)</label>
-        <input
-          value={data.slug}
-          onChange={(e) => {
-            setSlugDirty(true);
-            update("slug", slugify(e.target.value));
-          }}
-          placeholder="ki-finanzwesen"
-          style={compactInputStyle}
-        />
-        <div style={{ fontSize: 12, color: "#888", marginTop: 4 }}>
-          URL: /blog/{data.slug || "…"}
-        </div>
-
         <label style={labelStyle}>Kurzbeschreibung (Excerpt)</label>
         <textarea
-          value={data.excerpt}
-          onChange={(e) => update("excerpt", e.target.value)}
-          placeholder="1–2 Sätze für die Blog-Übersicht"
+          value={excerptVal}
+          onChange={(e) =>
+            update(lang === "de" ? "excerpt_de" : "excerpt_en", e.target.value)
+          }
+          placeholder={
+            lang === "de"
+              ? "1–2 Sätze für die Blog-Übersicht"
+              : "1–2 sentences for the blog overview"
+          }
           style={{ ...inputStyle, minHeight: 70, resize: "vertical" }}
         />
 
-        <label style={labelStyle}>Hero-Bild</label>
-        {data.hero_image && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={data.hero_image}
-            alt="Hero"
-            style={{
-              width: "100%",
-              maxHeight: 200,
-              objectFit: "cover",
-              borderRadius: 4,
-              marginBottom: 8,
-              border: "1px solid #e5e5e5",
-            }}
+        <label style={labelStyle}>Inhalt {lang === "de" ? "(Deutsch)" : "(English)"}</label>
+        {/* Beide Editoren sind im DOM, der inaktive ist mit display:none ausgeblendet.
+            So verlieren wir keinen Tiptap-State beim Sprachwechsel. */}
+        <div style={{ display: lang === "de" ? "block" : "none" }}>
+          <BlogPostEditor
+            initialHtml={initial.content_html_de}
+            onChange={onContentDeChange}
           />
-        )}
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          <label htmlFor={heroInputId} style={{ ...secondaryButtonStyle, cursor: uploadingHero ? "wait" : "pointer" }}>
-            {uploadingHero ? "Lade hoch…" : data.hero_image ? "Ersetzen" : "Hochladen"}
-          </label>
-          {data.hero_image && (
-            <button
-              type="button"
-              onClick={() => update("hero_image", "")}
-              style={{ ...secondaryButtonStyle, color: "#c00" }}
-            >
-              Entfernen
-            </button>
-          )}
         </div>
-        <input
-          id={heroInputId}
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) uploadHero(f);
-            e.target.value = "";
-          }}
-          style={{ display: "none" }}
-        />
-        <div style={{ fontSize: 12, color: "#888", marginTop: 8 }}>
-          Oder URL direkt eintragen:
+        <div style={{ display: lang === "en" ? "block" : "none" }}>
+          <BlogPostEditor
+            initialHtml={initial.content_html_en}
+            onChange={onContentEnChange}
+          />
         </div>
+
+        <label style={labelStyle}>Lesezeit ({lang === "de" ? "DE" : "EN"})</label>
         <input
-          value={data.hero_image}
-          onChange={(e) => update("hero_image", e.target.value)}
-          placeholder="https://…"
-          style={{ ...compactInputStyle, marginTop: 4 }}
+          value={readingTimeVal}
+          onChange={(e) =>
+            update(
+              lang === "de" ? "reading_time_de" : "reading_time_en",
+              e.target.value
+            )
+          }
+          style={compactInputStyle}
         />
 
-        <label style={labelStyle}>Inhalt</label>
-        <BlogPostEditor
-          initialHtml={initial.content_html}
-          onChange={onContentChange}
+        <label style={labelStyle}>SEO Meta-Description ({lang === "de" ? "DE" : "EN"})</label>
+        <textarea
+          value={metaVal}
+          onChange={(e) =>
+            update(
+              lang === "de" ? "meta_description_de" : "meta_description_en",
+              e.target.value
+            )
+          }
+          placeholder="Kurzbeschreibung für Google"
+          style={{ ...inputStyle, minHeight: 60, resize: "vertical" }}
         />
+
+        {/* Sprachunabhaengige Sektion */}
+        <div
+          style={{
+            marginTop: 30,
+            paddingTop: 20,
+            borderTop: "1px solid #e5e5e5",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              color: "#888",
+              marginBottom: 4,
+            }}
+          >
+            Für beide Sprachen
+          </div>
+          <div style={{ fontSize: 12, color: "#888", marginBottom: 8 }}>
+            Diese Felder gelten für DE und EN gemeinsam.
+          </div>
+
+          <label style={labelStyle}>Slug (URL)</label>
+          <input
+            value={data.slug}
+            onChange={(e) => {
+              setSlugDirty(true);
+              update("slug", slugify(e.target.value));
+            }}
+            placeholder="ki-finanzwesen"
+            style={compactInputStyle}
+          />
+          <div style={{ fontSize: 12, color: "#888", marginTop: 4 }}>
+            URL: /blog/{data.slug || "…"} — wird automatisch aus dem deutschen Titel
+            erzeugt, kann aber überschrieben werden.
+          </div>
+
+          <label style={labelStyle}>Hero-Bild</label>
+          {data.hero_image && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={data.hero_image}
+              alt="Hero"
+              style={{
+                width: "100%",
+                maxHeight: 200,
+                objectFit: "cover",
+                borderRadius: 4,
+                marginBottom: 8,
+                border: "1px solid #e5e5e5",
+              }}
+            />
+          )}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <label
+              htmlFor={heroInputId}
+              style={{
+                ...secondaryButtonStyle,
+                cursor: uploadingHero ? "wait" : "pointer",
+              }}
+            >
+              {uploadingHero
+                ? "Lade hoch…"
+                : data.hero_image
+                ? "Ersetzen"
+                : "Hochladen"}
+            </label>
+            {data.hero_image && (
+              <button
+                type="button"
+                onClick={() => update("hero_image", "")}
+                style={{ ...secondaryButtonStyle, color: "#c00" }}
+              >
+                Entfernen
+              </button>
+            )}
+          </div>
+          <input
+            id={heroInputId}
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) uploadHero(f);
+              e.target.value = "";
+            }}
+            style={{ display: "none" }}
+          />
+          <div style={{ fontSize: 12, color: "#888", marginTop: 8 }}>
+            Oder URL direkt eintragen:
+          </div>
+          <input
+            value={data.hero_image}
+            onChange={(e) => update("hero_image", e.target.value)}
+            placeholder="https://…"
+            style={{ ...compactInputStyle, marginTop: 4 }}
+          />
+        </div>
       </div>
 
       {/* Seitenleiste */}
@@ -399,7 +573,6 @@ export default function BlogPostForm({ initial }: Props) {
                       update("publish_at", null);
                       return;
                     }
-                    // Bestehende Zeit übernehmen, sonst 09:00
                     const current = data.publish_at
                       ? new Date(data.publish_at)
                       : null;
@@ -430,7 +603,6 @@ export default function BlogPostForm({ initial }: Props) {
                     const newTime = e.target.value;
                     if (!newTime) return;
                     const [hh, mm] = newTime.split(":").map(Number);
-                    // Bestehendes Datum übernehmen, sonst heute
                     const base = data.publish_at
                       ? new Date(data.publish_at)
                       : new Date();
@@ -443,20 +615,23 @@ export default function BlogPostForm({ initial }: Props) {
             </div>
           )}
 
-          <label style={labelStyle}>Lesezeit</label>
-          <input
-            value={data.reading_time}
-            onChange={(e) => update("reading_time", e.target.value)}
-            style={compactInputStyle}
-          />
-
-          <label style={labelStyle}>SEO Meta-Description (optional)</label>
-          <textarea
-            value={data.meta_description}
-            onChange={(e) => update("meta_description", e.target.value)}
-            placeholder="Kurzbeschreibung für Google"
-            style={{ ...inputStyle, minHeight: 60, resize: "vertical" }}
-          />
+          {enContentEmpty && (
+            <div
+              style={{
+                marginTop: 14,
+                padding: "10px 12px",
+                background: "rgba(255,193,7,0.1)",
+                border: "1px solid rgba(255,193,7,0.3)",
+                borderRadius: 4,
+                fontSize: 12,
+                color: "#856404",
+                lineHeight: 1.5,
+              }}
+            >
+              Englische Version ist leer. EN-Besucher sehen die deutsche
+              Version als Fallback.
+            </div>
+          )}
 
           {error && (
             <div

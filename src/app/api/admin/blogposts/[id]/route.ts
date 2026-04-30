@@ -37,7 +37,6 @@ export async function PATCH(
     const supabase = createServiceClient();
     const body = await request.json();
 
-    // Alten Slug einlesen, damit wir ihn bei Slug-Umbenennung auch invalidieren koennen
     const { data: previous } = await supabase
       .from("blog_posts")
       .select("slug")
@@ -45,7 +44,6 @@ export async function PATCH(
       .maybeSingle();
     const oldSlug = previous?.slug as string | undefined;
 
-    // Falls Slug geändert wird: Konflikt prüfen
     if (body.slug) {
       const { data: existing } = await supabase
         .from("blog_posts")
@@ -62,17 +60,24 @@ export async function PATCH(
     }
 
     const allowed = [
-      "title",
-      "title_highlight",
-      "badge",
+      "title_de",
+      "title_en",
+      "title_highlight_de",
+      "title_highlight_en",
+      "badge_de",
+      "badge_en",
       "slug",
-      "excerpt",
+      "excerpt_de",
+      "excerpt_en",
       "hero_image",
-      "content_html",
-      "reading_time",
+      "content_html_de",
+      "content_html_en",
+      "reading_time_de",
+      "reading_time_en",
       "status",
       "publish_at",
-      "meta_description",
+      "meta_description_de",
+      "meta_description_en",
     ];
     const updates: Record<string, unknown> = {};
     for (const key of allowed) {
@@ -90,7 +95,6 @@ export async function PATCH(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Blog-Cache invalidieren: Listing, neuer Slug, und alter Slug bei Umbenennung
     revalidatePath("/blog");
     if (data?.slug) revalidatePath(`/blog/${data.slug}`);
     if (oldSlug && oldSlug !== data?.slug) revalidatePath(`/blog/${oldSlug}`);
@@ -110,7 +114,6 @@ export async function DELETE(
     const { id } = await context.params;
     const supabase = createServiceClient();
 
-    // Slug einlesen bevor wir loeschen, damit wir den Pfad invalidieren koennen
     const { data: previous } = await supabase
       .from("blog_posts")
       .select("slug")

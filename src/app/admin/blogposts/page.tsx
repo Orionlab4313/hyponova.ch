@@ -328,7 +328,24 @@ export default function BlogpostsListPage() {
                         whiteSpace: "nowrap",
                       }}
                     >
-                      {post.title || "(ohne Titel)"}
+                      {post.title_de || post.title_en || "(ohne Titel)"}
+                      {post.content_html_en && post.content_html_en.trim() && (
+                        <span
+                          title="EN-Version vorhanden"
+                          style={{
+                            marginLeft: 6,
+                            fontSize: 9,
+                            padding: "2px 5px",
+                            background: "#e6f4ea",
+                            color: "#0a7a2e",
+                            borderRadius: 6,
+                            fontWeight: 700,
+                            verticalAlign: "middle",
+                          }}
+                        >
+                          DE/EN
+                        </span>
+                      )}
                     </div>
                     <div
                       style={{

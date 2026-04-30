@@ -2,22 +2,29 @@
 
 import { useState } from "react";
 
-const MIGRATION_SQL = `-- Blog Posts Management Setup
+const MIGRATION_SQL = `-- Blog Posts Management Setup (zweisprachig DE + EN)
 -- Einmalig im Supabase SQL-Editor ausführen
 
 CREATE TABLE IF NOT EXISTS blog_posts (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  title text NOT NULL,
-  title_highlight text,
-  badge text NOT NULL DEFAULT 'Blog',
+  title_de text NOT NULL,
+  title_en text NOT NULL DEFAULT '',
+  title_highlight_de text,
+  title_highlight_en text,
+  badge_de text NOT NULL DEFAULT 'Blog',
+  badge_en text NOT NULL DEFAULT 'Blog',
   slug text NOT NULL UNIQUE,
-  excerpt text NOT NULL DEFAULT '',
+  excerpt_de text NOT NULL DEFAULT '',
+  excerpt_en text NOT NULL DEFAULT '',
   hero_image text NOT NULL DEFAULT '',
-  content_html text NOT NULL DEFAULT '',
-  reading_time text NOT NULL DEFAULT '5 min',
+  content_html_de text NOT NULL DEFAULT '',
+  content_html_en text NOT NULL DEFAULT '',
+  reading_time_de text NOT NULL DEFAULT '5 min',
+  reading_time_en text NOT NULL DEFAULT '5 min',
   status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','published','scheduled')),
   publish_at timestamptz,
-  meta_description text,
+  meta_description_de text,
+  meta_description_en text,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );

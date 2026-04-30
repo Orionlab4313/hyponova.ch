@@ -1,17 +1,21 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import BlogArticle from "@/components/BlogArticle";
 import BlogContent from "@/components/blog/BlogContent";
-import { getBlogPostBySlug } from "@/lib/blog-posts";
+import { getBlogPostBySlug, pickBlogContent } from "@/lib/blog-posts";
 
-// Dynamisch rendern: neu erstellte oder umbenannte DB-Posts sollen ohne
-// Rebuild sichtbar werden. revalidatePath aus den Admin-Routen invalidiert
-// zusaetzlich den Cache sofort nach einer Mutation.
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+async function readLang(): Promise<"de" | "en"> {
+  const c = await cookies();
+  const v = c.get("hyponova-lang")?.value;
+  return v === "en" ? "en" : "de";
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -20,8 +24,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) {
     return { title: "Blogbeitrag nicht gefunden | HYPONOVA" };
   }
-  const title = `${post.title}${post.title_highlight ? " " + post.title_highlight : ""} | HYPONOVA`;
-  const description = post.meta_description || post.excerpt;
+  const lang = await readLang();
+  const picked = pickBlogContent(post, lang);
+  const title = `${picked.title}${picked.title_highlight ? " " + picked.title_highlight : ""} | HYPONOVA`;
+  const description = picked.meta_description || picked.excerpt;
   return {
     title,
     description,
@@ -30,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url: `https://www.hyponova.ch/blog/${post.slug}`,
       siteName: "HYPONOVA",
-      locale: "de_CH",
+      locale: lang === "en" ? "en_US" : "de_CH",
       type: "article",
       images: post.hero_image ? [{ url: post.hero_image }] : undefined,
     },
@@ -42,6 +48,9 @@ export default async function DynamicBlogPostPage({ params }: Props) {
   const post = await getBlogPostBySlug(slug);
   if (!post) notFound();
 
+  const lang = await readLang();
+  const picked = pickBlogContent(post, lang);
+
   const date =
     post.status === "scheduled" && post.publish_at
       ? post.publish_at
@@ -49,14 +58,14 @@ export default async function DynamicBlogPostPage({ params }: Props) {
 
   return (
     <BlogArticle
-      badge={post.badge}
-      title={post.title}
-      titleHighlight={post.title_highlight || ""}
+      badge={picked.badge}
+      title={picked.title}
+      titleHighlight={picked.title_highlight}
       date={date}
-      readingTime={post.reading_time}
+      readingTime={picked.reading_time}
       heroImage={post.hero_image}
     >
-      <BlogContent html={post.content_html} />
+      <BlogContent html={picked.content_html} />
     </BlogArticle>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import BlogCard from "@/components/blog/BlogCard";
 import { useI18n } from "@/i18n/context";
@@ -26,6 +27,7 @@ const COPY = {
     intro:
       "Praxiswissen zu Hypotheken, Eigenheim und Finanzierung in der Schweiz — verständlich erklärt und direkt anwendbar.",
     empty: "Noch keine Beiträge veröffentlicht.",
+    backToHome: "← Zurück zur Startseite",
   },
   en: {
     badge: "Insights",
@@ -34,6 +36,7 @@ const COPY = {
     intro:
       "Practical knowledge on mortgages, home ownership and financing in Switzerland — clearly explained and directly applicable.",
     empty: "No posts published yet.",
+    backToHome: "← Back to home",
   },
 } as const;
 
@@ -43,7 +46,27 @@ export default function BlogPageView({ posts }: Props) {
 
   return (
     <>
-      <section className="py-24 md:py-32 px-6">
+      <section className="pt-12 md:pt-16 px-6">
+        <div className="max-w-6xl mx-auto">
+          <Link
+            href="/"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 13,
+              color: "#666",
+              textDecoration: "none",
+              transition: "color 0.15s",
+            }}
+            className="hover:text-[#c8553d]"
+          >
+            {c.backToHome}
+          </Link>
+        </div>
+      </section>
+
+      <section className="pt-12 md:pt-16 pb-24 md:pb-32 px-6">
         <div className="max-w-5xl mx-auto text-center">
           <ScrollReveal>
             <span

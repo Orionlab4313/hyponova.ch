@@ -1,21 +1,39 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ComponentType } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import PasswordInput from "@/components/ui/PasswordInput";
+import {
+  IconDashboard,
+  IconMail,
+  IconUsers,
+  IconCalendar,
+  IconClock,
+  IconTrendingUp,
+  IconFolder,
+  IconBlog,
+  IconScale,
+  IconSettings,
+} from "@/components/admin/AdminIcons";
 
-const navItems = [
-  { href: "/admin", label: "Dashboard", icon: "📊" },
-  { href: "/admin/nachrichten", label: "Nachrichten", icon: "✉️" },
-  { href: "/admin/leads", label: "Kontakte", icon: "👥" },
-  { href: "/admin/kalender", label: "Kalender", icon: "📅" },
-  { href: "/admin/verfuegbarkeit", label: "Verfügbarkeit", icon: "🕐" },
-  { href: "/admin/pipeline", label: "Pipeline", icon: "📈" },
-  { href: "/admin/dokumente", label: "Dokumente", icon: "📁" },
-  { href: "/admin/blogposts", label: "Blog", icon: "📝" },
-  { href: "/admin/rechtliches", label: "Rechtliches", icon: "⚖️" },
-  { href: "/admin/einstellungen", label: "Einstellungen", icon: "⚙️" },
+interface NavItem {
+  href: string;
+  label: string;
+  Icon: ComponentType<{ size?: number }>;
+}
+
+const navItems: NavItem[] = [
+  { href: "/admin", label: "Dashboard", Icon: IconDashboard },
+  { href: "/admin/nachrichten", label: "Nachrichten", Icon: IconMail },
+  { href: "/admin/leads", label: "Kontakte", Icon: IconUsers },
+  { href: "/admin/kalender", label: "Kalender", Icon: IconCalendar },
+  { href: "/admin/verfuegbarkeit", label: "Verfügbarkeit", Icon: IconClock },
+  { href: "/admin/pipeline", label: "Pipeline", Icon: IconTrendingUp },
+  { href: "/admin/dokumente", label: "Dokumente", Icon: IconFolder },
+  { href: "/admin/blogposts", label: "Blog", Icon: IconBlog },
+  { href: "/admin/rechtliches", label: "Rechtliches", Icon: IconScale },
+  { href: "/admin/einstellungen", label: "Einstellungen", Icon: IconSettings },
 ];
 
 // Pfade die NICHT durch den Admin-Login geschuetzt sind (per Token-URL erreichbar)
@@ -282,7 +300,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                       transition: "all 0.15s",
                     }}
                   >
-                    <span style={{ fontSize: 14 }}>{item.icon}</span>
+                    <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, color: isActive ? "#c8553d" : "#888" }}>
+                      <item.Icon size={16} />
+                    </span>
                     {item.label}
                   </Link>
                 );

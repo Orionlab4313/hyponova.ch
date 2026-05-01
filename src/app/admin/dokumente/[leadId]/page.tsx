@@ -11,6 +11,16 @@ import {
   DOCUMENT_CATEGORY_LABELS,
   type SubmissionType,
 } from "@/lib/submissions";
+import {
+  IconStickyNote,
+  IconCheckCircle,
+  IconFileText,
+  IconPencil,
+  IconUpload,
+  IconDownload,
+  IconX,
+  IconPlus,
+} from "@/components/admin/AdminIcons";
 
 const ACCENT = "#c8553d";
 const KANTONE: [string, string][] = [
@@ -225,8 +235,9 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
                       onClick={() => setViewerDoc(d)}
                       style={{ display: "block", width: "100%", textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}
                     >
-                      <div className="doc-name" style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}>
-                        📄 <span style={{ borderBottom: `1px dashed ${ACCENT}80`, color: ACCENT, wordBreak: "break-all" }}>{d.file_name}</span>
+                      <div className="doc-name" style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a", display: "flex", alignItems: "center", gap: 6 }}>
+                        <IconFileText size={14} />
+                        <span style={{ borderBottom: `1px dashed ${ACCENT}80`, color: ACCENT, wordBreak: "break-all", minWidth: 0, flex: 1 }}>{d.file_name}</span>
                       </div>
                       <div className="doc-meta" style={{ fontSize: 11, color: "#888", marginTop: 4, display: "flex", gap: 10, flexWrap: "wrap" }}>
                         <span>{fmtBytes(d.file_size)}</span>
@@ -262,8 +273,12 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
                         </button>
                       </>
                     )}
-                    <button type="button" onClick={() => downloadDoc(d.id)} style={{ padding: "5px 10px", background: "#fff", color: "#333", border: "1px solid #ddd", fontSize: 12, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>↓ Download</button>
-                    <button type="button" onClick={() => deleteDoc(d.id)} style={{ padding: "5px 8px", background: "transparent", color: "#c00", border: "none", fontSize: 14, cursor: "pointer" }} title="Löschen">×</button>
+                    <button type="button" onClick={() => downloadDoc(d.id)} style={{ padding: "5px 10px", background: "#fff", color: "#333", border: "1px solid #ddd", fontSize: 12, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <IconDownload size={13} /> Download
+                    </button>
+                    <button type="button" onClick={() => deleteDoc(d.id)} style={{ padding: "5px 8px", background: "transparent", color: "#c00", border: "none", cursor: "pointer", display: "inline-flex", alignItems: "center" }} title="Löschen">
+                      <IconX size={16} />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -327,8 +342,12 @@ function NotesPanel({ leadId, initialNotes }: { leadId: string; initialNotes: st
   return (
     <div style={{ background: "#fff", border: dirty ? `1px solid ${ACCENT}` : "1px solid #e5e5e5", padding: 16, transition: "border-color 0.15s" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, gap: 8 }}>
-        <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0, color: "#444" }}>📝 Notizen</h3>
-        {savedFlash && <span style={{ fontSize: 11, color: "#0a7a2e" }}>✓ Gespeichert</span>}
+        <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0, color: "#444", display: "flex", alignItems: "center", gap: 6 }}>
+          <IconStickyNote size={14} /> Notizen
+        </h3>
+        {savedFlash && <span style={{ fontSize: 11, color: "#0a7a2e", display: "inline-flex", alignItems: "center", gap: 4 }}>
+          <IconCheckCircle size={12} /> Gespeichert
+        </span>}
       </div>
       <textarea
         value={notes}
@@ -403,7 +422,9 @@ function TodosPanel({ leadId }: { leadId: string }) {
   return (
     <div style={{ background: "#fff", border: "1px solid #e5e5e5", padding: 16 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-        <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0, color: "#444" }}>✓ Aufgaben ({open.length})</h3>
+        <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0, color: "#444", display: "flex", alignItems: "center", gap: 6 }}>
+          <IconCheckCircle size={14} /> Aufgaben ({open.length})
+        </h3>
       </div>
 
       <form
@@ -416,7 +437,9 @@ function TodosPanel({ leadId }: { leadId: string }) {
           placeholder="Neue Aufgabe…"
           style={{ flex: 1, padding: "8px 12px", fontSize: 13, fontFamily: "inherit", border: "1px solid #ddd", boxSizing: "border-box" }}
         />
-        <button type="submit" disabled={adding || !newText.trim()} style={{ padding: "8px 14px", background: ACCENT, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: adding || !newText.trim() ? "not-allowed" : "pointer", fontFamily: "inherit", opacity: adding || !newText.trim() ? 0.5 : 1 }}>+ Hinzufügen</button>
+        <button type="submit" disabled={adding || !newText.trim()} style={{ padding: "8px 14px", background: ACCENT, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: adding || !newText.trim() ? "not-allowed" : "pointer", fontFamily: "inherit", opacity: adding || !newText.trim() ? 0.5 : 1, display: "inline-flex", alignItems: "center", gap: 4 }}>
+          <IconPlus size={13} /> Hinzufügen
+        </button>
       </form>
 
       {todos.length === 0 ? (
@@ -444,7 +467,9 @@ function TodoRow({ todo, onToggle, onDelete }: { todo: Todo; onToggle: () => voi
       <span style={{ flex: 1, color: todo.done ? "#999" : "#1a1a1a", textDecoration: todo.done ? "line-through" : "none", lineHeight: 1.4, wordBreak: "break-word" }}>
         {todo.text}
       </span>
-      <button type="button" onClick={onDelete} style={{ background: "transparent", border: "none", color: "#c00", fontSize: 14, cursor: "pointer", padding: "0 4px", flexShrink: 0 }} title="Löschen">×</button>
+      <button type="button" onClick={onDelete} style={{ background: "transparent", border: "none", color: "#c00", cursor: "pointer", padding: "0 4px", flexShrink: 0, display: "inline-flex", alignItems: "center" }} title="Löschen">
+        <IconX size={14} />
+      </button>
     </li>
   );
 }
@@ -468,8 +493,8 @@ function SubmissionPanel({ submission, onSaved }: { submission: Submission; onSa
           </span>
         </button>
         {!editing && (
-          <button type="button" onClick={() => setEditing(true)} style={{ padding: "5px 12px", background: "#fff", color: ACCENT, border: `1px solid ${ACCENT}`, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
-            ✎ Bearbeiten
+          <button type="button" onClick={() => setEditing(true)} style={{ padding: "5px 12px", background: "#fff", color: ACCENT, border: `1px solid ${ACCENT}`, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <IconPencil size={12} /> Bearbeiten
           </button>
         )}
       </div>
@@ -676,9 +701,9 @@ function AdminUploadButton({ leadId, submissionId, onUploaded }: { leadId: strin
           inputRef.current?.click();
         }}
         disabled={uploading}
-        style={{ padding: "8px 16px", background: ACCENT, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.6 : 1 }}
+        style={{ padding: "8px 16px", background: ACCENT, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.6 : 1, display: "inline-flex", alignItems: "center", gap: 6 }}
       >
-        {uploading ? "Lädt…" : showCategoryPicker ? "📤 Datei wählen" : "+ Dokument hochladen"}
+        {uploading ? <>Lädt…</> : showCategoryPicker ? <><IconUpload size={14} /> Datei wählen</> : <><IconPlus size={14} /> Dokument hochladen</>}
       </button>
       {showCategoryPicker && !uploading && (
         <button type="button" onClick={() => { setShowCategoryPicker(false); setCategory(""); }} style={{ padding: "6px 10px", background: "transparent", color: "#666", border: "none", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>Abbrechen</button>
@@ -723,7 +748,9 @@ function FileViewerModal({ doc, onClose, onDownload }: { doc: Doc; onClose: () =
       <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", width: "100%", maxWidth: 1100, maxHeight: "92vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
         <div style={{ padding: "14px 18px", borderBottom: "1px solid #e5e5e5", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
           <div style={{ minWidth: 0, flex: 1 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#1a1a1a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>📄 {doc.file_name}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#1a1a1a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6 }}>
+              <IconFileText size={15} /> <span>{doc.file_name}</span>
+            </div>
             <div style={{ fontSize: 11, color: "#888", marginTop: 2, display: "flex", gap: 10, flexWrap: "wrap" }}>
               {doc.category && <span>Kategorie: {formatCategory(doc.category)}</span>}
               <span>{fmtBytes(doc.file_size)}</span>
@@ -732,8 +759,12 @@ function FileViewerModal({ doc, onClose, onDownload }: { doc: Doc; onClose: () =
             </div>
           </div>
           <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-            <button type="button" onClick={onDownload} style={{ padding: "8px 14px", background: ACCENT, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>↓ Download</button>
-            <button type="button" onClick={onClose} style={{ padding: "8px 14px", background: "#fff", color: "#333", border: "1px solid #ddd", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }} title="Schliessen (Esc)">✕ Schliessen</button>
+            <button type="button" onClick={onDownload} style={{ padding: "8px 14px", background: ACCENT, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              <IconDownload size={14} /> Download
+            </button>
+            <button type="button" onClick={onClose} style={{ padding: "8px 14px", background: "#fff", color: "#333", border: "1px solid #ddd", fontSize: 13, cursor: "pointer", fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 4 }} title="Schliessen (Esc)">
+              <IconX size={14} /> Schliessen
+            </button>
           </div>
         </div>
         <div style={{ flex: 1, background: "#222", overflow: "auto", display: "flex", alignItems: isImage ? "center" : "stretch", justifyContent: "center", minHeight: 400 }}>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
+import { formatSubmissionAnswers, formatEndPath, formatSource, formatCategory, formatUploadedVia, type SubmissionType } from "@/lib/submissions";
 
 const ACCENT = "#c8553d";
 
@@ -36,6 +37,24 @@ interface Lead {
   status: string | null;
   source: string | null;
   notes: string | null;
+}
+
+function FragebogenRow({ row }: { row: { label: string; value: string; multi?: string[] } }) {
+  return (
+    <>
+      <dt style={{ color: "#666", fontWeight: 500, lineHeight: 1.5 }}>{row.label}</dt>
+      <dd style={{ margin: 0, color: "#1a1a1a", fontWeight: 500, lineHeight: 1.5 }}>
+        {row.value}
+        {row.multi && row.multi.length > 0 && (
+          <ul style={{ marginTop: 6, marginBottom: 0, paddingLeft: 18, color: "#444", fontWeight: 400 }}>
+            {row.multi.map((line, i) => (
+              <li key={i} style={{ marginBottom: 3 }}>{line}</li>
+            ))}
+          </ul>
+        )}
+      </dd>
+    </>
+  );
 }
 
 function fmtBytes(n: number | null) {
@@ -110,7 +129,7 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
         <div style={{ fontSize: 13, color: "#666" }}>
           <a href={`mailto:${lead.email}`} style={{ color: "#666" }}>{lead.email}</a>
           {lead.phone && <> · <a href={`tel:${lead.phone}`} style={{ color: "#666" }}>{lead.phone}</a></>}
-          {lead.source && <> · Quelle: {lead.source}</>}
+          {lead.source && <> · Quelle: {formatSource(lead.source)}</>}
         </div>
       </div>
 
@@ -118,14 +137,27 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
         <div style={{ marginBottom: 16 }}>
           <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: "#444" }}>Fragebogen-Antworten</h2>
           <div style={{ display: "grid", gap: 8 }}>
-            {submissions.map((s) => (
-              <details key={s.id} style={{ background: "#fff", border: "1px solid #e5e5e5", borderRadius: 6, padding: "10px 14px" }}>
-                <summary style={{ cursor: "pointer", fontSize: 13, fontWeight: 600 }}>
-                  {s.type === "abloesung" ? "Ablösung" : "Neukauf"} · {fmtDate(s.created_at)} · {s.end_path === "termin" ? "Termin gewünscht" : "Offerten"} · {s.lang.toUpperCase()}
-                </summary>
-                <pre style={{ marginTop: 10, padding: 10, background: "#fafafa", borderRadius: 4, fontSize: 11, overflow: "auto", lineHeight: 1.5 }}>{JSON.stringify(s.answers, null, 2)}</pre>
-              </details>
-            ))}
+            {submissions.map((s) => {
+              const formatted = formatSubmissionAnswers(s.type as SubmissionType, s.answers);
+              return (
+                <details key={s.id} open style={{ background: "#fff", border: "1px solid #e5e5e5", padding: "12px 16px" }}>
+                  <summary style={{ cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#1a1a1a", listStyle: "none", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                    <span>
+                      {s.type === "abloesung" ? "Ablösung" : "Neukauf"}
+                      <span style={{ marginLeft: 8, fontWeight: 400, color: "#888" }}>
+                        · {fmtDate(s.created_at)} · {formatEndPath(s.end_path)} · {s.lang.toUpperCase()}
+                      </span>
+                    </span>
+                    <span style={{ fontSize: 11, color: "#999" }}>▼ Details</span>
+                  </summary>
+                  <dl style={{ marginTop: 14, marginBottom: 0, display: "grid", gridTemplateColumns: "minmax(140px, 200px) 1fr", gap: "8px 16px", fontSize: 13 }}>
+                    {formatted.map((row, i) => (
+                      <FragebogenRow key={i} row={row} />
+                    ))}
+                  </dl>
+                </details>
+              );
+            })}
           </div>
         </div>
       )}
@@ -145,10 +177,10 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>📄 {d.file_name}</div>
                   <div style={{ fontSize: 11, color: "#888", marginTop: 4, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                    {d.category && <span>Kategorie: {d.category}</span>}
+                    {d.category && <span>Kategorie: {formatCategory(d.category)}</span>}
                     <span>{fmtBytes(d.file_size)}</span>
                     <span>{fmtDate(d.uploaded_at)}</span>
-                    <span>via {d.uploaded_via === "customer" ? "Kunde" : "Admin"}</span>
+                    <span>von {formatUploadedVia(d.uploaded_via)}</span>
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>

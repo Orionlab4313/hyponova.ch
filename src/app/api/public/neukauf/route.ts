@@ -38,9 +38,9 @@ export async function POST(request: NextRequest) {
   let leadId: string;
   if (existingLead) {
     leadId = existingLead.id as string;
-    await sb.from("leads").update({ first_name: first, last_name: last, phone: phone || null, status: "kontaktiert", source: "neukauf-fragebogen", updated_at: new Date().toISOString() }).eq("id", leadId);
+    await sb.from("leads").update({ first_name: first, last_name: last, phone: phone || null, status: "kontaktiert", source: "Neukauf (Fragebogen)", updated_at: new Date().toISOString() }).eq("id", leadId);
   } else {
-    const { data: newLead, error } = await sb.from("leads").insert({ first_name: first, last_name: last, email, phone: phone || null, source: "neukauf-fragebogen", status: "neu" }).select("id").single();
+    const { data: newLead, error } = await sb.from("leads").insert({ first_name: first, last_name: last, email, phone: phone || null, source: "Neukauf (Fragebogen)", status: "neu" }).select("id").single();
     if (error || !newLead) return NextResponse.json({ error: "Lead konnte nicht angelegt werden" }, { status: 500 });
     leadId = newLead.id as string;
   }

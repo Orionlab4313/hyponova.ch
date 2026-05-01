@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { formatSource } from "@/lib/submissions";
 
 interface LeadRow {
   id: string;
@@ -73,9 +74,9 @@ export default function DokumentePage() {
                   <div style={{ fontSize: 15, fontWeight: 600, color: "#1a1a1a" }}>{l.first_name} {l.last_name}</div>
                   <div style={{ fontSize: 12, color: "#666", marginTop: 2 }}>{l.email}</div>
                   <div style={{ fontSize: 11, color: "#888", marginTop: 6, display: "flex", gap: 12, flexWrap: "wrap" }}>
-                    {l.source && <span>Quelle: {l.source}</span>}
+                    {l.source && <span>Quelle: {formatSource(l.source)}</span>}
                     {l.docs.last_upload && <span>Letzter Upload: {formatDate(l.docs.last_upload)}</span>}
-                    {l.submissions.types.length > 0 && <span>Fragebogen: {l.submissions.types.join(", ")}</span>}
+                    {l.submissions.types.length > 0 && <span>Fragebogen: {l.submissions.types.map((t) => t === "abloesung" ? "Ablösung" : "Neukauf").join(", ")}</span>}
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>

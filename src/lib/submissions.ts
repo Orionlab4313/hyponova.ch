@@ -176,6 +176,170 @@ export function requiredDocumentCategories(
   return Array.from(new Set(base));
 }
 
+/* ---------- Admin Display Helpers ---------- */
+
+const KANTON_NAMES: Record<string, string> = {
+  AG: "Aargau", AI: "Appenzell Innerrhoden", AR: "Appenzell Ausserrhoden",
+  BE: "Bern", BL: "Basel-Landschaft", BS: "Basel-Stadt",
+  FR: "Freiburg / Fribourg", GE: "Genf / Genève", GL: "Glarus",
+  GR: "Graubünden", JU: "Jura", LU: "Luzern", NE: "Neuenburg / Neuchâtel",
+  NW: "Nidwalden", OW: "Obwalden", SG: "St. Gallen", SH: "Schaffhausen",
+  SO: "Solothurn", SZ: "Schwyz", TG: "Thurgau", TI: "Tessin / Ticino",
+  UR: "Uri", VD: "Waadt / Vaud", VS: "Wallis / Valais",
+  ZG: "Zug", ZH: "Zürich",
+};
+
+const OBJEKTART_LABELS: Record<string, string> = {
+  efh: "Einfamilienhaus",
+  stwe: "Eigentumswohnung (STWE)",
+  "2fh": "Zweifamilienhaus",
+};
+
+const BEWOHNT_LABELS: Record<string, string> = {
+  "100": "100% selbstbewohnt",
+  teilvermietet: "Teilweise vermietet",
+};
+
+const TAETIGKEIT_LABELS: Record<string, string> = {
+  angestellt: "Angestellt",
+  selbstaendig: "Selbständig",
+  pensioniert: "Pensioniert",
+};
+
+const MODELL_LABELS: Record<string, string> = {
+  festzins: "Festzinshypothek",
+  saron: "SARON",
+  variable: "Variable Hypothek",
+  "saron-rahmen": "SARON mit Rahmenlaufzeit",
+  "saron-frei": "SARON ohne Rahmenlaufzeit",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  bestehend: "Bestehende Liegenschaft",
+  neubau: "Neubau",
+};
+
+const END_PATH_LABELS: Record<string, string> = {
+  offerten: "Offerten-Vergleich von Hyponova",
+  termin: "Beratungstermin",
+};
+
+function formatChf(n: number): string {
+  return new Intl.NumberFormat("de-CH", { maximumFractionDigits: 0 }).format(n).replace(/,/g, "'");
+}
+
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+export interface FormattedAnswer {
+  label: string;
+  value: string;
+  multi?: string[]; // fuer Listen (z.B. Tranchen)
+}
+
+/**
+ * Wandelt das Antwort-JSON in eine lesbare Liste fuer das Admin-UI.
+ * Reihenfolge folgt der Logik des Fragebogens.
+ */
+export function formatSubmissionAnswers(
+  type: SubmissionType,
+  answers: AbloesungAnswers | NeukaufAnswers
+): FormattedAnswer[] {
+  const out: FormattedAnswer[] = [];
+
+  if (type === "abloesung") {
+    const a = answers as AbloesungAnswers;
+
+    if (a.tranchen && a.tranchen.length > 0) {
+      const lines = a.tranchen.map((tr, i) => {
+        const modell = MODELL_LABELS[tr.modell] || tr.modell;
+        const datum = tr.modell === "variable" ? "jederzeit kündbar" : `fällig ${formatDate(tr.faelligkeit)}`;
+        return `${i + 1}. CHF ${formatChf(tr.betrag)} — ${modell} (${datum})`;
+      });
+      out.push({ label: "Hypothekartranchen", value: `${a.tranchen.length} Tranche${a.tranchen.length === 1 ? "" : "n"}`, multi: lines });
+    }
+
+    if (typeof a.ist_abloesbar === "boolean") {
+      out.push({ label: "Ablösbar", value: a.ist_abloesbar ? "Ja" : "Nein" });
+    }
+  }
+
+  if (answers.kanton) {
+    out.push({ label: "Kanton", value: KANTON_NAMES[answers.kanton] || answers.kanton });
+  }
+  if (answers.objektart) {
+    out.push({ label: "Objektart", value: OBJEKTART_LABELS[answers.objektart] || answers.objektart });
+  }
+
+  if (type === "abloesung") {
+    const a = answers as AbloesungAnswers;
+    if (a.bewohnt) out.push({ label: "Selbstbewohnt", value: BEWOHNT_LABELS[a.bewohnt] || a.bewohnt });
+    if (typeof a.baurecht === "boolean") out.push({ label: "Baurecht", value: a.baurecht ? "Ja" : "Nein" });
+  }
+
+  if (type === "neukauf") {
+    const a = answers as NeukaufAnswers;
+    if (a.status) out.push({ label: "Objekt-Status", value: STATUS_LABELS[a.status] || a.status });
+  }
+
+  if (answers.taetigkeit) {
+    out.push({ label: "Tätigkeit", value: TAETIGKEIT_LABELS[answers.taetigkeit] || answers.taetigkeit });
+  }
+
+  if (type === "abloesung") {
+    const a = answers as AbloesungAnswers;
+    if (typeof a.weiss_modell === "boolean") {
+      out.push({ label: "Weiss schon Modell + Laufzeit", value: a.weiss_modell ? "Ja" : "Nein" });
+    }
+    if (a.modell) out.push({ label: "Gewünschtes Modell", value: MODELL_LABELS[a.modell] || a.modell });
+    if (a.laufzeit_jahre) out.push({ label: "Gewünschte Laufzeit", value: `${a.laufzeit_jahre} Jahre` });
+  }
+
+  return out;
+}
+
+export function formatEndPath(endPath: string | null): string {
+  if (!endPath) return "—";
+  return END_PATH_LABELS[endPath] || endPath;
+}
+
+/**
+ * Wandelt Lead-Source und Document-Category Schluessel in lesbare deutsche
+ * Labels. Akzeptiert sowohl alte (machine_keys) als auch neue (lesbare) Werte.
+ */
+export const SOURCE_LABELS: Record<string, string> = {
+  website: "Website",
+  "abloesung-fragebogen": "Ablösung (Fragebogen)",
+  "neukauf-fragebogen": "Neukauf (Fragebogen)",
+  "Ablösung (Fragebogen)": "Ablösung (Fragebogen)",
+  "Neukauf (Fragebogen)": "Neukauf (Fragebogen)",
+  "kontaktformular": "Kontaktformular",
+  "termin-buchung": "Terminbuchung",
+};
+
+export function formatSource(source: string | null | undefined): string {
+  if (!source) return "—";
+  return SOURCE_LABELS[source] || source.replace(/_/g, " ").replace(/-/g, " ");
+}
+
+/**
+ * Liefert das deutsche Label fuer einen Document-Category-Key.
+ * Fallback: Key mit Underscores zu Leerzeichen.
+ */
+export function formatCategory(key: string | null | undefined, lang: "de" | "en" = "de"): string {
+  if (!key) return "—";
+  return DOCUMENT_CATEGORY_LABELS[key]?.[lang] || key.replace(/_/g, " ").replace(/-/g, " ");
+}
+
+export function formatUploadedVia(via: string | null | undefined): string {
+  if (via === "customer") return "Kunde";
+  if (via === "admin") return "Admin";
+  return via || "—";
+}
+
 export const DOCUMENT_CATEGORY_LABELS: Record<string, { de: string; en: string }> = {
   ausweis: { de: "Personalausweis / Pass", en: "ID / Passport" },
   bankauszug_eigenkapital: { de: "Bankauszug (Eigenkapital-Nachweis)", en: "Bank statement (equity proof)" },

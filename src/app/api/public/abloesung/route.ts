@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       last_name: last,
       phone: phone || null,
       status: "kontaktiert",
-      source: "abloesung-fragebogen",
+      source: "Ablösung (Fragebogen)",
       updated_at: new Date().toISOString(),
     }).eq("id", leadId);
   } else {
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       last_name: last,
       email,
       phone: phone || null,
-      source: "abloesung-fragebogen",
+      source: "Ablösung (Fragebogen)",
       status: "neu",
     }).select("id").single();
     if (leadError || !newLead) return NextResponse.json({ error: "Lead konnte nicht angelegt werden" }, { status: 500 });

@@ -1,45 +1,28 @@
-import DOMPurify from "isomorphic-dompurify";
-
 /**
- * Saeubert HTML, das vom Tiptap-Editor kommt, bevor es in die DB gespeichert wird.
+ * Server-side HTML-Sanitizer fuer Tiptap-Editor-Output.
  *
- * Allowlist orientiert sich an dem, was der Tiptap-Editor + die Custom-Nodes
- * (Highlight-Box, Video-Embed, Button, Gallery) ueberhaupt ausgeben koennen.
- * Alles andere — insbesondere <script>, inline-Handler wie onerror, javascript:-URLs —
- * wird entfernt. Defense-in-Depth zur Auth-Schicht.
+ * Implementiert als reine String-Manipulation OHNE externe Dependency,
+ * nachdem isomorphic-dompurify auf Vercel/Next 16 mit Module-Load-Crash
+ * geantwortet hat (JSDOM/cssom Konflikt).
+ *
+ * Defense-in-Depth: Auth-Schicht ist die primaere Verteidigung. Sanitize
+ * killt zusaetzlich die haeufigsten XSS-Vektoren falls ein Admin-Account
+ * mal kompromittiert oder ein Bug im Editor.
  */
+
+const DANGEROUS_TAG_REGEX = /<\s*(script|style|iframe|object|embed|form|input|button|link|meta|base)\b[^>]*>([\s\S]*?<\s*\/\s*\1\s*>)?/gi;
+const VOID_DANGEROUS_TAG_REGEX = /<\s*\/?\s*(link|meta|base)\b[^>]*>/gi;
+const EVENT_HANDLER_REGEX = /\s+on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi;
+const JS_URL_REGEX = /(href|src|action|formaction|background|poster)\s*=\s*("|')\s*(javascript|vbscript|data):[^"']*\2/gi;
+
 export function sanitizeBlogHtml(html: string): string {
   if (!html) return "";
 
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: [
-      // Block-Elemente
-      "p", "div", "span", "br", "hr",
-      "h1", "h2", "h3", "h4", "h5", "h6",
-      "blockquote", "pre", "code",
-      "ul", "ol", "li",
-      // Inline-Markup
-      "a", "strong", "em", "b", "i", "u", "s", "mark", "sub", "sup",
-      // Medien
-      "img", "figure", "figcaption",
-      // Tabellen
-      "table", "thead", "tbody", "tfoot", "tr", "th", "td",
-    ],
-    ALLOWED_ATTR: [
-      "href", "target", "rel", "title",
-      "src", "alt", "width", "height", "loading",
-      "class", "id",
-      "data-type", "data-provider", "data-id", "data-variant",
-      "data-images", "data-columns",
-      "colspan", "rowspan",
-      "style",
-    ],
-    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|\/|#)/i,
-    // FORBID_TAGS doppelt gemoppelt — explizit verbieten falls jemand spaeter
-    // die ALLOWED_TAGS-Liste lockert.
-    FORBID_TAGS: ["script", "style", "iframe", "object", "embed", "form", "input", "button"],
-    FORBID_ATTR: ["onerror", "onload", "onclick", "onmouseover", "onfocus", "onblur"],
-    // Kein SVG zulassen — kann Script enthalten und wird im Blog nicht gebraucht
-    USE_PROFILES: { html: true },
-  });
+  let out = String(html);
+  out = out.replace(DANGEROUS_TAG_REGEX, "");
+  out = out.replace(VOID_DANGEROUS_TAG_REGEX, "");
+  out = out.replace(EVENT_HANDLER_REGEX, "");
+  out = out.replace(JS_URL_REGEX, '$1=$2#$2');
+
+  return out;
 }

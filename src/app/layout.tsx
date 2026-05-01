@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Providers from "@/components/Providers";
+import CookieBanner from "@/components/layout/CookieBanner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -41,7 +43,11 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </head>
       <body className={`${inter.variable} antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <CookieBanner />
+        </Providers>
+        <Analytics />
       </body>
     </html>
   );

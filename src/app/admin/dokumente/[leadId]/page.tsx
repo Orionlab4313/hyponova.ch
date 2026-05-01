@@ -208,54 +208,96 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
             const hasPending = pendingStatus[d.id] !== undefined && pendingStatus[d.id] !== d.status;
             const st = STATUS_LABELS[currentStatus];
             return (
-              <div key={d.id} style={{ background: "#fff", border: hasPending ? `1px solid ${ACCENT}` : "1px solid #e5e5e5", padding: 12, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap", transition: "border-color 0.15s" }}>
-                <button
-                  type="button"
-                  onClick={() => setViewerDoc(d)}
-                  style={{ flex: 1, minWidth: 0, textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}
-                >
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    📄 <span style={{ borderBottom: `1px dashed ${ACCENT}80`, color: ACCENT }}>{d.file_name}</span>
-                  </div>
-                  <div style={{ fontSize: 11, color: "#888", marginTop: 4, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                    {d.category && <span>Kategorie: {formatCategory(d.category)}</span>}
-                    <span>{fmtBytes(d.file_size)}</span>
-                    <span>{fmtDate(d.uploaded_at)}</span>
-                    <span>von {formatUploadedVia(d.uploaded_via)}</span>
-                  </div>
-                </button>
-                <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0, flexWrap: "wrap" }}>
-                  <select
-                    value={currentStatus}
-                    onChange={(e) => setPendingStatus((prev) => ({ ...prev, [d.id]: e.target.value as Doc["status"] }))}
-                    disabled={savingId === d.id}
-                    style={{ padding: "5px 10px", fontSize: 11, fontWeight: 600, color: st.color, background: st.bg, border: hasPending ? `1px solid ${ACCENT}` : "1px solid transparent", cursor: "pointer", fontFamily: "inherit" }}
+              <div key={d.id} className="doc-card" style={{ background: "#fff", border: hasPending ? `1px solid ${ACCENT}` : "1px solid #e5e5e5", padding: 12, transition: "border-color 0.15s" }}>
+                <div className="doc-card-grid">
+                  <button
+                    type="button"
+                    onClick={() => setViewerDoc(d)}
+                    className="doc-name-block"
+                    style={{ minWidth: 0, textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}
                   >
-                    <option value="received">Eingegangen</option>
-                    <option value="reviewing">In Prüfung</option>
-                    <option value="accepted">Akzeptiert</option>
-                    <option value="rejected">Abgelehnt</option>
-                  </select>
-                  {hasPending && (
-                    <>
-                      <button type="button" onClick={() => saveStatus(d.id)} disabled={savingId === d.id}
-                        style={{ padding: "5px 12px", background: ACCENT, color: "#fff", border: "none", fontSize: 12, fontWeight: 600, cursor: savingId === d.id ? "wait" : "pointer", fontFamily: "inherit", opacity: savingId === d.id ? 0.6 : 1 }}>
-                        {savingId === d.id ? "Speichert…" : "Speichern"}
-                      </button>
-                      <button type="button" onClick={() => discardStatus(d.id)} disabled={savingId === d.id}
-                        style={{ padding: "5px 8px", background: "transparent", color: "#666", border: "1px solid #ddd", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
-                        Verwerfen
-                      </button>
-                    </>
-                  )}
-                  <button type="button" onClick={() => downloadDoc(d.id)} style={{ padding: "5px 10px", background: "#fff", color: "#333", border: "1px solid #ddd", fontSize: 12, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>↓ Download</button>
-                  <button type="button" onClick={() => deleteDoc(d.id)} style={{ padding: "5px 8px", background: "transparent", color: "#c00", border: "none", fontSize: 14, cursor: "pointer" }} title="Löschen">×</button>
+                    <div className="doc-name" style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}>
+                      📄 <span style={{ borderBottom: `1px dashed ${ACCENT}80`, color: ACCENT, wordBreak: "break-all" }}>{d.file_name}</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: "#888", marginTop: 4, display: "flex", gap: 10, flexWrap: "wrap" }}>
+                      {d.category && <span>Kategorie: {formatCategory(d.category)}</span>}
+                      <span>{fmtBytes(d.file_size)}</span>
+                      <span>{fmtDate(d.uploaded_at)}</span>
+                      <span>von {formatUploadedVia(d.uploaded_via)}</span>
+                    </div>
+                  </button>
+                  <div className="doc-actions" style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0, flexWrap: "wrap" }}>
+                    <select
+                      value={currentStatus}
+                      onChange={(e) => setPendingStatus((prev) => ({ ...prev, [d.id]: e.target.value as Doc["status"] }))}
+                      disabled={savingId === d.id}
+                      style={{ padding: "5px 10px", fontSize: 11, fontWeight: 600, color: st.color, background: st.bg, border: hasPending ? `1px solid ${ACCENT}` : "1px solid transparent", cursor: "pointer", fontFamily: "inherit" }}
+                    >
+                      <option value="received">Eingegangen</option>
+                      <option value="reviewing">In Prüfung</option>
+                      <option value="accepted">Akzeptiert</option>
+                      <option value="rejected">Abgelehnt</option>
+                    </select>
+                    {hasPending && (
+                      <>
+                        <button type="button" onClick={() => saveStatus(d.id)} disabled={savingId === d.id}
+                          style={{ padding: "5px 12px", background: ACCENT, color: "#fff", border: "none", fontSize: 12, fontWeight: 600, cursor: savingId === d.id ? "wait" : "pointer", fontFamily: "inherit", opacity: savingId === d.id ? 0.6 : 1 }}>
+                          {savingId === d.id ? "Speichert…" : "Speichern"}
+                        </button>
+                        <button type="button" onClick={() => discardStatus(d.id)} disabled={savingId === d.id}
+                          style={{ padding: "5px 8px", background: "transparent", color: "#666", border: "1px solid #ddd", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
+                          Verwerfen
+                        </button>
+                      </>
+                    )}
+                    <button type="button" onClick={() => downloadDoc(d.id)} style={{ padding: "5px 10px", background: "#fff", color: "#333", border: "1px solid #ddd", fontSize: 12, fontWeight: 500, cursor: "pointer", fontFamily: "inherit" }}>↓ Download</button>
+                    <button type="button" onClick={() => deleteDoc(d.id)} style={{ padding: "5px 8px", background: "transparent", color: "#c00", border: "none", fontSize: 14, cursor: "pointer" }} title="Löschen">×</button>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
       )}
+
+      {/* Layout: Desktop = Name links + Aktionen rechts in einer Zeile.
+          Mobile = Name oben (voller Name sichtbar, kein Cut-off), Aktionen darunter in eigener Zeile. */}
+      <style>{`
+        .doc-card-grid {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+        .doc-name-block {
+          flex: 1;
+        }
+        .doc-name {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        @media (max-width: 640px) {
+          .doc-card-grid {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+          }
+          .doc-name-block {
+            width: 100%;
+          }
+          .doc-name {
+            white-space: normal;
+            line-height: 1.4;
+          }
+          .doc-actions {
+            width: 100%;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 10px;
+          }
+        }
+      `}</style>
 
       {/* File-Viewer Modal */}
       {viewerDoc && <FileViewerModal doc={viewerDoc} onClose={() => setViewerDoc(null)} onDownload={() => downloadDoc(viewerDoc.id)} />}

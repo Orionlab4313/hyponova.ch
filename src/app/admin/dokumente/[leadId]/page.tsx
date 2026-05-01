@@ -216,14 +216,19 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
                     className="doc-name-block"
                     style={{ minWidth: 0, textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}
                   >
+                    <div className="doc-category" style={{ fontSize: 10, fontWeight: 700, color: ACCENT, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>
+                      {d.category ? formatCategory(d.category) : "Sonstige Unterlage"}
+                    </div>
                     <div className="doc-name" style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}>
                       📄 <span style={{ borderBottom: `1px dashed ${ACCENT}80`, color: ACCENT, wordBreak: "break-all" }}>{d.file_name}</span>
                     </div>
-                    <div style={{ fontSize: 11, color: "#888", marginTop: 4, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                      {d.category && <span>Kategorie: {formatCategory(d.category)}</span>}
+                    <div className="doc-meta" style={{ fontSize: 11, color: "#888", marginTop: 4, display: "flex", gap: 10, flexWrap: "wrap" }}>
                       <span>{fmtBytes(d.file_size)}</span>
                       <span>{fmtDate(d.uploaded_at)}</span>
-                      <span>von {formatUploadedVia(d.uploaded_via)}</span>
+                      <span className="doc-source-inline">von {formatUploadedVia(d.uploaded_via)}</span>
+                    </div>
+                    <div className="doc-source" style={{ fontSize: 11, color: "#888", marginTop: 2 }}>
+                      von {formatUploadedVia(d.uploaded_via)}
                     </div>
                   </button>
                   <div className="doc-actions" style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0, flexWrap: "wrap" }}>
@@ -261,7 +266,9 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
       )}
 
       {/* Layout: Desktop = Name links + Aktionen rechts in einer Zeile.
-          Mobile = Name oben (voller Name sichtbar, kein Cut-off), Aktionen darunter in eigener Zeile. */}
+          Mobile = Name oben (voller Name sichtbar, kein Cut-off), "von Kunde"
+          in eigener Zeile darunter, Aktionen ganz unten mit space-between
+          (Dropdown links, Download mitte, Loeschen rechts). */}
       <style>{`
         .doc-card-grid {
           display: flex;
@@ -278,6 +285,9 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
           text-overflow: ellipsis;
           white-space: nowrap;
         }
+        .doc-source {
+          display: none;
+        }
         @media (max-width: 640px) {
           .doc-card-grid {
             flex-direction: column;
@@ -291,10 +301,25 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
             white-space: normal;
             line-height: 1.4;
           }
+          .doc-meta {
+            font-size: 11px;
+          }
+          /* Auf Mobile: "von Kunde" raus aus der Meta-Zeile, in eigene Zeile */
+          .doc-source-inline {
+            display: none;
+          }
+          .doc-source {
+            display: block;
+          }
           .doc-actions {
             width: 100%;
             border-top: 1px solid #f0f0f0;
             padding-top: 10px;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .doc-actions > select {
+            flex: 0 0 auto;
           }
         }
       `}</style>

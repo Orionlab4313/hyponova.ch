@@ -1,10 +1,28 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useRef } from "react";
 import Link from "next/link";
-import { formatSubmissionAnswers, formatEndPath, formatSource, formatCategory, formatUploadedVia, type SubmissionType } from "@/lib/submissions";
+import {
+  formatSubmissionAnswers,
+  formatEndPath,
+  formatSource,
+  formatCategory,
+  formatUploadedVia,
+  DOCUMENT_CATEGORY_LABELS,
+  type SubmissionType,
+} from "@/lib/submissions";
 
 const ACCENT = "#c8553d";
+const KANTONE: [string, string][] = [
+  ["AG", "Aargau"], ["AI", "Appenzell Innerrhoden"], ["AR", "Appenzell Ausserrhoden"],
+  ["BE", "Bern"], ["BL", "Basel-Landschaft"], ["BS", "Basel-Stadt"],
+  ["FR", "Freiburg / Fribourg"], ["GE", "Genf / Genève"], ["GL", "Glarus"],
+  ["GR", "Graubünden"], ["JU", "Jura"], ["LU", "Luzern"], ["NE", "Neuenburg / Neuchâtel"],
+  ["NW", "Nidwalden"], ["OW", "Obwalden"], ["SG", "St. Gallen"], ["SH", "Schaffhausen"],
+  ["SO", "Solothurn"], ["SZ", "Schwyz"], ["TG", "Thurgau"], ["TI", "Tessin / Ticino"],
+  ["UR", "Uri"], ["VD", "Waadt / Vaud"], ["VS", "Wallis / Valais"],
+  ["ZG", "Zug"], ["ZH", "Zürich"],
+];
 
 interface Doc {
   id: string;
@@ -39,22 +57,12 @@ interface Lead {
   notes: string | null;
 }
 
-function FragebogenRow({ row }: { row: { label: string; value: string; multi?: string[] } }) {
-  return (
-    <>
-      <dt style={{ color: "#666", fontWeight: 500, lineHeight: 1.5 }}>{row.label}</dt>
-      <dd style={{ margin: 0, color: "#1a1a1a", fontWeight: 500, lineHeight: 1.5 }}>
-        {row.value}
-        {row.multi && row.multi.length > 0 && (
-          <ul style={{ marginTop: 6, marginBottom: 0, paddingLeft: 18, color: "#444", fontWeight: 400 }}>
-            {row.multi.map((line, i) => (
-              <li key={i} style={{ marginBottom: 3 }}>{line}</li>
-            ))}
-          </ul>
-        )}
-      </dd>
-    </>
-  );
+interface Todo {
+  id: string;
+  text: string;
+  done: boolean;
+  due_date: string | null;
+  created_at: string;
 }
 
 function fmtBytes(n: number | null) {
@@ -65,6 +73,10 @@ function fmtBytes(n: number | null) {
 }
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+function fmtDateOnly(iso: string | null) {
+  if (!iso) return "";
+  return new Date(iso).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
 const STATUS_LABELS: Record<Doc["status"], { label: string; color: string; bg: string }> = {
@@ -80,12 +92,9 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
   const [docs, setDocs] = useState<Doc[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Pending Status-Aenderungen pro Doc-ID — nur gespeichert wenn User auf Speichern klickt
   const [pendingStatus, setPendingStatus] = useState<Record<string, Doc["status"]>>({});
+  const [pendingCategory, setPendingCategory] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
-
-  // Viewer-Modal
   const [viewerDoc, setViewerDoc] = useState<Doc | null>(null);
 
   function load() {
@@ -95,7 +104,8 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
         setLead(data.lead);
         setDocs(data.documents || []);
         setSubmissions(data.submissions || []);
-        setPendingStatus({}); // Reset pending nach Reload
+        setPendingStatus({});
+        setPendingCategory({});
       })
       .finally(() => setLoading(false));
   }
@@ -109,23 +119,23 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
     window.open(j.url, "_blank");
   }
 
-  async function saveStatus(docId: string) {
-    const newStatus = pendingStatus[docId];
-    if (!newStatus) return;
+  async function saveDocChanges(docId: string) {
+    const updates: Record<string, unknown> = {};
+    if (pendingStatus[docId]) updates.status = pendingStatus[docId];
+    if (pendingCategory[docId] !== undefined) updates.category = pendingCategory[docId] || null;
+    if (Object.keys(updates).length === 0) return;
+
     setSavingId(docId);
     try {
       const res = await fetch(`/api/admin/documents/${docId}`, {
         method: "PATCH", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify(updates),
       });
       if (res.ok) {
-        // Update local doc state + clear pending
-        setDocs((prev) => prev.map((d) => d.id === docId ? { ...d, status: newStatus } : d));
-        setPendingStatus((prev) => {
-          const next = { ...prev };
-          delete next[docId];
-          return next;
-        });
+        const updated = await res.json();
+        setDocs((prev) => prev.map((d) => d.id === docId ? { ...d, ...updated } : d));
+        setPendingStatus((p) => { const n = { ...p }; delete n[docId]; return n; });
+        setPendingCategory((p) => { const n = { ...p }; delete n[docId]; return n; });
       } else {
         alert("Speichern fehlgeschlagen");
       }
@@ -134,12 +144,9 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
     }
   }
 
-  function discardStatus(docId: string) {
-    setPendingStatus((prev) => {
-      const next = { ...prev };
-      delete next[docId];
-      return next;
-    });
+  function discardDocChanges(docId: string) {
+    setPendingStatus((p) => { const n = { ...p }; delete n[docId]; return n; });
+    setPendingCategory((p) => { const n = { ...p }; delete n[docId]; return n; });
   }
 
   async function deleteDoc(docId: string) {
@@ -166,37 +173,26 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
         </div>
       </div>
 
+      {/* === Notizen + Todos: Side-by-Side auf Desktop === */}
+      <div className="info-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+        <NotesPanel leadId={leadId} initialNotes={lead.notes || ""} />
+        <TodosPanel leadId={leadId} />
+      </div>
+
       {submissions.length > 0 && (
         <div style={{ marginBottom: 16 }}>
           <h2 style={{ fontSize: 14, fontWeight: 700, marginBottom: 8, color: "#444" }}>Fragebogen-Antworten</h2>
           <div style={{ display: "grid", gap: 8 }}>
-            {submissions.map((s) => {
-              const formatted = formatSubmissionAnswers(s.type as SubmissionType, s.answers);
-              return (
-                <details key={s.id} open style={{ background: "#fff", border: "1px solid #e5e5e5", padding: "12px 16px" }}>
-                  <summary style={{ cursor: "pointer", fontSize: 13, fontWeight: 600, color: "#1a1a1a", listStyle: "none", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                    <span>
-                      {s.type === "abloesung" ? "Ablösung" : "Neukauf"}
-                      <span style={{ marginLeft: 8, fontWeight: 400, color: "#888" }}>
-                        · {fmtDate(s.created_at)} · {formatEndPath(s.end_path)} · {s.lang.toUpperCase()}
-                      </span>
-                    </span>
-                    <span style={{ fontSize: 11, color: "#999" }}>▼ Details</span>
-                  </summary>
-                  <dl style={{ marginTop: 14, marginBottom: 0, display: "grid", gridTemplateColumns: "minmax(140px, 200px) 1fr", gap: "8px 16px", fontSize: 13 }}>
-                    {formatted.map((row, i) => (
-                      <FragebogenRow key={i} row={row} />
-                    ))}
-                  </dl>
-                </details>
-              );
-            })}
+            {submissions.map((s) => (
+              <SubmissionPanel key={s.id} submission={s} onSaved={load} />
+            ))}
           </div>
         </div>
       )}
 
-      <div style={{ marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
         <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0, color: "#444" }}>Dokumente ({docs.length})</h2>
+        <AdminUploadButton leadId={leadId} submissionId={submissions[0]?.id || null} onUploaded={load} />
       </div>
 
       {docs.length === 0 ? (
@@ -205,32 +201,43 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
         <div style={{ display: "grid", gap: 6 }}>
           {docs.map((d) => {
             const currentStatus = pendingStatus[d.id] ?? d.status;
-            const hasPending = pendingStatus[d.id] !== undefined && pendingStatus[d.id] !== d.status;
+            const currentCategory = pendingCategory[d.id] !== undefined ? pendingCategory[d.id] : (d.category || "");
+            const hasPending = (pendingStatus[d.id] !== undefined && pendingStatus[d.id] !== d.status)
+              || (pendingCategory[d.id] !== undefined && (pendingCategory[d.id] || null) !== d.category);
             const st = STATUS_LABELS[currentStatus];
             return (
               <div key={d.id} className="doc-card" style={{ background: "#fff", border: hasPending ? `1px solid ${ACCENT}` : "1px solid #e5e5e5", padding: 12, transition: "border-color 0.15s" }}>
                 <div className="doc-card-grid">
-                  <button
-                    type="button"
-                    onClick={() => setViewerDoc(d)}
-                    className="doc-name-block"
-                    style={{ minWidth: 0, textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}
-                  >
-                    <div className="doc-category" style={{ fontSize: 15, fontWeight: 800, color: "#1a1a1a", letterSpacing: "0.02em", marginBottom: 6 }}>
-                      {d.category ? formatCategory(d.category) : "Sonstige Unterlage"}
-                    </div>
-                    <div className="doc-name" style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}>
-                      📄 <span style={{ borderBottom: `1px dashed ${ACCENT}80`, color: ACCENT, wordBreak: "break-all" }}>{d.file_name}</span>
-                    </div>
-                    <div className="doc-meta" style={{ fontSize: 11, color: "#888", marginTop: 4, display: "flex", gap: 10, flexWrap: "wrap" }}>
-                      <span>{fmtBytes(d.file_size)}</span>
-                      <span>{fmtDate(d.uploaded_at)}</span>
-                      <span className="doc-source-inline">von {formatUploadedVia(d.uploaded_via)}</span>
-                    </div>
-                    <div className="doc-source" style={{ fontSize: 11, color: "#888", marginTop: 2 }}>
-                      von {formatUploadedVia(d.uploaded_via)}
-                    </div>
-                  </button>
+                  <div className="doc-name-block" style={{ minWidth: 0 }}>
+                    <select
+                      value={currentCategory}
+                      onChange={(e) => setPendingCategory((prev) => ({ ...prev, [d.id]: e.target.value }))}
+                      disabled={savingId === d.id}
+                      style={{ marginBottom: 6, padding: "5px 8px", fontSize: 13, fontWeight: 700, color: "#1a1a1a", background: hasPending ? `${ACCENT}10` : "#f5f5f5", border: hasPending ? `1px solid ${ACCENT}` : "1px solid transparent", cursor: "pointer", fontFamily: "inherit", maxWidth: "100%" }}
+                    >
+                      <option value="">— Sonstige Unterlage —</option>
+                      {Object.entries(DOCUMENT_CATEGORY_LABELS).map(([k, v]) => (
+                        <option key={k} value={k}>{v.de}</option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => setViewerDoc(d)}
+                      style={{ display: "block", width: "100%", textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}
+                    >
+                      <div className="doc-name" style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}>
+                        📄 <span style={{ borderBottom: `1px dashed ${ACCENT}80`, color: ACCENT, wordBreak: "break-all" }}>{d.file_name}</span>
+                      </div>
+                      <div className="doc-meta" style={{ fontSize: 11, color: "#888", marginTop: 4, display: "flex", gap: 10, flexWrap: "wrap" }}>
+                        <span>{fmtBytes(d.file_size)}</span>
+                        <span>{fmtDate(d.uploaded_at)}</span>
+                        <span className="doc-source-inline">von {formatUploadedVia(d.uploaded_via)}</span>
+                      </div>
+                      <div className="doc-source" style={{ fontSize: 11, color: "#888", marginTop: 2 }}>
+                        von {formatUploadedVia(d.uploaded_via)}
+                      </div>
+                    </button>
+                  </div>
                   <div className="doc-actions" style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0, flexWrap: "wrap" }}>
                     <select
                       value={currentStatus}
@@ -245,11 +252,11 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
                     </select>
                     {hasPending && (
                       <>
-                        <button type="button" onClick={() => saveStatus(d.id)} disabled={savingId === d.id}
+                        <button type="button" onClick={() => saveDocChanges(d.id)} disabled={savingId === d.id}
                           style={{ padding: "5px 12px", background: ACCENT, color: "#fff", border: "none", fontSize: 12, fontWeight: 600, cursor: savingId === d.id ? "wait" : "pointer", fontFamily: "inherit", opacity: savingId === d.id ? 0.6 : 1 }}>
                           {savingId === d.id ? "Speichert…" : "Speichern"}
                         </button>
-                        <button type="button" onClick={() => discardStatus(d.id)} disabled={savingId === d.id}
+                        <button type="button" onClick={() => discardDocChanges(d.id)} disabled={savingId === d.id}
                           style={{ padding: "5px 8px", background: "transparent", color: "#666", border: "1px solid #ddd", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>
                           Verwerfen
                         </button>
@@ -265,78 +272,430 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
         </div>
       )}
 
-      {/* Layout: Desktop = Name links + Aktionen rechts in einer Zeile.
-          Mobile = Name oben (voller Name sichtbar, kein Cut-off), "von Kunde"
-          in eigener Zeile darunter, Aktionen ganz unten mit space-between
-          (Dropdown links, Download mitte, Loeschen rechts). */}
+      {viewerDoc && <FileViewerModal doc={viewerDoc} onClose={() => setViewerDoc(null)} onDownload={() => downloadDoc(viewerDoc.id)} />}
+
       <style>{`
-        .doc-card-grid {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 12px;
-          flex-wrap: wrap;
-        }
-        .doc-name-block {
-          flex: 1;
-        }
-        .doc-name {
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        .doc-source {
-          display: none;
+        .doc-card-grid { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .doc-name-block { flex: 1; }
+        .doc-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .doc-source { display: none; }
+        @media (max-width: 880px) {
+          .info-grid { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 640px) {
-          .doc-card-grid {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 10px;
-          }
-          .doc-name-block {
-            width: 100%;
-          }
-          .doc-name {
-            white-space: normal;
-            line-height: 1.4;
-          }
-          .doc-meta {
-            font-size: 11px;
-          }
-          /* Auf Mobile: "von Kunde" raus aus der Meta-Zeile, in eigene Zeile */
-          .doc-source-inline {
-            display: none;
-          }
-          .doc-source {
-            display: block;
-          }
-          .doc-actions {
-            width: 100%;
-            border-top: 1px solid #f0f0f0;
-            padding-top: 10px;
-            justify-content: space-between;
-            align-items: center;
-          }
-          .doc-actions > select {
-            flex: 0 0 auto;
-          }
+          .doc-card-grid { flex-direction: column; align-items: stretch; gap: 10px; }
+          .doc-name-block { width: 100%; }
+          .doc-name { white-space: normal; line-height: 1.4; }
+          .doc-source-inline { display: none; }
+          .doc-source { display: block; }
+          .doc-actions { width: 100%; border-top: 1px solid #f0f0f0; padding-top: 10px; justify-content: space-between; align-items: center; }
+          .doc-actions > select { flex: 0 0 auto; }
         }
       `}</style>
-
-      {/* File-Viewer Modal */}
-      {viewerDoc && <FileViewerModal doc={viewerDoc} onClose={() => setViewerDoc(null)} onDownload={() => downloadDoc(viewerDoc.id)} />}
     </div>
   );
 }
 
+/* ============== NOTES PANEL ============== */
+function NotesPanel({ leadId, initialNotes }: { leadId: string; initialNotes: string }) {
+  const [notes, setNotes] = useState(initialNotes);
+  const [savedNotes, setSavedNotes] = useState(initialNotes);
+  const [saving, setSaving] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
+
+  const dirty = notes !== savedNotes;
+
+  async function save() {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/admin/leads`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: leadId, notes }),
+      });
+      if (res.ok) {
+        setSavedNotes(notes);
+        setSavedFlash(true);
+        setTimeout(() => setSavedFlash(false), 1800);
+      } else {
+        alert("Speichern fehlgeschlagen");
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div style={{ background: "#fff", border: dirty ? `1px solid ${ACCENT}` : "1px solid #e5e5e5", padding: 16, transition: "border-color 0.15s" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, gap: 8 }}>
+        <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0, color: "#444" }}>📝 Notizen</h3>
+        {savedFlash && <span style={{ fontSize: 11, color: "#0a7a2e" }}>✓ Gespeichert</span>}
+      </div>
+      <textarea
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        placeholder="Notizen zum Kontakt — z.B. Telefonate, Hinweise, Vereinbarungen..."
+        style={{ width: "100%", minHeight: 120, padding: "10px 12px", fontSize: 13, fontFamily: "inherit", border: "1px solid #ddd", boxSizing: "border-box", resize: "vertical", lineHeight: 1.5, background: "#fafafa" }}
+      />
+      {dirty && (
+        <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
+          <button type="button" onClick={save} disabled={saving} style={{ padding: "8px 16px", background: ACCENT, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: saving ? "wait" : "pointer", fontFamily: "inherit", opacity: saving ? 0.6 : 1 }}>
+            {saving ? "Speichert…" : "Notizen speichern"}
+          </button>
+          <button type="button" onClick={() => setNotes(savedNotes)} disabled={saving} style={{ padding: "8px 14px", background: "transparent", color: "#666", border: "1px solid #ddd", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Verwerfen</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ============== TODOS PANEL ============== */
+function TodosPanel({ leadId }: { leadId: string }) {
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [newText, setNewText] = useState("");
+  const [adding, setAdding] = useState(false);
+
+  function load() {
+    fetch(`/api/admin/leads/${leadId}/todos`).then((r) => r.json()).then((d) => Array.isArray(d) && setTodos(d));
+  }
+  useEffect(() => { load(); }, [leadId]);
+
+  async function addTodo() {
+    const text = newText.trim();
+    if (!text) return;
+    setAdding(true);
+    try {
+      const res = await fetch(`/api/admin/leads/${leadId}/todos`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (res.ok) {
+        const t = await res.json();
+        setTodos((prev) => [t, ...prev]);
+        setNewText("");
+      }
+    } finally { setAdding(false); }
+  }
+
+  async function toggleDone(t: Todo) {
+    const res = await fetch(`/api/admin/leads/${leadId}/todos/${t.id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ done: !t.done }),
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      setTodos((prev) => {
+        const next = prev.map((x) => x.id === t.id ? updated : x);
+        // Re-sortieren: offen zuerst
+        return next.sort((a, b) => Number(a.done) - Number(b.done));
+      });
+    }
+  }
+
+  async function delTodo(id: string) {
+    if (!confirm("Todo löschen?")) return;
+    const res = await fetch(`/api/admin/leads/${leadId}/todos/${id}`, { method: "DELETE" });
+    if (res.ok) setTodos((p) => p.filter((t) => t.id !== id));
+  }
+
+  const open = todos.filter((t) => !t.done);
+  const done = todos.filter((t) => t.done);
+
+  return (
+    <div style={{ background: "#fff", border: "1px solid #e5e5e5", padding: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <h3 style={{ fontSize: 13, fontWeight: 700, margin: 0, color: "#444" }}>✓ Aufgaben ({open.length})</h3>
+      </div>
+
+      <form
+        onSubmit={(e) => { e.preventDefault(); addTodo(); }}
+        style={{ display: "flex", gap: 6, marginBottom: 12 }}
+      >
+        <input
+          value={newText}
+          onChange={(e) => setNewText(e.target.value)}
+          placeholder="Neue Aufgabe…"
+          style={{ flex: 1, padding: "8px 12px", fontSize: 13, fontFamily: "inherit", border: "1px solid #ddd", boxSizing: "border-box" }}
+        />
+        <button type="submit" disabled={adding || !newText.trim()} style={{ padding: "8px 14px", background: ACCENT, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: adding || !newText.trim() ? "not-allowed" : "pointer", fontFamily: "inherit", opacity: adding || !newText.trim() ? 0.5 : 1 }}>+ Hinzufügen</button>
+      </form>
+
+      {todos.length === 0 ? (
+        <div style={{ padding: "20px 0", textAlign: "center", color: "#999", fontSize: 12 }}>Noch keine Aufgaben</div>
+      ) : (
+        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 4 }}>
+          {open.map((t) => <TodoRow key={t.id} todo={t} onToggle={() => toggleDone(t)} onDelete={() => delTodo(t.id)} />)}
+          {done.length > 0 && open.length > 0 && <li style={{ borderTop: "1px solid #f0f0f0", marginTop: 4, paddingTop: 4 }} />}
+          {done.map((t) => <TodoRow key={t.id} todo={t} onToggle={() => toggleDone(t)} onDelete={() => delTodo(t.id)} />)}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function TodoRow({ todo, onToggle, onDelete }: { todo: Todo; onToggle: () => void; onDelete: () => void }) {
+  return (
+    <li style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "6px 4px", fontSize: 13 }}>
+      <input
+        type="checkbox"
+        checked={todo.done}
+        onChange={onToggle}
+        style={{ marginTop: 3, width: 16, height: 16, accentColor: ACCENT, flexShrink: 0, cursor: "pointer" }}
+      />
+      <span style={{ flex: 1, color: todo.done ? "#999" : "#1a1a1a", textDecoration: todo.done ? "line-through" : "none", lineHeight: 1.4, wordBreak: "break-word" }}>
+        {todo.text}
+      </span>
+      <button type="button" onClick={onDelete} style={{ background: "transparent", border: "none", color: "#c00", fontSize: 14, cursor: "pointer", padding: "0 4px", flexShrink: 0 }} title="Löschen">×</button>
+    </li>
+  );
+}
+
+/* ============== SUBMISSION PANEL (Read + Edit) ============== */
+function SubmissionPanel({ submission, onSaved }: { submission: Submission; onSaved: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [open, setOpen] = useState(true);
+
+  return (
+    <div style={{ background: "#fff", border: editing ? `1px solid ${ACCENT}` : "1px solid #e5e5e5", padding: "12px 16px", transition: "border-color 0.15s" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          style={{ flex: 1, minWidth: 0, textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}
+        >
+          {submission.type === "abloesung" ? "Ablösung" : "Neukauf"}
+          <span style={{ marginLeft: 8, fontWeight: 400, color: "#888" }}>
+            · {fmtDate(submission.created_at)} · {formatEndPath(submission.end_path)} · {submission.lang.toUpperCase()}
+          </span>
+        </button>
+        {!editing && (
+          <button type="button" onClick={() => setEditing(true)} style={{ padding: "5px 12px", background: "#fff", color: ACCENT, border: `1px solid ${ACCENT}`, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>
+            ✎ Bearbeiten
+          </button>
+        )}
+      </div>
+      {open && (
+        editing ? (
+          <SubmissionEditor submission={submission} onCancel={() => setEditing(false)} onSaved={() => { setEditing(false); onSaved(); }} />
+        ) : (
+          <ReadOnlyAnswers submission={submission} />
+        )
+      )}
+    </div>
+  );
+}
+
+function ReadOnlyAnswers({ submission }: { submission: Submission }) {
+  const formatted = formatSubmissionAnswers(submission.type as SubmissionType, submission.answers);
+  return (
+    <dl style={{ marginTop: 14, marginBottom: 0, display: "grid", gridTemplateColumns: "minmax(140px, 200px) 1fr", gap: "8px 16px", fontSize: 13 }}>
+      {formatted.map((row, i) => (
+        <FragebogenRow key={i} row={row} />
+      ))}
+    </dl>
+  );
+}
+
+function FragebogenRow({ row }: { row: { label: string; value: string; multi?: string[] } }) {
+  return (
+    <>
+      <dt style={{ color: "#666", fontWeight: 500, lineHeight: 1.5 }}>{row.label}</dt>
+      <dd style={{ margin: 0, color: "#1a1a1a", fontWeight: 500, lineHeight: 1.5 }}>
+        {row.value}
+        {row.multi && row.multi.length > 0 && (
+          <ul style={{ marginTop: 6, marginBottom: 0, paddingLeft: 18, color: "#444", fontWeight: 400 }}>
+            {row.multi.map((line, i) => (<li key={i} style={{ marginBottom: 3 }}>{line}</li>))}
+          </ul>
+        )}
+      </dd>
+    </>
+  );
+}
+
+function SubmissionEditor({ submission, onCancel, onSaved }: { submission: Submission; onCancel: () => void; onSaved: () => void }) {
+  const [a, setA] = useState<any>(submission.answers || {});
+  const [endPath, setEndPath] = useState<string>(submission.end_path || "offerten");
+  const [saving, setSaving] = useState(false);
+  const isAbl = submission.type === "abloesung";
+
+  function up(k: string, v: any) { setA((p: any) => ({ ...p, [k]: v })); }
+  function upTranche(i: number, k: string, v: any) {
+    const tr = Array.isArray(a.tranchen) ? [...a.tranchen] : [];
+    tr[i] = { ...tr[i], [k]: v };
+    up("tranchen", tr);
+  }
+  function addTranche() {
+    const tr = Array.isArray(a.tranchen) ? [...a.tranchen] : [];
+    tr.push({ betrag: 0, modell: "festzins", faelligkeit: "" });
+    up("tranchen", tr);
+  }
+  function removeTranche(i: number) {
+    const tr = Array.isArray(a.tranchen) ? a.tranchen.filter((_: any, idx: number) => idx !== i) : [];
+    up("tranchen", tr);
+  }
+
+  async function save() {
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/admin/submissions/${submission.id}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answers: a, end_path: endPath }),
+      });
+      if (res.ok) onSaved();
+      else alert("Speichern fehlgeschlagen");
+    } finally { setSaving(false); }
+  }
+
+  return (
+    <div style={{ marginTop: 14, padding: 14, background: "#fafafa", border: "1px solid #ececec" }}>
+      {isAbl && (
+        <Section title="Hypothekartranchen">
+          {(Array.isArray(a.tranchen) ? a.tranchen : []).map((tr: any, i: number) => (
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: 8, marginBottom: 6, alignItems: "end" }}>
+              <Input label="Betrag (CHF)" type="number" value={tr.betrag ?? ""} onChange={(v) => upTranche(i, "betrag", Number(v))} />
+              <Select label="Modell" value={tr.modell || ""} onChange={(v) => upTranche(i, "modell", v)}
+                options={[["festzins", "Festzinshypothek"], ["saron", "SARON"], ["variable", "Variable Hypothek"]]} />
+              <Input label="Fälligkeit" type="date" value={tr.faelligkeit || ""} onChange={(v) => upTranche(i, "faelligkeit", v)} />
+              <button type="button" onClick={() => removeTranche(i)} style={{ padding: "8px 10px", background: "transparent", color: "#c00", border: "1px solid #f2caca", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>×</button>
+            </div>
+          ))}
+          <button type="button" onClick={addTranche} style={{ marginTop: 4, padding: "6px 12px", background: "transparent", color: ACCENT, border: `1px dashed ${ACCENT}66`, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>+ Tranche hinzufügen</button>
+        </Section>
+      )}
+
+      <Section title="Allgemein">
+        <Grid2>
+          <Select label="Kanton" value={a.kanton || ""} onChange={(v) => up("kanton", v)} options={[["", "—"], ...KANTONE]} />
+          <Select label="Objektart" value={a.objektart || ""} onChange={(v) => up("objektart", v)} options={[["", "—"], ["efh", "Einfamilienhaus"], ["stwe", "Eigentumswohnung (STWE)"], ["2fh", "Zweifamilienhaus"]]} />
+        </Grid2>
+
+        {isAbl && (
+          <Grid2>
+            <Select label="Selbstbewohnt" value={a.bewohnt || ""} onChange={(v) => up("bewohnt", v)} options={[["", "—"], ["100", "100% selbstbewohnt"], ["teilvermietet", "Teilweise vermietet"]]} />
+            <Select label="Baurecht" value={a.baurecht === true ? "ja" : a.baurecht === false ? "nein" : ""} onChange={(v) => up("baurecht", v === "ja" ? true : v === "nein" ? false : null)} options={[["", "—"], ["ja", "Ja"], ["nein", "Nein"]]} />
+          </Grid2>
+        )}
+
+        {!isAbl && (
+          <Select label="Status" value={a.status || ""} onChange={(v) => up("status", v)} options={[["", "—"], ["bestehend", "Bestehende Liegenschaft"], ["neubau", "Neubau"]]} />
+        )}
+
+        <Select label="Tätigkeit" value={a.taetigkeit || ""} onChange={(v) => up("taetigkeit", v)} options={[["", "—"], ["angestellt", "Angestellt"], ["selbstaendig", "Selbständig"], ["pensioniert", "Pensioniert"]]} />
+
+        {isAbl && (
+          <>
+            <Select label="Weiss schon Modell + Laufzeit" value={a.weiss_modell === true ? "ja" : a.weiss_modell === false ? "nein" : ""} onChange={(v) => up("weiss_modell", v === "ja" ? true : v === "nein" ? false : null)} options={[["", "—"], ["ja", "Ja"], ["nein", "Nein"]]} />
+            <Grid2>
+              <Select label="Gewünschtes Modell" value={a.modell || ""} onChange={(v) => up("modell", v)} options={[["", "—"], ["festzins", "Festzinshypothek"], ["saron-rahmen", "SARON mit Rahmenlaufzeit"], ["saron-frei", "SARON ohne Rahmenlaufzeit"]]} />
+              <Input label="Laufzeit (Jahre)" type="number" value={a.laufzeit_jahre ?? ""} onChange={(v) => up("laufzeit_jahre", v ? Number(v) : null)} />
+            </Grid2>
+          </>
+        )}
+
+        <Select label="Gewünschter Ausgang" value={endPath} onChange={(v) => setEndPath(v)} options={[["offerten", "Offerten-Vergleich von Hyponova"], ["termin", "Beratungstermin"]]} />
+      </Section>
+
+      <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+        <button type="button" onClick={save} disabled={saving} style={{ padding: "10px 20px", background: ACCENT, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: saving ? "wait" : "pointer", fontFamily: "inherit", opacity: saving ? 0.6 : 1 }}>
+          {saving ? "Speichert…" : "Änderungen speichern"}
+        </button>
+        <button type="button" onClick={onCancel} disabled={saving} style={{ padding: "10px 16px", background: "transparent", color: "#666", border: "1px solid #ddd", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Abbrechen</button>
+      </div>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <h4 style={{ fontSize: 11, fontWeight: 700, color: "#888", textTransform: "uppercase", letterSpacing: "0.05em", margin: "0 0 8px" }}>{title}</h4>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{children}</div>
+    </div>
+  );
+}
+function Grid2({ children }: { children: React.ReactNode }) {
+  return <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>{children}</div>;
+}
+function Input({ label, value, onChange, type = "text" }: { label: string; value: string | number; onChange: (v: string) => void; type?: string }) {
+  return (
+    <label style={{ fontSize: 11, fontWeight: 600, color: "#444", display: "block" }}>
+      {label}
+      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} style={{ width: "100%", marginTop: 3, padding: "8px 10px", fontSize: 13, border: "1px solid #ddd", fontFamily: "inherit", boxSizing: "border-box", background: "#fff" }} />
+    </label>
+  );
+}
+function Select({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: (readonly [string, string])[] }) {
+  return (
+    <label style={{ fontSize: 11, fontWeight: 600, color: "#444", display: "block" }}>
+      {label}
+      <select value={value} onChange={(e) => onChange(e.target.value)} style={{ width: "100%", marginTop: 3, padding: "8px 10px", fontSize: 13, border: "1px solid #ddd", fontFamily: "inherit", boxSizing: "border-box", background: "#fff" }}>
+        {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+      </select>
+    </label>
+  );
+}
+
+/* ============== ADMIN UPLOAD ============== */
+function AdminUploadButton({ leadId, submissionId, onUploaded }: { leadId: string; submissionId: string | null; onUploaded: () => void }) {
+  const [uploading, setUploading] = useState(false);
+  const [category, setCategory] = useState("");
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  async function handle(file: File) {
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("leadId", leadId);
+      if (category) fd.append("category", category);
+      if (submissionId) fd.append("submissionId", submissionId);
+      const res = await fetch("/api/admin/documents", { method: "POST", body: fd });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        alert("Upload fehlgeschlagen: " + (j.error || "unbekannt"));
+      } else {
+        onUploaded();
+        setCategory("");
+        setShowCategoryPicker(false);
+      }
+    } finally { setUploading(false); }
+  }
+
+  return (
+    <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+      {showCategoryPicker && (
+        <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ padding: "6px 10px", fontSize: 12, border: "1px solid #ddd", fontFamily: "inherit" }}>
+          <option value="">— Sonstige Unterlage —</option>
+          {Object.entries(DOCUMENT_CATEGORY_LABELS).map(([k, v]) => (<option key={k} value={k}>{v.de}</option>))}
+        </select>
+      )}
+      <button
+        type="button"
+        onClick={() => {
+          if (!showCategoryPicker) { setShowCategoryPicker(true); return; }
+          inputRef.current?.click();
+        }}
+        disabled={uploading}
+        style={{ padding: "8px 16px", background: ACCENT, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: uploading ? "wait" : "pointer", fontFamily: "inherit", opacity: uploading ? 0.6 : 1 }}
+      >
+        {uploading ? "Lädt…" : showCategoryPicker ? "📤 Datei wählen" : "+ Dokument hochladen"}
+      </button>
+      {showCategoryPicker && !uploading && (
+        <button type="button" onClick={() => { setShowCategoryPicker(false); setCategory(""); }} style={{ padding: "6px 10px", background: "transparent", color: "#666", border: "none", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>Abbrechen</button>
+      )}
+      <input ref={inputRef} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" style={{ display: "none" }} onChange={(e) => { const f = e.target.files?.[0]; if (f) handle(f); e.target.value = ""; }} />
+    </div>
+  );
+}
+
+/* ============== FILE VIEWER MODAL ============== */
 function FileViewerModal({ doc, onClose, onDownload }: { doc: Doc; onClose: () => void; onDownload: () => void }) {
   const [signedUrl, setSignedUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    async function load() {
+    (async () => {
       try {
         const res = await fetch(`/api/admin/documents/${doc.id}?download=1`);
         if (cancelled) return;
@@ -346,16 +705,12 @@ function FileViewerModal({ doc, onClose, onDownload }: { doc: Doc; onClose: () =
       } catch {
         if (!cancelled) setError("Netzwerkfehler beim Laden der Datei");
       }
-    }
-    load();
+    })();
     return () => { cancelled = true; };
   }, [doc.id]);
 
-  // ESC-Key zum Schliessen
   useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") onClose(); }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
@@ -364,21 +719,8 @@ function FileViewerModal({ doc, onClose, onDownload }: { doc: Doc; onClose: () =
   const isImage = doc.mime_type?.startsWith("image/") || /\.(jpe?g|png|gif|webp)$/i.test(doc.file_name);
 
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position: "fixed", inset: 0, background: "rgba(10,10,10,0.85)", zIndex: 1000,
-        display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          background: "#fff", width: "100%", maxWidth: 1100, maxHeight: "92vh",
-          display: "flex", flexDirection: "column", overflow: "hidden",
-        }}
-      >
-        {/* Header */}
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(10,10,10,0.85)", zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", width: "100%", maxWidth: 1100, maxHeight: "92vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
         <div style={{ padding: "14px 18px", borderBottom: "1px solid #e5e5e5", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
           <div style={{ minWidth: 0, flex: 1 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#1a1a1a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>📄 {doc.file_name}</div>
@@ -394,20 +736,11 @@ function FileViewerModal({ doc, onClose, onDownload }: { doc: Doc; onClose: () =
             <button type="button" onClick={onClose} style={{ padding: "8px 14px", background: "#fff", color: "#333", border: "1px solid #ddd", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }} title="Schliessen (Esc)">✕ Schliessen</button>
           </div>
         </div>
-
-        {/* Body */}
         <div style={{ flex: 1, background: "#222", overflow: "auto", display: "flex", alignItems: isImage ? "center" : "stretch", justifyContent: "center", minHeight: 400 }}>
-          {error ? (
-            <div style={{ color: "#fff", padding: 40, textAlign: "center" }}>{error}</div>
-          ) : !signedUrl ? (
-            <div style={{ color: "#aaa", padding: 40, textAlign: "center", fontSize: 13 }}>Datei wird geladen…</div>
-          ) : isPdf ? (
-            <iframe
-              src={signedUrl}
-              style={{ width: "100%", height: "75vh", border: "none", background: "#222" }}
-              title={doc.file_name}
-            />
-          ) : isImage ? (
+          {error ? (<div style={{ color: "#fff", padding: 40, textAlign: "center" }}>{error}</div>)
+          : !signedUrl ? (<div style={{ color: "#aaa", padding: 40, textAlign: "center", fontSize: 13 }}>Datei wird geladen…</div>)
+          : isPdf ? (<iframe src={signedUrl} style={{ width: "100%", height: "75vh", border: "none", background: "#222" }} title={doc.file_name} />)
+          : isImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={signedUrl} alt={doc.file_name} style={{ maxWidth: "100%", maxHeight: "75vh", display: "block", margin: "0 auto" }} />
           ) : (

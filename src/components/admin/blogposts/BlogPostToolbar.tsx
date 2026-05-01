@@ -6,6 +6,7 @@ import VideoEmbedDialog from "./dialogs/VideoEmbedDialog";
 import ButtonDialog from "./dialogs/ButtonDialog";
 import GalleryDialog from "./dialogs/GalleryDialog";
 import { resizeImage } from "./imageResize";
+import { useToast } from "@/components/ui/Toast";
 import {
   IconBold,
   IconItalic,
@@ -60,6 +61,7 @@ export default function BlogPostToolbar({ editor }: Props) {
   const imageInputId = useId();
   const [uploading, setUploading] = useState(false);
   const [dialog, setDialog] = useState<ActiveDialog>(null);
+  const toast = useToast();
 
   // Reaktiver State: liest die aktuell aktiven Marks/Nodes aus dem Editor.
   // useEditorState abonniert Transaktionen, sodass die Toolbar-Buttons
@@ -128,7 +130,7 @@ export default function BlogPostToolbar({ editor }: Props) {
       if ("url" in result) {
         editor.chain().focus().setImage({ src: result.url, alt: file.name }).run();
       } else {
-        alert("Bild-Upload fehlgeschlagen: " + result.error);
+        toast({ type: "error", message: "Bild-Upload fehlgeschlagen: " + result.error });
       }
     } finally {
       setUploading(false);

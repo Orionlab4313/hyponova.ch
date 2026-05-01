@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { BlogPost } from "@/lib/blog-posts";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/ui/Toast";
 import { IconTrash, IconPlus } from "@/components/admin/blogposts/EditorIcons";
 import SetupNotice from "@/components/admin/blogposts/SetupNotice";
 import ScheduleDialog from "@/components/admin/blogposts/dialogs/ScheduleDialog";
@@ -51,6 +53,8 @@ export default function BlogpostsListPage() {
   } | null>(null);
   const [schedulingPost, setSchedulingPost] = useState<BlogPost | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const confirm = useConfirm();
+  const toast = useToast();
 
   useEffect(() => {
     let cancelled = false;
@@ -125,12 +129,20 @@ export default function BlogpostsListPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Diesen Post wirklich löschen?")) return;
+    const post = posts.find((p) => p.id === id);
+    const ok = await confirm({
+      title: "Blogpost löschen?",
+      body: post ? `«${post.title_de || post.title_en || "Unbenannt"}» wird endgültig entfernt.` : undefined,
+      confirmLabel: "Löschen",
+      danger: true,
+    });
+    if (!ok) return;
     const res = await fetch(`/api/admin/blogposts/${id}`, { method: "DELETE" });
     if (res.ok) {
       setPosts((prev) => prev.filter((p) => p.id !== id));
+      toast({ type: "success", message: "Blogpost gelöscht." });
     } else {
-      alert("Löschen fehlgeschlagen");
+      toast({ type: "error", message: "Löschen fehlgeschlagen." });
     }
   }
 
@@ -155,7 +167,7 @@ export default function BlogpostsListPage() {
       setSchedulingPost(null);
     } else {
       const j = await res.json().catch(() => ({}));
-      alert("Status konnte nicht geändert werden: " + (j.error || "unbekannt"));
+      toast({ type: "error", message: "Status konnte nicht geändert werden: " + (j.error || "unbekannt") });
     }
   }
 

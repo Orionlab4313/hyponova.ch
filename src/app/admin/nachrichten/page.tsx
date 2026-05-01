@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/ui/Toast";
 
 interface Message {
   id: string;
@@ -36,6 +38,8 @@ export default function NachrichtenPage() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [showReplyPopup, setShowReplyPopup] = useState<Reply | null>(null);
+  const confirm = useConfirm();
+  const toast = useToast();
 
   useEffect(() => {
     fetchMessages();
@@ -61,14 +65,29 @@ export default function NachrichtenPage() {
   }
 
   async function deleteMessage(id: string) {
-    if (!confirm("Nachricht wirklich löschen?")) return;
-    await fetch("/api/admin/messages", {
+    const msg = messages.find((m) => m.id === id);
+    const ok = await confirm({
+      title: "Nachricht löschen?",
+      body: msg
+        ? `Die Nachricht von «${msg.first_name} ${msg.last_name}» wird endgültig entfernt.`
+        : "Die Nachricht wird endgültig entfernt.",
+      confirmLabel: "Löschen",
+      cancelLabel: "Abbrechen",
+      danger: true,
+    });
+    if (!ok) return;
+    const res = await fetch("/api/admin/messages", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
     });
-    setSelected(null);
-    fetchMessages();
+    if (res.ok) {
+      toast({ type: "success", message: "Nachricht gelöscht." });
+      setSelected(null);
+      fetchMessages();
+    } else {
+      toast({ type: "error", message: "Löschen fehlgeschlagen." });
+    }
   }
 
   async function createLeadFromMessage(msg: Message) {
@@ -85,7 +104,7 @@ export default function NachrichtenPage() {
         notes: `Betreff: ${subjectLabels[msg.subject] || msg.subject}\n\n${msg.message}`,
       }),
     });
-    alert(`${msg.first_name} ${msg.last_name} wurde als Kontakt angelegt.`);
+    toast({ type: "success", message: `${msg.first_name} ${msg.last_name} wurde als Kontakt angelegt.` });
   }
 
   return (
@@ -249,9 +268,9 @@ export default function NachrichtenPage() {
                           fetchMessages();
                           setTimeout(() => { setSent(false); setShowReply(false); }, 2000);
                         } else {
-                          alert("Fehler beim Senden: " + (data.results?.email || "Unbekannt"));
+                          toast({ type: "error", message: "Fehler beim Senden: " + (data.results?.email || "Unbekannt") });
                         }
-                      } catch { alert("Fehler beim Senden"); }
+                      } catch { toast({ type: "error", message: "Fehler beim Senden der Antwort." }); }
                       setSending(false);
                     }}
                     disabled={sending || !replyText.trim()}

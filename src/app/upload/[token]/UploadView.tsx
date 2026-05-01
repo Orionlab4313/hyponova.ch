@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/ui/Toast";
 
 type Lang = "de" | "en";
 
@@ -38,7 +40,13 @@ const COPY = {
     successUploadMore: "Weitere Dokumente hochladen",
     successHome: "Zur Startseite",
     confirmRemovePending: "Diese Datei aus der Auswahl entfernen?",
-    confirmRemoveUploaded: "Diese bereits hochgeladene Datei wirklich entfernen?",
+    confirmRemovePendingBody: "Sie können sie danach jederzeit erneut auswählen.",
+    confirmRemoveUploaded: "Hochgeladene Datei entfernen?",
+    confirmRemoveUploadedBody: "Diese Datei wird endgültig gelöscht und ist danach nicht mehr verfügbar.",
+    confirmRemoveLabel: "Entfernen",
+    confirmCancelLabel: "Abbrechen",
+    toastFileRemoved: "Datei entfernt.",
+    toastDeleteFailed: "Datei konnte nicht gelöscht werden.",
     progressBarTitle: "Werden hochgeladen…",
   },
   en: {
@@ -73,7 +81,13 @@ const COPY = {
     successUploadMore: "Upload more documents",
     successHome: "Back to homepage",
     confirmRemovePending: "Remove this file from the selection?",
-    confirmRemoveUploaded: "Really remove this already uploaded file?",
+    confirmRemovePendingBody: "You can select it again at any time.",
+    confirmRemoveUploaded: "Delete uploaded file?",
+    confirmRemoveUploadedBody: "This file will be permanently deleted and no longer available.",
+    confirmRemoveLabel: "Remove",
+    confirmCancelLabel: "Cancel",
+    toastFileRemoved: "File removed.",
+    toastDeleteFailed: "Failed to delete file.",
     progressBarTitle: "Uploading…",
   },
 } as const;
@@ -130,6 +144,8 @@ export default function UploadView({ token, lang, leadName, categories, existing
   const [error, setError] = useState<string | null>(null);
   const [screen, setScreen] = useState<"form" | "success">("form");
   const [lastUploadedCount, setLastUploadedCount] = useState(0);
+  const confirm = useConfirm();
+  const toast = useToast();
 
   const filledCategories = new Set(docs.map((d) => d.category).filter(Boolean) as string[]);
   const requiredFilled = categories.filter((c) => filledCategories.has(c.key)).length;
@@ -143,15 +159,34 @@ export default function UploadView({ token, lang, leadName, categories, existing
     setPending((prev) => [...prev, { id, file, category }]);
   }
 
-  function removePending(id: string) {
-    if (!confirm(t.confirmRemovePending)) return;
+  async function removePending(id: string) {
+    const ok = await confirm({
+      title: t.confirmRemovePending,
+      body: t.confirmRemovePendingBody,
+      confirmLabel: t.confirmRemoveLabel,
+      cancelLabel: t.confirmCancelLabel,
+      danger: true,
+    });
+    if (!ok) return;
     setPending((prev) => prev.filter((p) => p.id !== id));
   }
 
   async function deleteDoc(id: string) {
-    if (!confirm(t.confirmRemoveUploaded)) return;
+    const ok = await confirm({
+      title: t.confirmRemoveUploaded,
+      body: t.confirmRemoveUploadedBody,
+      confirmLabel: t.confirmRemoveLabel,
+      cancelLabel: t.confirmCancelLabel,
+      danger: true,
+    });
+    if (!ok) return;
     const res = await fetch(`/api/public/upload/${token}?docId=${id}`, { method: "DELETE" });
-    if (res.ok) setDocs((prev) => prev.filter((d) => d.id !== id));
+    if (res.ok) {
+      setDocs((prev) => prev.filter((d) => d.id !== id));
+      toast({ type: "success", message: t.toastFileRemoved });
+    } else {
+      toast({ type: "error", message: t.toastDeleteFailed });
+    }
   }
 
   async function uploadAll() {

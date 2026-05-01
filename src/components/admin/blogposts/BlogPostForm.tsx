@@ -4,6 +4,8 @@ import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import BlogPostEditor from "./BlogPostEditor";
 import { resizeImage } from "./imageResize";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/ui/Toast";
 
 export interface BlogPostFormData {
   id?: string;
@@ -100,6 +102,8 @@ export default function BlogPostForm({ initial }: Props) {
   const [slugDirty, setSlugDirty] = useState(!!initial.slug);
   const [uploadingHero, setUploadingHero] = useState(false);
   const heroInputId = useId();
+  const confirm = useConfirm();
+  const toast = useToast();
 
   function update<K extends keyof BlogPostFormData>(
     key: K,
@@ -144,8 +148,12 @@ export default function BlogPostForm({ initial }: Props) {
       });
       if (res.ok) {
         const json = await res.json();
-        if (json.url) update("hero_image", json.url);
-        else alert("Hero-Upload: keine URL in der Antwort");
+        if (json.url) {
+          update("hero_image", json.url);
+          toast({ type: "success", message: "Hero-Bild hochgeladen." });
+        } else {
+          toast({ type: "error", message: "Hero-Upload: keine URL in der Antwort." });
+        }
       } else {
         let msg = `HTTP ${res.status}`;
         try {
@@ -160,15 +168,18 @@ export default function BlogPostForm({ initial }: Props) {
           }
         }
         if (/bucket|not found|blog-assets/i.test(msg)) {
-          alert(
-            "Hero-Upload fehlgeschlagen: der Supabase-Bucket 'blog-assets' existiert noch nicht. Öffne /admin/blogposts, dort wird die Setup-Anleitung mit SQL angezeigt."
-          );
+          toast({
+            type: "error",
+            message:
+              "Hero-Upload fehlgeschlagen: der Supabase-Bucket 'blog-assets' fehlt. Öffne /admin/blogposts für die Setup-Anleitung.",
+            duration: 8000,
+          });
         } else {
-          alert("Hero-Upload fehlgeschlagen: " + msg);
+          toast({ type: "error", message: "Hero-Upload fehlgeschlagen: " + msg });
         }
       }
     } catch (err) {
-      alert("Hero-Upload Netzwerkfehler: " + String(err));
+      toast({ type: "error", message: "Netzwerkfehler beim Hero-Upload: " + String(err) });
     } finally {
       setUploadingHero(false);
     }
@@ -222,14 +233,24 @@ export default function BlogPostForm({ initial }: Props) {
 
   async function deletePost() {
     if (!data.id) return;
-    if (!confirm("Diesen Post wirklich löschen?")) return;
+    const ok = await confirm({
+      title: "Diesen Blogpost löschen?",
+      body: data.title_de
+        ? `«${data.title_de}» wird endgültig entfernt. Das kann nicht rückgängig gemacht werden.`
+        : "Der Post wird endgültig entfernt. Das kann nicht rückgängig gemacht werden.",
+      confirmLabel: "Endgültig löschen",
+      cancelLabel: "Abbrechen",
+      danger: true,
+    });
+    if (!ok) return;
     const res = await fetch(`/api/admin/blogposts/${data.id}`, {
       method: "DELETE",
     });
     if (res.ok) {
+      toast({ type: "success", message: "Blogpost gelöscht." });
       router.push("/admin/blogposts");
     } else {
-      alert("Löschen fehlgeschlagen");
+      toast({ type: "error", message: "Löschen fehlgeschlagen." });
     }
   }
 

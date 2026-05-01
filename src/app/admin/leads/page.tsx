@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/ui/Toast";
 
 interface Lead {
   id: string;
@@ -26,6 +28,8 @@ export default function LeadsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editLead, setEditLead] = useState<Lead | null>(null);
   const [form, setForm] = useState({ first_name: "", last_name: "", email: "", phone: "", status: "neu", source: "website", notes: "" });
+  const confirm = useConfirm();
+  const toast = useToast();
 
   useEffect(() => { fetchLeads(); }, []);
 
@@ -49,9 +53,24 @@ export default function LeadsPage() {
   }
 
   async function deleteLead(id: string) {
-    if (!confirm("Kontakt wirklich löschen?")) return;
-    await fetch("/api/admin/leads", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
-    fetchLeads();
+    const lead = leads.find((l) => l.id === id);
+    const ok = await confirm({
+      title: "Kontakt endgültig löschen?",
+      body: lead
+        ? `«${lead.first_name} ${lead.last_name}» wird mit allen zugehörigen Dokumenten, Fragebogen-Antworten, Notizen und Aufgaben gelöscht. Das kann nicht rückgängig gemacht werden.`
+        : "Alle zugehörigen Daten werden mitgelöscht. Das kann nicht rückgängig gemacht werden.",
+      confirmLabel: "Endgültig löschen",
+      cancelLabel: "Abbrechen",
+      danger: true,
+    });
+    if (!ok) return;
+    const res = await fetch("/api/admin/leads", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+    if (res.ok) {
+      toast({ type: "success", message: "Kontakt gelöscht." });
+      fetchLeads();
+    } else {
+      toast({ type: "error", message: "Löschen fehlgeschlagen." });
+    }
   }
 
   function openEdit(lead: Lead) {

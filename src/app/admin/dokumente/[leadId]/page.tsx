@@ -21,6 +21,8 @@ import {
   IconX,
   IconPlus,
 } from "@/components/admin/AdminIcons";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/ui/Toast";
 
 const ACCENT = "#c8553d";
 const KANTONE: [string, string][] = [
@@ -106,6 +108,8 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
   const [pendingCategory, setPendingCategory] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
   const [viewerDoc, setViewerDoc] = useState<Doc | null>(null);
+  const confirm = useConfirm();
+  const toast = useToast();
 
   function load() {
     fetch(`/api/admin/documents?leadId=${leadId}`)
@@ -124,7 +128,7 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
 
   async function downloadDoc(docId: string) {
     const res = await fetch(`/api/admin/documents/${docId}?download=1`);
-    if (!res.ok) { alert("Download-Fehler"); return; }
+    if (!res.ok) { toast({ type: "error", message: "Download fehlgeschlagen." }); return; }
     const j = await res.json();
     window.open(j.url, "_blank");
   }
@@ -146,8 +150,9 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
         setDocs((prev) => prev.map((d) => d.id === docId ? { ...d, ...updated } : d));
         setPendingStatus((p) => { const n = { ...p }; delete n[docId]; return n; });
         setPendingCategory((p) => { const n = { ...p }; delete n[docId]; return n; });
+        toast({ type: "success", message: "Änderungen gespeichert." });
       } else {
-        alert("Speichern fehlgeschlagen");
+        toast({ type: "error", message: "Speichern fehlgeschlagen." });
       }
     } finally {
       setSavingId(null);
@@ -160,9 +165,21 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
   }
 
   async function deleteDoc(docId: string) {
-    if (!confirm("Wirklich löschen?")) return;
+    const doc = docs.find((d) => d.id === docId);
+    const ok = await confirm({
+      title: "Dokument löschen?",
+      body: doc ? `«${doc.file_name}» wird endgültig entfernt.` : "Dieses Dokument wird endgültig entfernt.",
+      confirmLabel: "Löschen",
+      danger: true,
+    });
+    if (!ok) return;
     const res = await fetch(`/api/admin/documents/${docId}`, { method: "DELETE" });
-    if (res.ok) setDocs((p) => p.filter((d) => d.id !== docId));
+    if (res.ok) {
+      setDocs((p) => p.filter((d) => d.id !== docId));
+      toast({ type: "success", message: "Dokument gelöscht." });
+    } else {
+      toast({ type: "error", message: "Löschen fehlgeschlagen." });
+    }
   }
 
   if (loading) return <div style={{ padding: 40, textAlign: "center", color: "#888" }}>Laden…</div>;
@@ -317,6 +334,7 @@ function NotesPanel({ leadId, initialNotes }: { leadId: string; initialNotes: st
   const [savedNotes, setSavedNotes] = useState(initialNotes);
   const [saving, setSaving] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
+  const toast = useToast();
 
   const dirty = notes !== savedNotes;
 
@@ -332,7 +350,7 @@ function NotesPanel({ leadId, initialNotes }: { leadId: string; initialNotes: st
         setSavedFlash(true);
         setTimeout(() => setSavedFlash(false), 1800);
       } else {
-        alert("Speichern fehlgeschlagen");
+        toast({ type: "error", message: "Notizen konnten nicht gespeichert werden." });
       }
     } finally {
       setSaving(false);
@@ -372,6 +390,8 @@ function TodosPanel({ leadId }: { leadId: string }) {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newText, setNewText] = useState("");
   const [adding, setAdding] = useState(false);
+  const confirm = useConfirm();
+  const toast = useToast();
 
   function load() {
     fetch(`/api/admin/leads/${leadId}/todos`).then((r) => r.json()).then((d) => Array.isArray(d) && setTodos(d));
@@ -411,9 +431,20 @@ function TodosPanel({ leadId }: { leadId: string }) {
   }
 
   async function delTodo(id: string) {
-    if (!confirm("Todo löschen?")) return;
+    const todo = todos.find((t) => t.id === id);
+    const ok = await confirm({
+      title: "Aufgabe löschen?",
+      body: todo ? `«${todo.text}»` : undefined,
+      confirmLabel: "Löschen",
+      danger: true,
+    });
+    if (!ok) return;
     const res = await fetch(`/api/admin/leads/${leadId}/todos/${id}`, { method: "DELETE" });
-    if (res.ok) setTodos((p) => p.filter((t) => t.id !== id));
+    if (res.ok) {
+      setTodos((p) => p.filter((t) => t.id !== id));
+    } else {
+      toast({ type: "error", message: "Aufgabe konnte nicht gelöscht werden." });
+    }
   }
 
   const open = todos.filter((t) => !t.done);
@@ -541,6 +572,7 @@ function SubmissionEditor({ submission, onCancel, onSaved }: { submission: Submi
   const [endPath, setEndPath] = useState<string>(submission.end_path || "offerten");
   const [saving, setSaving] = useState(false);
   const isAbl = submission.type === "abloesung";
+  const toast = useToast();
 
   function up(k: string, v: any) { setA((p: any) => ({ ...p, [k]: v })); }
   function upTranche(i: number, k: string, v: any) {
@@ -565,8 +597,12 @@ function SubmissionEditor({ submission, onCancel, onSaved }: { submission: Submi
         method: "PATCH", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ answers: a, end_path: endPath }),
       });
-      if (res.ok) onSaved();
-      else alert("Speichern fehlgeschlagen");
+      if (res.ok) {
+        toast({ type: "success", message: "Fragebogen-Antworten gespeichert." });
+        onSaved();
+      } else {
+        toast({ type: "error", message: "Speichern fehlgeschlagen." });
+      }
     } finally { setSaving(false); }
   }
 
@@ -665,6 +701,7 @@ function AdminUploadButton({ leadId, submissionId, onUploaded }: { leadId: strin
   const [category, setCategory] = useState("");
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const toast = useToast();
 
   async function handle(file: File) {
     setUploading(true);
@@ -677,8 +714,9 @@ function AdminUploadButton({ leadId, submissionId, onUploaded }: { leadId: strin
       const res = await fetch("/api/admin/documents", { method: "POST", body: fd });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
-        alert("Upload fehlgeschlagen: " + (j.error || "unbekannt"));
+        toast({ type: "error", message: "Upload fehlgeschlagen: " + (j.error || "unbekannt") });
       } else {
+        toast({ type: "success", message: "Dokument hochgeladen." });
         onUploaded();
         setCategory("");
         setShowCategoryPicker(false);

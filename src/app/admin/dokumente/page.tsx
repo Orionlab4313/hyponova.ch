@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { formatSource } from "@/lib/submissions";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/ui/Toast";
 
 interface LeadRow {
   id: string;
@@ -27,6 +29,8 @@ export default function DokumentePage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "with_docs" | "with_submission">("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const confirm = useConfirm();
+  const toast = useToast();
 
   useEffect(() => {
     fetch("/api/admin/documents")
@@ -38,10 +42,16 @@ export default function DokumentePage() {
   async function deleteLead(id: string, name: string) {
     const lead = leads.find((l) => l.id === id);
     const docCount = lead?.docs.count ?? 0;
-    const warning = docCount > 0
-      ? `Wirklich «${name}» mit ${docCount} Dokument(en) und allen Fragebogen-Antworten endgültig löschen? Das kann nicht rückgängig gemacht werden.`
-      : `Wirklich «${name}» endgültig löschen?`;
-    if (!confirm(warning)) return;
+    const ok = await confirm({
+      title: `«${name}» endgültig löschen?`,
+      body: docCount > 0
+        ? `Es werden ${docCount} Dokument${docCount === 1 ? "" : "e"} sowie alle Fragebogen-Antworten, Notizen und Aufgaben dieses Kontakts mitgelöscht. Das kann nicht rückgängig gemacht werden.`
+        : "Alle zugehörigen Daten werden mitgelöscht. Das kann nicht rückgängig gemacht werden.",
+      confirmLabel: "Endgültig löschen",
+      cancelLabel: "Abbrechen",
+      danger: true,
+    });
+    if (!ok) return;
     setDeletingId(id);
     try {
       const res = await fetch("/api/admin/leads", {
@@ -50,11 +60,12 @@ export default function DokumentePage() {
       });
       if (res.ok) {
         setLeads((prev) => prev.filter((l) => l.id !== id));
+        toast({ type: "success", message: `«${name}» wurde gelöscht.` });
       } else {
-        alert("Löschen fehlgeschlagen");
+        toast({ type: "error", message: "Löschen fehlgeschlagen." });
       }
     } catch {
-      alert("Netzwerkfehler beim Löschen");
+      toast({ type: "error", message: "Netzwerkfehler beim Löschen." });
     } finally {
       setDeletingId(null);
     }

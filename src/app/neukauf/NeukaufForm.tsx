@@ -169,7 +169,7 @@ export default function NeukaufForm({ initialLang }: { initialLang: Lang }) {
         {step !== "success" && (
           <>
             <div style={{ textAlign: "center", marginBottom: 30 }}>
-              <span style={{ display: "inline-block", padding: "5px 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, border: `1px solid ${ACCENT}66`, borderRadius: 20, marginBottom: 16, background: `${ACCENT}0d` }}>{t.badge}</span>
+              <span style={{ display: "inline-block", padding: "5px 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, border: `1px solid ${ACCENT}66`, borderRadius: 0, marginBottom: 16, background: `${ACCENT}0d` }}>{t.badge}</span>
               <h1 style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 600, lineHeight: 1.15, color: "#1a1a1a", margin: 0 }}>{t.titlePre} <span style={{ color: ACCENT }}>{t.titleHl}</span></h1>
             </div>
             <div style={{ marginBottom: 24 }}>
@@ -177,14 +177,14 @@ export default function NeukaufForm({ initialLang }: { initialLang: Lang }) {
                 <span>{t.progress.replace("{current}", String(idx + 1)).replace("{total}", String(total))}</span>
                 <span>{pct}%</span>
               </div>
-              <div style={{ height: 6, background: "#e5e5e5", borderRadius: 3, overflow: "hidden" }}>
+              <div style={{ height: 6, background: "#e5e5e5", borderRadius: 0, overflow: "hidden" }}>
                 <div style={{ height: "100%", width: `${pct}%`, background: ACCENT, transition: "width 0.3s" }} />
               </div>
             </div>
           </>
         )}
 
-        <div style={{ background: "#fff", borderRadius: 12, padding: "32px 28px", border: "1px solid #e5e5e5" }}>
+        <div style={{ background: "#fff", borderRadius: 0, padding: "32px 28px", border: "1px solid #e5e5e5" }}>
           {step === "kanton" && <SelectStep title={t.qKanton} value={a.kanton} setValue={(v) => up("kanton", v)} placeholder={t.selectKanton} options={KANTONE.map(([c, n]) => ({ val: c, label: n }))} />}
           {step === "objektart" && <RadioStep title={t.qObjektart} value={a.objektart} setValue={(v) => up("objektart", v as any)} options={[
             { val: "efh", label: t.optEfh, desc: t.optEfhDesc },
@@ -203,14 +203,14 @@ export default function NeukaufForm({ initialLang }: { initialLang: Lang }) {
           {step === "contact" && <ContactStep t={t} a={a} setA={setA} />}
           {step === "success" && <SuccessStep t={t} />}
 
-          {error && <div style={{ marginTop: 16, padding: "10px 14px", background: "rgba(239,68,68,0.08)", color: "#c00", borderRadius: 6, fontSize: 13 }}>{error}</div>}
+          {error && <div style={{ marginTop: 16, padding: "10px 14px", background: "rgba(239,68,68,0.08)", color: "#c00", borderRadius: 0, fontSize: 13 }}>{error}</div>}
 
           {step !== "success" && (
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 28, gap: 12 }}>
-              {idx > 0 ? <button type="button" onClick={back} style={{ padding: "10px 16px", background: "transparent", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>{t.back}</button> : <div />}
+              {idx > 0 ? <button type="button" onClick={back} style={{ padding: "10px 16px", background: "transparent", color: "#666", border: "1px solid #ddd", borderRadius: 0, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>{t.back}</button> : <div />}
               {step === "contact"
-                ? <button type="button" onClick={submit} disabled={submitting} style={{ padding: "12px 24px", background: ACCENT, color: "#fff", border: "none", borderRadius: 6, fontSize: 14, fontWeight: 600, cursor: submitting ? "wait" : "pointer", fontFamily: "inherit", opacity: submitting ? 0.7 : 1 }}>{submitting ? t.submitting : t.submit}</button>
-                : <button type="button" onClick={next} style={{ padding: "12px 24px", background: ACCENT, color: "#fff", border: "none", borderRadius: 6, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>{t.next}</button>
+                ? <button type="button" onClick={submit} disabled={submitting} style={{ padding: "12px 24px", background: ACCENT, color: "#fff", border: "none", borderRadius: 0, fontSize: 14, fontWeight: 600, cursor: submitting ? "wait" : "pointer", fontFamily: "inherit", opacity: submitting ? 0.7 : 1 }}>{submitting ? t.submitting : t.submit}</button>
+                : <button type="button" onClick={next} style={{ padding: "12px 24px", background: ACCENT, color: "#fff", border: "none", borderRadius: 0, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>{t.next}</button>
               }
             </div>
           )}
@@ -237,7 +237,7 @@ function SelectStep({ title, value, setValue, placeholder, options }: { title: s
 }
 function RadioStep({ title, value, setValue, options }: { title: string; value: string; setValue: (v: string) => void; options: { val: string; label: string; desc?: string }[] }) {
   return (<><StepHeader title={title} /><div style={{ display: "flex", flexDirection: "column", gap: 10 }}>{options.map((o) => { const active = value === o.val; return (
-    <button key={o.val} type="button" onClick={() => setValue(o.val)} style={{ textAlign: "left", padding: "14px 16px", background: active ? `${ACCENT}0d` : "#fff", border: `2px solid ${active ? ACCENT : "#e5e5e5"}`, borderRadius: 8, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
+    <button key={o.val} type="button" onClick={() => setValue(o.val)} style={{ textAlign: "left", padding: "14px 16px", background: active ? `${ACCENT}0d` : "#fff", border: `2px solid ${active ? ACCENT : "#e5e5e5"}`, borderRadius: 0, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
       <div style={{ fontSize: 15, fontWeight: 600, color: "#1a1a1a" }}>{o.label}</div>
       {o.desc && <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>{o.desc}</div>}
     </button>
@@ -256,17 +256,17 @@ function ContactStep({ t, a, setA }: { t: any; a: Answers; setA: (a: Answers) =>
 function SuccessStep({ t }: { t: any }) {
   return (
     <div style={{ textAlign: "center", padding: "20px 0" }}>
-      <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#dcfce7", color: "#166534", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 16 }}>✓</div>
+      <div style={{ width: 56, height: 56, borderRadius: 0, background: "#dcfce7", color: "#166534", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 16 }}>✓</div>
       <h2 style={{ fontSize: 24, fontWeight: 600, color: "#1a1a1a", marginBottom: 12 }}>{t.successTitle}</h2>
       <p style={{ fontSize: 15, color: "#555", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 12px" }}>{t.successDesc}</p>
       <p style={{ fontSize: 12, color: "#888", margin: "0 auto 24px", maxWidth: 480 }}>{t.successCheckEmail}</p>
       <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-        <Link href="/termin" style={{ padding: "12px 24px", background: ACCENT, color: "#fff", borderRadius: 6, fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{t.successCalendarBtn}</Link>
-        <Link href="/" style={{ padding: "12px 24px", background: "#fff", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 14, textDecoration: "none" }}>{t.successHomeBtn}</Link>
+        <Link href="/termin" style={{ padding: "12px 24px", background: ACCENT, color: "#fff", borderRadius: 0, fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{t.successCalendarBtn}</Link>
+        <Link href="/" style={{ padding: "12px 24px", background: "#fff", color: "#666", border: "1px solid #ddd", borderRadius: 0, fontSize: 14, textDecoration: "none" }}>{t.successHomeBtn}</Link>
       </div>
     </div>
   );
 }
 
 const lbl: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 600, color: "#444", marginBottom: 4 };
-const inp: React.CSSProperties = { width: "100%", padding: "10px 12px", fontSize: 16, border: "1px solid #ddd", borderRadius: 6, fontFamily: "inherit", background: "#fff", boxSizing: "border-box" };
+const inp: React.CSSProperties = { width: "100%", padding: "10px 12px", fontSize: 16, border: "1px solid #ddd", borderRadius: 0, fontFamily: "inherit", background: "#fff", boxSizing: "border-box" };

@@ -93,6 +93,9 @@ const COPY = {
     successCheckEmail: "Bitte prüfen Sie auch den Spam-Ordner, falls keine E-Mail eintrifft.",
     successCalendarBtn: "Termin jetzt buchen →",
     successHomeBtn: "← Zur Startseite",
+    nextStepTitle: "Nächster Schritt: Vorsorgliche Kündigung",
+    nextStepBody: "Sobald wir die besten Konditionen für Sie haben, müssen Sie Ihre aktuelle Hypothek vorsorglich kündigen. Erstellen Sie das Kündigungsschreiben in 2 Minuten als PDF — bereit zum Versand per Einschreiben.",
+    nextStepCta: "Kündigungsvorlage erstellen →",
     fieldRequired: "Pflichtfeld",
     invalidEmail: "Bitte gültige E-Mail-Adresse eingeben",
     invalidBetrag: "Betrag muss grösser als 0 sein",
@@ -184,6 +187,9 @@ const COPY = {
     successCheckEmail: "Please also check your spam folder if no email arrives.",
     successCalendarBtn: "Book appointment now →",
     successHomeBtn: "← Back to homepage",
+    nextStepTitle: "Next step: Precautionary cancellation",
+    nextStepBody: "Once we have the best conditions for you, you'll need to give precautionary notice on your current mortgage. Generate the cancellation letter in 2 minutes as a PDF — ready to send by registered mail.",
+    nextStepCta: "Create cancellation template →",
     fieldRequired: "Required",
     invalidEmail: "Please enter a valid email address",
     invalidBetrag: "Amount must be greater than 0",
@@ -369,7 +375,7 @@ export default function AbloesungForm({ initialLang }: { initialLang: Lang }) {
         {step !== "success" && step !== "sackgasse" && (
           <>
             <div style={{ textAlign: "center", marginBottom: 30 }}>
-              <span style={{ display: "inline-block", padding: "5px 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, border: `1px solid ${ACCENT}66`, borderRadius: 20, marginBottom: 16, background: `${ACCENT}0d` }}>
+              <span style={{ display: "inline-block", padding: "5px 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, border: `1px solid ${ACCENT}66`, borderRadius: 0, marginBottom: 16, background: `${ACCENT}0d` }}>
                 {t.badge}
               </span>
               <h1 style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 600, lineHeight: 1.15, color: "#1a1a1a", margin: 0 }}>
@@ -381,14 +387,14 @@ export default function AbloesungForm({ initialLang }: { initialLang: Lang }) {
                 <span>{t.progress.replace("{current}", String(currentIndex + 1)).replace("{total}", String(total))}</span>
                 <span>{progressPct}%</span>
               </div>
-              <div style={{ height: 6, background: "#e5e5e5", borderRadius: 3, overflow: "hidden" }}>
+              <div style={{ height: 6, background: "#e5e5e5", borderRadius: 0, overflow: "hidden" }}>
                 <div style={{ height: "100%", width: `${progressPct}%`, background: ACCENT, transition: "width 0.3s" }} />
               </div>
             </div>
           </>
         )}
 
-        <div style={{ background: "#fff", borderRadius: 12, padding: "32px 28px", border: "1px solid #e5e5e5", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+        <div style={{ background: "#fff", borderRadius: 0, padding: "32px 28px", border: "1px solid #e5e5e5", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
           {step === "tranchen" && <TranchenStep t={t} answers={answers} setAnswers={setAnswers} />}
           {step === "sackgasse" && <SackgasseStep t={t} />}
           {step === "kanton" && <KantonStep t={t} value={answers.kanton} setValue={(v) => up("kanton", v)} />}
@@ -428,20 +434,20 @@ export default function AbloesungForm({ initialLang }: { initialLang: Lang }) {
           {step === "success" && <SuccessStep t={t} endPath={answers.end_path} />}
 
           {error && (
-            <div style={{ marginTop: 16, padding: "10px 14px", background: "rgba(239,68,68,0.08)", color: "#c00", borderRadius: 6, fontSize: 13 }}>{error}</div>
+            <div style={{ marginTop: 16, padding: "10px 14px", background: "rgba(239,68,68,0.08)", color: "#c00", borderRadius: 0, fontSize: 13 }}>{error}</div>
           )}
 
           {step !== "success" && step !== "sackgasse" && (
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: 28, gap: 12 }}>
               {currentIndex > 0 ? (
-                <button type="button" onClick={goBack} style={{ padding: "10px 16px", background: "transparent", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>{t.back}</button>
+                <button type="button" onClick={goBack} style={{ padding: "10px 16px", background: "transparent", color: "#666", border: "1px solid #ddd", borderRadius: 0, fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>{t.back}</button>
               ) : <div />}
               {step === "contact" ? (
-                <button type="button" onClick={submitAll} disabled={submitting} style={{ padding: "12px 24px", background: ACCENT, color: "#fff", border: "none", borderRadius: 6, fontSize: 14, fontWeight: 600, cursor: submitting ? "wait" : "pointer", fontFamily: "inherit", opacity: submitting ? 0.7 : 1 }}>
+                <button type="button" onClick={submitAll} disabled={submitting} style={{ padding: "12px 24px", background: ACCENT, color: "#fff", border: "none", borderRadius: 0, fontSize: 14, fontWeight: 600, cursor: submitting ? "wait" : "pointer", fontFamily: "inherit", opacity: submitting ? 0.7 : 1 }}>
                   {submitting ? t.submitting : t.submit}
                 </button>
               ) : (
-                <button type="button" onClick={goNext} style={{ padding: "12px 24px", background: ACCENT, color: "#fff", border: "none", borderRadius: 6, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>{t.next}</button>
+                <button type="button" onClick={goNext} style={{ padding: "12px 24px", background: ACCENT, color: "#fff", border: "none", borderRadius: 0, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>{t.next}</button>
               )}
             </div>
           )}
@@ -483,7 +489,7 @@ function TranchenStep({ t, answers, setAnswers }: { t: any; answers: Answers; se
       <StepHeader title={t.qContact && "Hypothekartranchen" || "Tranches"} desc="Tragen Sie alle Ihre aktuellen Tranchen ein. Wir prüfen automatisch, ob eine Ablösung möglich ist." />
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {answers.tranchen.map((tr, i) => (
-          <div key={i} style={{ background: "#fafafa", borderRadius: 8, padding: 16, border: "1px solid #ececec" }}>
+          <div key={i} style={{ background: "#fafafa", borderRadius: 0, padding: 16, border: "1px solid #ececec" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
               <div>
                 <label style={lbl}>{t.fieldBetrag} ({t.chf})</label>
@@ -509,7 +515,7 @@ function TranchenStep({ t, answers, setAnswers }: { t: any; answers: Answers; se
           </div>
         ))}
       </div>
-      <button type="button" onClick={addRow} style={{ marginTop: 12, padding: "8px 14px", background: "transparent", color: ACCENT, border: `1px dashed ${ACCENT}66`, borderRadius: 6, fontSize: 13, cursor: "pointer", fontFamily: "inherit", width: "100%" }}>+ {t.addTranche}</button>
+      <button type="button" onClick={addRow} style={{ marginTop: 12, padding: "8px 14px", background: "transparent", color: ACCENT, border: `1px dashed ${ACCENT}66`, borderRadius: 0, fontSize: 13, cursor: "pointer", fontFamily: "inherit", width: "100%" }}>+ {t.addTranche}</button>
     </>
   );
 }
@@ -517,12 +523,12 @@ function TranchenStep({ t, answers, setAnswers }: { t: any; answers: Answers; se
 function SackgasseStep({ t }: { t: any }) {
   return (
     <div style={{ textAlign: "center", padding: "20px 0" }}>
-      <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#fef3c7", color: "#92400e", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 16 }}>!</div>
+      <div style={{ width: 56, height: 56, borderRadius: 0, background: "#fef3c7", color: "#92400e", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 16 }}>!</div>
       <h2 style={{ fontSize: 24, fontWeight: 600, color: "#1a1a1a", marginBottom: 12 }}>{t.sackgasseTitle}</h2>
       <p style={{ fontSize: 15, color: "#555", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 24px" }}>{t.sackgasseBody}</p>
       <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-        <Link href="/termin" style={{ padding: "12px 24px", background: ACCENT, color: "#fff", borderRadius: 6, fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{t.sackgasseCta}</Link>
-        <Link href="/" style={{ padding: "12px 24px", background: "#fff", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 14, textDecoration: "none" }}>{t.sackgasseHome}</Link>
+        <Link href="/termin" style={{ padding: "12px 24px", background: ACCENT, color: "#fff", borderRadius: 0, fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{t.sackgasseCta}</Link>
+        <Link href="/" style={{ padding: "12px 24px", background: "#fff", color: "#666", border: "1px solid #ddd", borderRadius: 0, fontSize: 14, textDecoration: "none" }}>{t.sackgasseHome}</Link>
       </div>
     </div>
   );
@@ -549,7 +555,7 @@ function RadioStep({ t, title, desc, value, setValue, options }: { t: any; title
           const active = value === o.val;
           return (
             <button key={o.val} type="button" onClick={() => setValue(o.val)}
-              style={{ textAlign: "left", padding: "14px 16px", background: active ? `${ACCENT}0d` : "#fff", border: `2px solid ${active ? ACCENT : "#e5e5e5"}`, borderRadius: 8, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
+              style={{ textAlign: "left", padding: "14px 16px", background: active ? `${ACCENT}0d` : "#fff", border: `2px solid ${active ? ACCENT : "#e5e5e5"}`, borderRadius: 0, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
               <div style={{ fontSize: 15, fontWeight: 600, color: "#1a1a1a" }}>{o.label}</div>
               {o.desc && <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>{o.desc}</div>}
             </button>
@@ -603,22 +609,39 @@ function ContactStep({ t, answers, setAnswers }: { t: any; answers: Answers; set
 
 function SuccessStep({ t, endPath }: { t: any; endPath: string }) {
   return (
-    <div style={{ textAlign: "center", padding: "20px 0" }}>
-      <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#dcfce7", color: "#166534", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 16 }}>✓</div>
-      <h2 style={{ fontSize: 24, fontWeight: 600, color: "#1a1a1a", marginBottom: 12 }}>{t.successTitle}</h2>
-      <p style={{ fontSize: 15, color: "#555", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 12px" }}>
-        {endPath === "termin" ? t.successTerminDesc : t.successSubmittedDesc}
-      </p>
-      <p style={{ fontSize: 12, color: "#888", margin: "0 auto 24px", maxWidth: 480 }}>{t.successCheckEmail}</p>
-      <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-        {endPath === "termin" && (
-          <Link href="/termin" style={{ padding: "12px 24px", background: ACCENT, color: "#fff", borderRadius: 6, fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{t.successCalendarBtn}</Link>
-        )}
-        <Link href="/" style={{ padding: "12px 24px", background: "#fff", color: "#666", border: "1px solid #ddd", borderRadius: 6, fontSize: 14, textDecoration: "none" }}>{t.successHomeBtn}</Link>
+    <div style={{ padding: "10px 0" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ width: 56, height: 56, borderRadius: 0, background: "#dcfce7", color: "#166534", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 16 }}>✓</div>
+        <h2 style={{ fontSize: 24, fontWeight: 600, color: "#1a1a1a", marginBottom: 12 }}>{t.successTitle}</h2>
+        <p style={{ fontSize: 15, color: "#555", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 12px" }}>
+          {endPath === "termin" ? t.successTerminDesc : t.successSubmittedDesc}
+        </p>
+        <p style={{ fontSize: 12, color: "#888", margin: "0 auto 24px", maxWidth: 480 }}>{t.successCheckEmail}</p>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          {endPath === "termin" && (
+            <Link href="/termin" style={{ padding: "12px 24px", background: ACCENT, color: "#fff", borderRadius: 0, fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{t.successCalendarBtn}</Link>
+          )}
+        </div>
+      </div>
+
+      {/* Naechster-Schritt Card: Kuendigungsvorlage — gehoert logisch in den Abloesungs-Workflow */}
+      <div style={{ marginTop: 32, padding: 20, background: "#fafafa", border: `1px solid ${ACCENT}33`, borderRadius: 0 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 14, flexWrap: "wrap" }}>
+          <div style={{ width: 40, height: 40, borderRadius: 0, background: `${ACCENT}1a`, color: ACCENT, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, flexShrink: 0 }}>2</div>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: "#1a1a1a", margin: "0 0 6px" }}>{t.nextStepTitle}</h3>
+            <p style={{ fontSize: 13, color: "#555", lineHeight: 1.6, margin: "0 0 12px" }}>{t.nextStepBody}</p>
+            <Link href="/kuendigung" style={{ display: "inline-block", padding: "10px 18px", background: ACCENT, color: "#fff", borderRadius: 0, fontSize: 13, fontWeight: 600, textDecoration: "none" }}>{t.nextStepCta}</Link>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ textAlign: "center", marginTop: 20 }}>
+        <Link href="/" style={{ fontSize: 13, color: "#999", textDecoration: "none" }}>{t.successHomeBtn}</Link>
       </div>
     </div>
   );
 }
 
 const lbl: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 600, color: "#444", marginBottom: 4 };
-const inp: React.CSSProperties = { width: "100%", padding: "10px 12px", fontSize: 16, border: "1px solid #ddd", borderRadius: 6, fontFamily: "inherit", background: "#fff", boxSizing: "border-box" };
+const inp: React.CSSProperties = { width: "100%", padding: "10px 12px", fontSize: 16, border: "1px solid #ddd", borderRadius: 0, fontFamily: "inherit", background: "#fff", boxSizing: "border-box" };

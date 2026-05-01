@@ -130,14 +130,14 @@ export default function UploadView({ token, lang, leadName, categories, existing
     <div style={{ background: "#f7f5f2", minHeight: "calc(100vh - 200px)", padding: "60px 20px" }}>
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
         <div style={{ textAlign: "center", marginBottom: 30 }}>
-          <span style={{ display: "inline-block", padding: "5px 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, border: `1px solid ${ACCENT}66`, borderRadius: 20, marginBottom: 16, background: `${ACCENT}0d` }}>{t.badge}</span>
+          <span style={{ display: "inline-block", padding: "5px 14px", fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: ACCENT, border: `1px solid ${ACCENT}66`, borderRadius: 0, marginBottom: 16, background: `${ACCENT}0d` }}>{t.badge}</span>
           <h1 style={{ fontSize: "clamp(28px, 4vw, 40px)", fontWeight: 600, lineHeight: 1.15, color: "#1a1a1a", margin: "0 0 12px" }}>
             {t.titlePre} <span style={{ color: ACCENT }}>{t.titleHl}</span>
           </h1>
           <p style={{ fontSize: 15, color: "#666", maxWidth: 520, margin: "0 auto", lineHeight: 1.6 }}>{t.intro}</p>
         </div>
 
-        <div style={{ background: "#fff", borderRadius: 12, padding: "20px 24px", border: "1px solid #e5e5e5", marginBottom: 16, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
+        <div style={{ background: "#fff", borderRadius: 0, padding: "20px 24px", border: "1px solid #e5e5e5", marginBottom: 16, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
           <div>
             <div style={{ fontSize: 12, color: "#888" }}>{t.welcomeFor}</div>
             <div style={{ fontSize: 16, fontWeight: 600, color: "#1a1a1a" }}>{leadName}</div>
@@ -154,13 +154,13 @@ export default function UploadView({ token, lang, leadName, categories, existing
               <span>{t.progress.replace("{done}", String(requiredFilled)).replace("{total}", String(total))}</span>
               <span>{Math.round((requiredFilled / total) * 100)}%</span>
             </div>
-            <div style={{ height: 6, background: "#e5e5e5", borderRadius: 3, overflow: "hidden" }}>
+            <div style={{ height: 6, background: "#e5e5e5", borderRadius: 0, overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${(requiredFilled / total) * 100}%`, background: ACCENT, transition: "width 0.3s" }} />
             </div>
           </div>
         )}
 
-        {error && <div style={{ marginBottom: 16, padding: "10px 14px", background: "rgba(239,68,68,0.08)", color: "#c00", borderRadius: 6, fontSize: 13 }}>{error}</div>}
+        {error && <div style={{ marginBottom: 16, padding: "10px 14px", background: "rgba(239,68,68,0.08)", color: "#c00", borderRadius: 0, fontSize: 13 }}>{error}</div>}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {categories.map((cat) => {
@@ -169,13 +169,13 @@ export default function UploadView({ token, lang, leadName, categories, existing
           })}
         </div>
 
-        <div style={{ marginTop: 32, padding: 20, background: "#fff", borderRadius: 12, border: "1px solid #e5e5e5" }}>
+        <div style={{ marginTop: 32, padding: 20, background: "#fff", borderRadius: 0, border: "1px solid #e5e5e5" }}>
           <h3 style={{ fontSize: 16, fontWeight: 600, margin: "0 0 4px", color: "#1a1a1a" }}>{t.optionalLabel}</h3>
           <p style={{ fontSize: 13, color: "#666", margin: "0 0 12px" }}>{t.optionalDesc}</p>
           <CategoryRow t={t} cat={{ key: "__optional__", label: "" }} files={docs.filter((d) => !d.category)} onUpload={(f) => uploadFile(f, null)} onDelete={deleteDoc} uploading={uploadingCat === "__optional__"} hideHeader />
         </div>
 
-        <div style={{ marginTop: 32, padding: 20, background: "#1a1a1a", color: "#fff", borderRadius: 12, textAlign: "center" }}>
+        <div style={{ marginTop: 32, padding: 20, background: "#1a1a1a", color: "#fff", borderRadius: 0, textAlign: "center" }}>
           <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>{t.helpHeader}</div>
           <div style={{ fontSize: 13, color: "rgba(255,255,255,0.75)" }}>{t.helpDesc}</div>
         </div>
@@ -209,13 +209,13 @@ function CategoryRow({ t, cat, files, onUpload, onDelete, uploading, hideHeader 
       {!hideHeader && (
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, gap: 12 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: "#1a1a1a" }}>{cat.label}</div>
-          {has && <span style={{ fontSize: 11, padding: "3px 8px", background: "#dcfce7", color: "#166534", borderRadius: 10, fontWeight: 600 }}>✓ {t.uploaded}</span>}
+          {has && <span style={{ fontSize: 11, padding: "3px 8px", background: "#dcfce7", color: "#166534", borderRadius: 0, fontWeight: 600 }}>✓ {t.uploaded}</span>}
         </div>
       )}
       {files.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 10 }}>
           {files.map((f) => (
-            <div key={f.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#f7f5f2", borderRadius: 6, fontSize: 13 }}>
+            <div key={f.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", background: "#f7f5f2", borderRadius: 0, fontSize: 13 }}>
               <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>📄 {f.file_name} <span style={{ color: "#888" }}>· {formatBytes(f.file_size)}</span></div>
               <button type="button" onClick={() => onDelete(f.id)} style={{ padding: "4px 10px", background: "transparent", border: "none", color: "#c00", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>× {t.delete}</button>
             </div>
@@ -226,7 +226,7 @@ function CategoryRow({ t, cat, files, onUpload, onDelete, uploading, hideHeader 
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
-        style={{ display: "block", padding: "20px 16px", textAlign: "center", border: `2px dashed ${dragOver ? ACCENT : "#d4d4d4"}`, background: dragOver ? `${ACCENT}0d` : "#fafafa", borderRadius: 8, cursor: uploading ? "wait" : "pointer", transition: "all 0.15s" }}>
+        style={{ display: "block", padding: "20px 16px", textAlign: "center", border: `2px dashed ${dragOver ? ACCENT : "#d4d4d4"}`, background: dragOver ? `${ACCENT}0d` : "#fafafa", borderRadius: 0, cursor: uploading ? "wait" : "pointer", transition: "all 0.15s" }}>
         <div style={{ fontSize: 13, color: "#666" }}>
           {uploading ? t.uploading : (dragOver ? t.dragHereActive : t.dragHere)}
         </div>

@@ -1,68 +1,117 @@
 "use client";
 
+import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
+import ScrollReveal, { SlideUp } from "@/components/ui/ScrollReveal";
 import { useI18n } from "@/i18n/context";
 
+const ACCENT = "#c8553d";
+
 export default function DienstleistungenPage() {
-  const { t } = useI18n();
+  const { lang } = useI18n();
+
+  const labels = {
+    de: {
+      eyebrow: "Dienstleistungen",
+      headlinePre: "Spezialisiert auf ",
+      headlineHl: "selbstbewohntes Wohneigentum.",
+      kaufKategorie: "Kauffinanzierung",
+      kaufTitel: "Eigenheim kaufen",
+      kaufDesc: "Wir begleiten Sie vollumfänglich bei Ihrem Liegenschaftskauf — von der Finanzierungsberatung bis zur Unterzeichnung.",
+      kaufCta: "Mehr erfahren",
+      abloesungKategorie: "Hypothekenablösung",
+      abloesungTitel: "Hypothek ablösen",
+      abloesungDesc: "Lassen Sie Ihre bestehende Hypothek prüfen. Wir holen die besten Angebote ein und zeigen Ihr Einsparpotenzial.",
+      abloesungCta: "Mehr erfahren",
+    },
+    en: {
+      eyebrow: "Services",
+      headlinePre: "Specialized in ",
+      headlineHl: "owner-occupied properties.",
+      kaufKategorie: "Purchase financing",
+      kaufTitel: "Buy a property",
+      kaufDesc: "We support you throughout your property purchase — from financing advice to signing.",
+      kaufCta: "Learn more",
+      abloesungKategorie: "Mortgage refinancing",
+      abloesungTitel: "Refinance mortgage",
+      abloesungDesc: "Let us review your existing mortgage. We get the best offers and show your savings potential.",
+      abloesungCta: "Learn more",
+    },
+  } as const;
+  const l = labels[lang];
 
   return (
     <>
       <Header />
-      <main className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h1 className="text-3xl sm:text-4xl font-bold mb-4">{t.services.title}</h1>
-            <p className="text-lg text-[var(--color-text-muted)] max-w-xl mx-auto">
-              {t.services.subtitle}
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Neukauf */}
-            <div className="p-8 rounded-2xl border border-[var(--color-border)] bg-white hover:shadow-lg transition-shadow">
-              <h2 className="text-xl font-bold mb-3">{t.services.newPurchase}</h2>
-              <p className="text-[var(--color-text-muted)] mb-6">
-                {t.services.newPurchaseDesc}
+      <main>
+        <section className="py-24 lg:py-32">
+          <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+            <ScrollReveal>
+              <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
+                {l.eyebrow}
               </p>
-              <a href="/neukauf" className="inline-block px-6 py-2.5 rounded-lg bg-[var(--color-primary)] text-white text-sm font-medium hover:bg-[var(--color-primary-dark)] transition-colors">
-                {t.services.ctaNewPurchase}
-              </a>
-            </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl leading-[1.1] mb-16 max-w-2xl" style={{ fontWeight: 300, color: "#1a1a1a" }}>
+                {l.headlinePre}<span style={{ fontWeight: 600 }}>{l.headlineHl}</span>
+              </h1>
+            </ScrollReveal>
 
-            {/* Ablösung */}
-            <div className="p-8 rounded-2xl border border-[var(--color-border)] bg-white hover:shadow-lg transition-shadow">
-              <h2 className="text-xl font-bold mb-3">{t.services.refinance}</h2>
-              <p className="text-[var(--color-text-muted)] mb-6">
-                {t.services.refinanceDesc}
-              </p>
-              <a href="/abloesung" className="inline-block px-6 py-2.5 rounded-lg bg-[var(--color-primary)] text-white text-sm font-medium hover:bg-[var(--color-primary-dark)] transition-colors">
-                {t.services.ctaRefinance}
-              </a>
-            </div>
-          </div>
-
-          {/* Kündigungsvorlage als Tertiär-Service */}
-          <div className="max-w-4xl mx-auto mt-8">
-            <a href="/kuendigung" className="block p-6 rounded-2xl border border-[var(--color-border)] bg-white hover:border-[var(--color-primary)] transition-colors">
-              <div className="flex items-center justify-between gap-4 flex-wrap">
-                <div>
-                  <h3 className="text-lg font-semibold mb-1">
-                    {t.services.cancellationTemplate}
-                  </h3>
-                  <p className="text-sm text-[var(--color-text-muted)]">
-                    {t.services.cancellationTemplateDesc}
+            <div className="grid md:grid-cols-2 gap-8">
+              <SlideUp delay={0.05}>
+                <Link href="/dienstleistungen/eigenheim-kaufen" className="group block" style={{ color: "inherit", textDecoration: "none" }}>
+                  <div className="aspect-[16/10] mb-6 overflow-hidden relative">
+                    <img
+                      src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&q=80"
+                      alt={l.kaufTitel}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      style={{ borderRadius: 0 }}
+                    />
+                  </div>
+                  <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "#999" }}>{l.kaufKategorie}</p>
+                  <h2 className="text-2xl font-semibold mb-3 transition-colors group-hover:text-[#c8553d]" style={{ color: "#1a1a1a" }}>
+                    {l.kaufTitel}
+                  </h2>
+                  <p className="text-base leading-relaxed mb-5" style={{ color: "#6b6b6b" }}>
+                    {l.kaufDesc}
                   </p>
-                </div>
-                <span className="text-[var(--color-primary)] text-sm font-medium whitespace-nowrap">
-                  {t.services.cancellationTemplateCta} →
-                </span>
-              </div>
-            </a>
+                  <span className="inline-flex items-center gap-1 text-sm font-medium group-hover:gap-2 transition-all" style={{ color: ACCENT }}>
+                    {l.kaufCta}
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </span>
+                </Link>
+              </SlideUp>
+
+              <SlideUp delay={0.1}>
+                <Link href="/dienstleistungen/hypothek-abloesen" className="group block" style={{ color: "inherit", textDecoration: "none" }}>
+                  <div className="aspect-[16/10] mb-6 overflow-hidden relative">
+                    <img
+                      src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=900&q=80"
+                      alt={l.abloesungTitel}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      style={{ borderRadius: 0 }}
+                    />
+                  </div>
+                  <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "#999" }}>{l.abloesungKategorie}</p>
+                  <h2 className="text-2xl font-semibold mb-3 transition-colors group-hover:text-[#c8553d]" style={{ color: "#1a1a1a" }}>
+                    {l.abloesungTitel}
+                  </h2>
+                  <p className="text-base leading-relaxed mb-5" style={{ color: "#6b6b6b" }}>
+                    {l.abloesungDesc}
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-sm font-medium group-hover:gap-2 transition-all" style={{ color: ACCENT }}>
+                    {l.abloesungCta}
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </span>
+                </Link>
+              </SlideUp>
+            </div>
           </div>
-        </div>
+        </section>
       </main>
       <Footer />
       <WhatsAppButton />

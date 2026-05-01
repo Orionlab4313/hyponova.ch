@@ -1,6 +1,69 @@
 # HYPONOVA – Entwicklungsnotizen
 
-## Status: Admin + i18n + Rechtliches editierbar — Stand 30.04.2026
+## Status: Funnel + Upload-Portal + Admin-Workspace komplett — Stand 01.05.2026
+
+## Phase 15: Admin-Workspace pro Lead ✅ FERTIG + GETESTET (01.05.2026)
+
+**Was funktioniert (vom User verifiziert)**
+- ✅ **Ablösungs-Fragebogen** — alles geht durch, Sackgasse-Logik korrekt, Email kommt an
+- ✅ **Upload-Portal** — Stage-then-Submit mit grossem "Hochladen"-Button, Confirmation-Screen mit "Vielen Dank"
+- ✅ **Admin-Dokumente** — File-Viewer-Modal (PDF + Bilder), lesbare DE-Antworten statt JSON, Kategorie als grosser bold Titel
+- ✅ **Notizen + Aufgaben** im Lead-Detail (DB-persistiert, Save-Buttons)
+- ✅ **Fragebogen-Antworten editierbar** durch Simon (z.B. Telefonate)
+- ✅ **Doc-Kategorie ändern + Status** mit explizitem Speichern-Button
+- ✅ **Admin-Upload** für Dokumente die per Mail/Post kommen
+- ✅ **Lead komplett löschen** (mit Storage-Cleanup, Cascade über alle Tabellen)
+- ✅ **Mobile-Layout** sauber: Buttons in eigener Zeile, voller File-Name sichtbar
+- ✅ **Sources lesbar** — "Ablösung (Fragebogen)" statt "abloesung-fragebogen", überall Umlaute statt ae/oe/ue
+
+**API-Routes (alle requireAdmin-geschuetzt)**
+- `PATCH /api/admin/submissions/[id]` — Fragebogen-Antworten ändern, Ablösbarkeit auto-recompute
+- `GET/POST /api/admin/leads/[id]/todos` — Todos pro Lead
+- `PATCH/DELETE /api/admin/leads/[id]/todos/[todoId]` — Todo-Edit
+- `POST /api/admin/documents` — Admin-Upload mit Kategorie
+- `DELETE /api/admin/leads` — erweitert um Storage-Cleanup vor Cascade-Delete
+
+**DB-Migration (via MCP angewandt)**
+- `lead_todos` (id, lead_id FK CASCADE, text, done, due_date, created_at, updated_at)
+- Updated bestehende leads: `source` von Tech-Keys zu lesbaren Labels
+
+**Lib-Helpers (src/lib/submissions.ts)**
+- `formatSubmissionAnswers(type, answers)` → strukturierte {label, value, multi[]} Liste
+- `formatSource(s)` / `formatCategory(k)` / `formatUploadedVia(v)` / `formatEndPath(p)`
+- `KANTON_NAMES`, `OBJEKTART_LABELS`, `MODELL_LABELS`, etc. Maps
+
+**UI-Highlights**
+- File-Viewer: ESC zum Schliessen, signed URL 5min, PDF iframe / Image inline
+- Todos: offen zuerst, erledigt durchgestrichen + ausgegraut
+- Notizen: orangener Border bei dirty state, "✓ Gespeichert" Flash nach Save
+- Doc-Card: Kategorie editierbar via Dropdown statt static, kombiniert mit Status in einem Save-Klick
+
+---
+
+## Was noch offen ist (nach User-Test 01.05.2026)
+
+### Funnel
+- [ ] **Neukauf-Fragebogen** vom User testen (vermutlich OK, gleiche Mechanik wie Ablösung)
+- [ ] **Kündigungsvorlage** vom User testen (PDF-Generation via pdf-lib)
+- [ ] **Bilder** auf `/dienstleistungen` und Detail-Pages durch echte ersetzen (aktuell Unsplash-Stocks)
+
+### Email-Infrastruktur
+- [ ] **6-Min SMTP-Delay** bei Infomaniak — SPF/DKIM-Records prüfen oder auf Resend/Postmark wechseln (out-of-scope Hyponova-Code)
+
+### Inhalte vom Kunden (Simon)
+- [ ] EN-Versionen für Impressum, AGB, Datenschutz im Admin nachtragen
+- [ ] EN-Version des bestehenden Blog-Artikels "My Finance"
+- [ ] UID-Nummer für Impressum (Handelsregister)
+- [ ] Gründer-Foto für Über-uns-Seite
+- [ ] AGB/Datenschutz vom Anwalt prüfen lassen
+
+### Nice-to-have / Zukunft
+- [ ] Slug-Strategie pro Sprache für Blog (aktuell ein Slug für DE+EN)
+- [ ] Vercel-Plan-Status checken (Trial-Ende war 10.04.2026)
+- [ ] Todos: Fälligkeitsdatum-Editor im UI (DB-Feld existiert schon)
+- [ ] Activities-Log pro Lead (existing Tabelle, ungenutzt)
+
+---
 
 ## Phase 14: Fragebögen + Customer-Upload + Kündigungsvorlage ✅ FERTIG (01.05.2026)
 

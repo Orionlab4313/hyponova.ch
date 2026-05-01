@@ -216,7 +216,7 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
                     className="doc-name-block"
                     style={{ minWidth: 0, textAlign: "left", background: "transparent", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}
                   >
-                    <div className="doc-category" style={{ fontSize: 10, fontWeight: 700, color: ACCENT, letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 4 }}>
+                    <div className="doc-category" style={{ fontSize: 15, fontWeight: 800, color: "#1a1a1a", letterSpacing: "0.02em", marginBottom: 6 }}>
                       {d.category ? formatCategory(d.category) : "Sonstige Unterlage"}
                     </div>
                     <div className="doc-name" style={{ fontSize: 13, fontWeight: 600, color: "#1a1a1a" }}>

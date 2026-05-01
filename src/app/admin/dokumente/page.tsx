@@ -26,6 +26,7 @@ export default function DokumentePage() {
   const [leads, setLeads] = useState<LeadRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "with_docs" | "with_submission">("all");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/documents")
@@ -33,6 +34,31 @@ export default function DokumentePage() {
       .then((d) => Array.isArray(d) && setLeads(d))
       .finally(() => setLoading(false));
   }, []);
+
+  async function deleteLead(id: string, name: string) {
+    const lead = leads.find((l) => l.id === id);
+    const docCount = lead?.docs.count ?? 0;
+    const warning = docCount > 0
+      ? `Wirklich «${name}» mit ${docCount} Dokument(en) und allen Fragebogen-Antworten endgültig löschen? Das kann nicht rückgängig gemacht werden.`
+      : `Wirklich «${name}» endgültig löschen?`;
+    if (!confirm(warning)) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch("/api/admin/leads", {
+        method: "DELETE", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      if (res.ok) {
+        setLeads((prev) => prev.filter((l) => l.id !== id));
+      } else {
+        alert("Löschen fehlgeschlagen");
+      }
+    } catch {
+      alert("Netzwerkfehler beim Löschen");
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   const filtered = leads.filter((l) => {
     if (filter === "with_docs") return l.docs.count > 0;
@@ -67,9 +93,10 @@ export default function DokumentePage() {
       ) : (
         <div style={{ display: "grid", gap: 8 }}>
           {filtered.map((l) => (
-            <Link key={l.id} href={`/admin/dokumente/${l.id}`} className="dokumente-card"
-              style={{ display: "block", background: "#fff", border: "1px solid #e5e5e5", borderRadius: 6, padding: 14, textDecoration: "none", color: "inherit", transition: "border-color 0.15s" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+            <div key={l.id} className="dokumente-card"
+              style={{ display: "flex", background: "#fff", border: "1px solid #e5e5e5", borderRadius: 6, padding: 14, alignItems: "stretch", gap: 12, transition: "border-color 0.15s" }}>
+              <Link href={`/admin/dokumente/${l.id}`}
+                style={{ flex: 1, minWidth: 0, textDecoration: "none", color: "inherit", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 15, fontWeight: 600, color: "#1a1a1a" }}>{l.first_name} {l.last_name}</div>
                   <div style={{ fontSize: 12, color: "#666", marginTop: 2 }}>{l.email}</div>
@@ -87,8 +114,18 @@ export default function DokumentePage() {
                   )}
                   {l.docs.reviewing > 0 && <span style={{ fontSize: 11, padding: "3px 8px", background: "#fef3c7", color: "#92400e", borderRadius: 10, fontWeight: 600 }}>{l.docs.reviewing} prüfen</span>}
                 </div>
-              </div>
-            </Link>
+              </Link>
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); deleteLead(l.id, `${l.first_name} ${l.last_name}`); }}
+                disabled={deletingId === l.id}
+                style={{ padding: "6px 10px", background: "transparent", color: "#c00", border: "1px solid transparent", fontSize: 18, cursor: deletingId === l.id ? "wait" : "pointer", fontFamily: "inherit", flexShrink: 0, opacity: deletingId === l.id ? 0.5 : 1, alignSelf: "center" }}
+                className="lead-delete-btn"
+                title="Kontakt komplett löschen (mit allen Dokumenten und Antworten)"
+              >
+                {deletingId === l.id ? "…" : "×"}
+              </button>
+            </div>
           ))}
         </div>
       )}
@@ -96,6 +133,10 @@ export default function DokumentePage() {
       <style>{`
         .dokumente-card:hover {
           border-color: #c8553d !important;
+        }
+        .lead-delete-btn:hover {
+          background: rgba(220, 38, 38, 0.08) !important;
+          border-color: rgba(220, 38, 38, 0.3) !important;
         }
       `}</style>
     </div>

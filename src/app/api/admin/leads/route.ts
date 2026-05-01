@@ -71,8 +71,27 @@ export async function DELETE(request: NextRequest) {
   const supabase = createServiceClient();
   const { id } = await request.json();
   if (!id) return NextResponse.json({ error: "id fehlt" }, { status: 400 });
+
+  // 1. Alle Storage-Files dieses Leads sammeln und loeschen
+  //    (DB-Cascade kuemmert sich um documents/submissions/todos/tokens-Rows,
+  //     aber die Storage-Bucket-Files bleiben sonst zurueck)
+  const { data: docs } = await supabase
+    .from("documents")
+    .select("file_path")
+    .eq("lead_id", id);
+
+  const paths = (docs || []).map((d) => d.file_path).filter(Boolean) as string[];
+  if (paths.length > 0) {
+    await supabase.storage.from("customer-docs").remove(paths).catch((e) => {
+      console.error("storage cleanup fehlgeschlagen:", e);
+      // Wir loeschen den Lead trotzdem — orphaned Storage-Files koennen
+      // spaeter aufgeraeumt werden.
+    });
+  }
+
+  // 2. Lead loeschen — CASCADE killt documents, submissions, todos, upload-tokens
   const { error } = await supabase.from("leads").delete().eq("id", id);
 
   if (error) return NextResponse.json({ error: "Datenbankfehler" }, { status: 500 });
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, deletedFiles: paths.length });
 }

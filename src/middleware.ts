@@ -131,7 +131,7 @@ export const config = {
      * - /favicon.ico, /icon-light.png, /icon-dark.png, /apple-icon.png (Favicons sollen
      *   auch ohne Login geladen werden, sonst zeigt der Browser-Tab kein Icon)
      */
-    "/((?!api/|admin|_next|favicon\\.ico|icon-light\\.png|icon-dark\\.png|apple-icon\\.png).*)",
+    "/((?!api/|admin|upload/|_next|favicon\\.ico|icon-light\\.png|icon-dark\\.png|apple-icon\\.png).*)",
   ],
 };
 

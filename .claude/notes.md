@@ -2,6 +2,68 @@
 
 ## Status: Admin + i18n + Rechtliches editierbar — Stand 30.04.2026
 
+## Phase 14: Fragebögen + Customer-Upload + Kündigungsvorlage ✅ FERTIG (01.05.2026)
+
+**Public Funnel-Pfade**
+- `/abloesung` — Multi-Step-Fragebogen (13 Steps, Conditional Logic, Sackgasse wenn nicht ablösbar). End-Path: Offerten-Vergleich von Hyponova ODER Beratungstermin. DE+EN.
+- `/neukauf` — Multi-Step-Fragebogen (4 Steps), endet immer in Termin-Buchung. DE+EN.
+- `/kuendigung` — Formular für vorsorgliches Kündigungsschreiben → PDF-Download via pdf-lib. DE+EN.
+- `/upload/[token]` — Tokenized Customer-Upload-Portal mit Drag&Drop, kategorisiert nach Doc-Typ, Progress-Bar, 30 Tage gültig. DE+EN.
+
+**Geschäftslogik**
+- `isAbloesbar(tranchen)`: Hypothek ist ablösbar wenn Variable ODER Fälligkeit < 24 Monate
+- `requiredDocumentCategories(type, answers)`: liefert Doc-Liste je nach Tätigkeit (Angestellt/Selbständig/Pensioniert) + Objektart + Submission-Typ
+- `DOC_LABELS`: 19 Standard-CH-Hypotheken-Doc-Typen mit DE+EN Labels
+
+**API-Routes (alle mit Rate-Limit)**
+- `POST /api/public/abloesung` — Lead anlegen/updaten, Submission speichern, Upload-Token erstellen (nur bei Offerten-Pfad), Email triggern
+- `POST /api/public/neukauf` — Lead + Submission, Email triggern (immer Termin)
+- `POST /api/public/upload/[token]` — File-Upload zu Storage-Bucket `customer-docs/{lead_id}/{category}/`
+- `DELETE /api/public/upload/[token]?docId=X` — File entfernen
+- `POST /api/public/kuendigung` — PDF-Generation via pdf-lib, Download
+- `GET /api/admin/documents` — Aggregation pro Lead
+- `GET /api/admin/documents?leadId=X` — Lead + Submissions + alle Docs
+- `GET /api/admin/documents/[id]?download=1` — Signed URL (5 Min)
+- `PATCH /api/admin/documents/[id]` — Status ändern (received/reviewing/accepted/rejected)
+- `DELETE /api/admin/documents/[id]` — Löschen
+
+**Admin-Dokumente (überarbeitet)**
+- `/admin/dokumente` — Liste pro Kontakt mit Filter (alle / mit Docs / mit Fragebogen), Badges für Anzahl + Prüf-Status
+- `/admin/dokumente/[leadId]` — Detail-View: Lead-Info, Fragebogen-Antworten als JSON-Toggle, Doc-Liste mit Status-Selector + Download-Button + Delete
+
+**Edge Function on-booking V18**
+- Neue Action `questionnaire-submitted`
+  - Customer-Email mit personalisierter Doc-Checkliste, Upload-Link (bei Offerten) oder Termin-Button (bei Termin), DE+EN
+  - Internal-Notification an `NOTIFY_EMAIL` env (default `info@hyponova.ch`) mit Lead + Wunsch + Upload-Link
+  - CardDAV-Kontakt wird automatisch angelegt
+
+**DB**
+- `questionnaire_submissions` (id, lead_id, type, answers JSONB, status, lang, end_path)
+- `lead_upload_tokens` (token PK, lead_id, submission_id, expires_at)
+- `documents` erweitert: `category`, `submission_id`, `status`, `mime_type`, `uploaded_via`
+- Storage-Bucket `customer-docs` (private, nur via signed URLs / service_role)
+
+**Middleware-Änderung**
+- `/upload/*` ist jetzt von Site-Passwort ausgenommen — Kunden mit Token müssen direkt zugreifen können
+
+**i18n**
+- `services.cancellationTemplate` + Desc + CTA neu in DE+EN
+- Alle Public-Pages mit inline COPY-Block DE+EN
+
+**Files (neu)**
+- `src/app/abloesung/page.tsx` + `AbloesungForm.tsx`
+- `src/app/neukauf/page.tsx` + `NeukaufForm.tsx`
+- `src/app/kuendigung/page.tsx` + `KuendigungForm.tsx`
+- `src/app/upload/[token]/page.tsx` + `UploadView.tsx`
+- `src/app/admin/dokumente/[leadId]/page.tsx` (neu)
+- `src/app/admin/dokumente/page.tsx` (überarbeitet)
+- `src/app/api/public/{abloesung,neukauf,kuendigung}/route.ts`
+- `src/app/api/public/upload/[token]/route.ts`
+- `src/app/api/admin/documents/{route,[id]/route}.ts`
+
+**Dependencies**
+- `pdf-lib` für serverseitige PDF-Generierung (Kündigungsvorlage)
+
 ## Phase 13: Security-Hardening ✅ FERTIG (30.04.2026)
 - [x] **C1 Auth-Guards**: 11 ungeschuetzte Admin-API-Routen jetzt mit `requireAdmin()` (leads, appointments, messages, replies, availability, blogposts, blogposts/[id], blogposts/upload, legal-pages, legal-pages/[id])
 - [x] **C2 Default-Passwoerter raus**: hartkodierte Strings `Möhlin4313` und `HypoAdmin2026!` aus `admin-settings.ts` entfernt; DB-Hash ueber Migration gesetzt

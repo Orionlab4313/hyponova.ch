@@ -35,6 +35,9 @@ const translations = {
       refinanceDesc: "Jetzt Angebote einholen und von besseren Konditionen profitieren.",
       ctaNewPurchase: "Ich möchte ein Eigenheim kaufen",
       ctaRefinance: "Ich habe bereits eine Hypothek",
+      cancellationTemplate: "Kündigungsvorlage Hypothek",
+      cancellationTemplateDesc: "Erstellen Sie Ihr vorsorgliches Kündigungsschreiben als PDF in 2 Minuten — bereit zum Versand per Einschreiben.",
+      cancellationTemplateCta: "Vorlage öffnen",
     },
     calculator: {
       title: "Hypothekenrechner",
@@ -178,6 +181,9 @@ const translations = {
       refinanceDesc: "Get quotes now and benefit from better conditions.",
       ctaNewPurchase: "I want to buy a property",
       ctaRefinance: "I already have a mortgage",
+      cancellationTemplate: "Mortgage cancellation template",
+      cancellationTemplateDesc: "Generate your precautionary cancellation letter as PDF in 2 minutes — ready to send by registered mail.",
+      cancellationTemplateCta: "Open template",
     },
     calculator: {
       title: "Mortgage Calculator",

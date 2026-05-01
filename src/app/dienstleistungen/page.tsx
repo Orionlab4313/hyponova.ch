@@ -27,7 +27,7 @@ export default function DienstleistungenPage() {
               <p className="text-[var(--color-text-muted)] mb-6">
                 {t.services.newPurchaseDesc}
               </p>
-              <a href="/dienstleistungen/neukauf" className="inline-block px-6 py-2.5 rounded-lg bg-[var(--color-primary)] text-white text-sm font-medium hover:bg-[var(--color-primary-dark)] transition-colors">
+              <a href="/neukauf" className="inline-block px-6 py-2.5 rounded-lg bg-[var(--color-primary)] text-white text-sm font-medium hover:bg-[var(--color-primary-dark)] transition-colors">
                 {t.services.ctaNewPurchase}
               </a>
             </div>
@@ -38,10 +38,29 @@ export default function DienstleistungenPage() {
               <p className="text-[var(--color-text-muted)] mb-6">
                 {t.services.refinanceDesc}
               </p>
-              <a href="/dienstleistungen/abloesung" className="inline-block px-6 py-2.5 rounded-lg bg-[var(--color-primary)] text-white text-sm font-medium hover:bg-[var(--color-primary-dark)] transition-colors">
+              <a href="/abloesung" className="inline-block px-6 py-2.5 rounded-lg bg-[var(--color-primary)] text-white text-sm font-medium hover:bg-[var(--color-primary-dark)] transition-colors">
                 {t.services.ctaRefinance}
               </a>
             </div>
+          </div>
+
+          {/* Kündigungsvorlage als Tertiär-Service */}
+          <div className="max-w-4xl mx-auto mt-8">
+            <a href="/kuendigung" className="block p-6 rounded-2xl border border-[var(--color-border)] bg-white hover:border-[var(--color-primary)] transition-colors">
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                  <h3 className="text-lg font-semibold mb-1">
+                    {t.services.cancellationTemplate}
+                  </h3>
+                  <p className="text-sm text-[var(--color-text-muted)]">
+                    {t.services.cancellationTemplateDesc}
+                  </p>
+                </div>
+                <span className="text-[var(--color-primary)] text-sm font-medium whitespace-nowrap">
+                  {t.services.cancellationTemplateCta} →
+                </span>
+              </div>
+            </a>
           </div>
         </div>
       </main>

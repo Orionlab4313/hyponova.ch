@@ -1,6 +1,74 @@
 # HYPONOVA – Entwicklungsnotizen
 
-## Status: Funnel + Upload-Portal + Admin-Workspace komplett — Stand 01.05.2026
+## Status: Pre-Launch-fertig — Stand 01.05.2026
+
+## Phase 16: Pre-Launch-Polish + kritischer Bug-Fix ✅ FERTIG (01.05.2026)
+
+**Kritischer Bug — Blog/Legal-Routes crashten mit 500:**
+- `isomorphic-dompurify` ist auf Vercel mit Next 16 inkompatibel
+  (JSDOM/cssom Module-Load-Crash)
+- Alle Routes die `sanitize.ts` importierten (blogposts, blogposts/[id],
+  legal-pages/[id]) gaben 500 zurueck
+- **Fix**: Library entfernt, eigener Server-Side Regex-Sanitizer in
+  `src/lib/sanitize.ts`. Killt Script-Tags inkl. Inhalt, gefaehrliche
+  Tags (style/iframe/object/embed/form/input/button/link/meta/base),
+  on*=Inline-Event-Handler, javascript:/vbscript:/data: URLs.
+  Defense-in-Depth — Auth-Schicht bleibt primaere Verteidigung.
+
+**Cookie-Banner (DSGVO/nDSG):**
+- `src/components/layout/CookieBanner.tsx`
+- Floating dunkler Banner unten, slide-up Animation
+- Erklaert dass nur tech-notwendige Cookies gesetzt werden
+- "Verstanden"-Button speichert Consent 1 Jahr (`hyponova-cookie-consent`)
+- DE+EN, Link zur Datenschutzerklaerung
+- 600ms-Verzoegerung damit Banner nicht vor First-Paint reinflashed
+
+**Vercel Analytics:**
+- `@vercel/analytics` installiert + in Root-Layout
+- Automatische Pageviews + Web Vitals
+- Aktivierung in Vercel-Dashboard → Settings → Analytics
+
+**Token-Cleanup Cron:**
+- `vercel.json` mit `0 3 * * *` (taeglich 03:00 UTC)
+- `/api/cron/prune-tokens` Endpoint, geschuetzt via `CRON_SECRET` env
+- Loescht abgelaufene `lead_upload_tokens`
+- ENV `CRON_SECRET` in Vercel gesetzt (Production + Preview)
+
+**Custom 404-Page:**
+- `src/app/not-found.tsx` mit Hyponova-Branding
+- Header + Footer wie ueberall
+- "Fehler 404" Eyebrow Orange, grosser Titel
+- "Zur Startseite" + "Kontakt"-CTAs
+- "Haeufig besucht" Quick-Links zu allen wichtigen Pages
+- noindex robots-meta
+
+**Sidebar + Lead-Detail Icons (Emoji → SVG):**
+- `src/components/admin/AdminIcons.tsx` mit Lucide-style Outline-Icons
+- 18 Icons: Dashboard, Mail, Users, Calendar, Clock, TrendingUp, Folder,
+  Blog, Scale, Settings, StickyNote, CheckCircle, FileText, Pencil,
+  Upload, Download, X, Plus
+- Active-State im Sidebar: Icon faerbt sich Hyponova-Orange
+
+---
+
+## Vercel-Konfiguration nach Phase 16
+
+ENV vars (Production + Preview):
+- `ADMIN_SESSION_SECRET` — HMAC-Secret fuer Admin-Sessions
+- `CRON_SECRET` — Schutz fuer /api/cron/* Endpoints
+- (zusaetzlich Standard-Vars: SUPABASE_*, SMTP_*, CALDAV_*)
+
+Pre-Launch-Liste — komplett abgehakt:
+- ✅ Cookie-Banner
+- ✅ Analytics (Snippet drin, in Vercel-Dashboard aktivieren)
+- ✅ Token-Cleanup Cron
+- ✅ Custom 404
+- ✅ /admin/blogposts Bug behoben
+- ⏳ Site-Passwort-Schutz: Simon muss bei Launch in /admin/einstellungen ausschalten
+- ⏳ SMTP-Delay (Infomaniak SPF/DKIM): Simon-Aufgabe
+- ⏳ Echte Bilder + EN-Inhalte + UID + Foto: Simon-Aufgabe
+
+---
 
 ## Phase 15: Admin-Workspace pro Lead ✅ FERTIG + GETESTET (01.05.2026)
 

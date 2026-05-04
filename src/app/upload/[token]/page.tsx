@@ -61,6 +61,7 @@ export default async function UploadPage({ params }: Props) {
           categories={categories}
           existingDocuments={documents || []}
           expiresAt={tok.expires_at}
+          submissionType={(submission?.type as SubmissionType) || null}
         />
       </main>
       <Footer />

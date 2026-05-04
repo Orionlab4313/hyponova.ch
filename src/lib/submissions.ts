@@ -128,49 +128,89 @@ export function isAbloesbar(tranchen: AbloesungAnswers["tranchen"]): boolean {
 
 /**
  * Welche Dokument-Kategorien soll der Kunde liefern?
- * Basis-Set + abhaengig von Taetigkeit + Objektart + Submission-Typ.
+ * 1:1 nach Simons offiziellen Excel-Checklisten ("Checklisten Ablösung.xlsx" /
+ * "Checklisten Neukauf.xlsx"). Modular aufgebaut: Basis + Taetigkeit + Workflow
+ * + Objektart + (Neukauf) Bestand/Neubau + (EFH) Baurecht.
  */
 export function requiredDocumentCategories(
   type: SubmissionType,
   answers: AbloesungAnswers | NeukaufAnswers
 ): string[] {
-  const base = ["ausweis", "bankauszug_eigenkapital"];
+  const base: string[] = [];
 
-  // Tätigkeitsabhaengig
+  // ---------- Persoenliche Unterlagen — bei allen ----------
+  base.push(
+    "mandatsvereinbarung",
+    "ausweis",
+    "steuererklaerung",
+    "konto_wertschriften",
+    "leasing_kreditvertrag",
+    "betreibungsregister",
+  );
+
+  // ---------- Taetigkeitsabhaengig ----------
   switch (answers.taetigkeit) {
     case "angestellt":
-      base.push("lohnausweis", "lohnabrechnungen_3mt");
+      base.push("lohnausweis_aktuell", "saeule_3a", "lebensversicherung");
       break;
     case "selbstaendig":
-      base.push("geschaeftsabschluss_3j", "ahv_bescheinigung");
+      base.push("geschaeftsabschluesse_3j", "saeule_3a", "lebensversicherung");
       break;
     case "pensioniert":
-      base.push("rentenausweis", "saeule_3a_auszug");
+      base.push("rentennachweis");
       break;
   }
 
-  // Steuern: bei allen
-  base.push("steuererklaerung_letzte", "steuerveranlagung_letzte");
+  // ---------- Workflow-spezifisch ----------
+  if (type === "abloesung") {
+    base.push("hypothekarvertrag");
+  } else {
+    base.push("aufstellung_eigenmittel");
+  }
 
-  // Vorsorge
-  base.push("pensionskassenausweis");
-
-  // Liegenschafts-Dokumente
+  // ---------- Liegenschaft ----------
   if (type === "abloesung") {
     const a = answers as AbloesungAnswers;
-    base.push("aktueller_hypothekvertrag", "grundbuchauszug", "liegenschaftsschaetzung");
-    if (a.bewohnt === "teilvermietet") {
-      base.push("mietvertraege");
+    // Beide Objektarten: Grundbuch + Gebaeudeversicherung + Fotos + Renovations-Fragebogen
+    base.push("grundbuchauszug", "gebaeudeversicherung", "fotos_liegenschaft", "fragebogen_renovationen");
+
+    if (a.objektart === "stwe") {
+      base.push("grundrissplaene_wohnflaeche", "erneuerungsfonds");
+    } else {
+      // EFH (Default)
+      base.push("grundrissplaene", "katasterplan");
+      if (a.baurecht === true) base.push("baurechtsvertrag");
     }
   }
 
   if (type === "neukauf") {
     const a = answers as NeukaufAnswers;
+    base.push("gebaeudeversicherung", "fotos_liegenschaft");
+
     if (a.status === "neubau") {
-      base.push("baubeschrieb", "kaufvertrag_entwurf", "baubewilligung");
+      // Neubau: Werkvertrag/Architekturvertrag, SIA, Baubeschrieb, Plaene, Bewilligung
+      base.push(
+        "kaufvertrag_werkvertrag",
+        "kubische_berechnung",
+        "baubeschrieb",
+        "grundriss_fassadenplaene",
+        "katasterplan",
+        "baubewilligung",
+        "verkaufsdokumentation",
+        "zahlungsplan_oder_kostenvoranschlag",
+      );
     } else {
-      base.push("kaufvertrag_entwurf", "grundbuchauszug", "liegenschaftsbeschrieb");
+      // Bestehende Liegenschaft
+      base.push("kaufvertrag_entwurf", "grundrissplaene", "verkaufsdokumentation");
     }
+
+    // STWE-spezifisch: Erneuerungsfonds-Nachweis (analog Abloesung)
+    if (a.objektart === "stwe") {
+      base.push("erneuerungsfonds");
+    }
+
+    // TODO: Baurecht-Frage gibts im Neukauf-Fragebogen noch nicht — sobald
+    // sie hinzukommt, hier "baurechtsvertrag" pushen wenn EFH + baurecht=true
   }
 
   return Array.from(new Set(base));
@@ -341,23 +381,66 @@ export function formatUploadedVia(via: string | null | undefined): string {
 }
 
 export const DOCUMENT_CATEGORY_LABELS: Record<string, { de: string; en: string }> = {
-  ausweis: { de: "Personalausweis / Pass", en: "ID / Passport" },
+  // ----- Persoenliche Unterlagen -----
+  mandatsvereinbarung: { de: "Mandatsvereinbarung HYPONOVA GmbH", en: "Mandate agreement HYPONOVA GmbH" },
+  ausweis: { de: "Ausweiskopie (Pass oder ID)", en: "ID copy (passport or ID card)" },
+  steuererklaerung: { de: "Steuererklärung", en: "Tax return" },
+  konto_wertschriften: { de: "Konto- und Wertschriftenauszüge (≤ 6 Monate)", en: "Bank and securities statements (≤ 6 months)" },
+  leasing_kreditvertrag: { de: "Leasing- und/oder Kreditvertrag (sofern vorhanden)", en: "Leasing and/or credit agreement (if applicable)" },
+  betreibungsregister: { de: "Betreibungsregisterauszug", en: "Debt enforcement register extract" },
+
+  // ----- Taetigkeit -----
+  lohnausweis_aktuell: { de: "Lohnausweis (aktuelles Jahr) und letzte Monatsabrechnung", en: "Salary certificate (current year) and latest pay slip" },
+  geschaeftsabschluesse_3j: { de: "Jahresabschlüsse der letzten 3 Jahre (Bilanz & Erfolgsrechnung)", en: "Last 3 annual statements (balance sheet & income statement)" },
+  rentennachweis: { de: "Rentennachweis (AHV, Pensionskasse, Leibrente)", en: "Pension certificate (AHV, pension fund, annuity)" },
+  saeule_3a: { de: "Säule 3a Konto- oder Policennachweis (≤ 6 Monate)", en: "Pillar 3a account or policy proof (≤ 6 months)" },
+  lebensversicherung: { de: "Lebensversicherungspolicen", en: "Life insurance policies" },
+
+  // ----- Workflow-spezifisch -----
+  hypothekarvertrag: { de: "Hypothekarvertrag inkl. Produktübersicht (Fälligkeiten ersichtlich)", en: "Mortgage contract incl. product overview (with maturities)" },
+  aufstellung_eigenmittel: { de: "Aufstellung Eigenmittel", en: "Statement of equity" },
+
+  // ----- Liegenschaft (gemeinsam) -----
+  grundbuchauszug: { de: "Grundbuchauszug", en: "Land register extract" },
+  gebaeudeversicherung: { de: "Gebäudeversicherungsanzeige (inkl. Volumen m³ und Baujahr)", en: "Building insurance notice (incl. volume m³ and year built)" },
+  fotos_liegenschaft: { de: "Fotos der Liegenschaft (Wohnzimmer, Küche, Bad/WC, Aussicht, Fassade)", en: "Property photos (living room, kitchen, bathroom, view, façade)" },
+  fragebogen_renovationen: { de: "Fragebogen zu Renovationen", en: "Renovation questionnaire" },
+  baurechtsvertrag: { de: "Baurechtsvertrag und -zinsabrechnung", en: "Building lease contract and ground rent statement" },
+
+  // ----- EFH-spezifisch -----
+  grundrissplaene: { de: "Grundrisspläne", en: "Floor plans" },
+  katasterplan: { de: "Kataster- oder Situationsplan", en: "Cadastral or site plan" },
+
+  // ----- STWE-spezifisch -----
+  grundrissplaene_wohnflaeche: { de: "Grundrisspläne inkl. Brutto-/Nettowohnfläche", en: "Floor plans incl. gross/net living area" },
+  erneuerungsfonds: { de: "Nachweis Erneuerungsfonds (STWE-Reglement oder Jahresabrechnung)", en: "Renovation fund proof (STWE regulations or annual statement)" },
+
+  // ----- Neukauf bestehend -----
+  kaufvertrag_entwurf: { de: "Kaufvertragsentwurf", en: "Draft purchase agreement" },
+  verkaufsdokumentation: { de: "Verkaufsdokumentation (sofern vorhanden)", en: "Sales documentation (if available)" },
+
+  // ----- Neukauf Neubau -----
+  kaufvertrag_werkvertrag: { de: "Kaufvertragsentwurf inkl. Werkvertrag / Architekturvertrag", en: "Draft purchase agreement incl. construction/architect contract" },
+  kubische_berechnung: { de: "Kubische Berechnung (SIA)", en: "Cubic calculation (SIA)" },
+  baubeschrieb: { de: "Baubeschrieb", en: "Building specification" },
+  grundriss_fassadenplaene: { de: "Grundriss- und Fassadenpläne", en: "Floor and façade plans" },
+  baubewilligung: { de: "Baubewilligung", en: "Building permit" },
+  zahlungsplan_oder_kostenvoranschlag: { de: "Zahlungsplan (GU) oder Kostenvoranschlag (Architekt)", en: "Payment plan (GC) or cost estimate (architect)" },
+
+  // ----- Legacy-Keys (Backwards-Compat fuer alte documents) -----
+  // damit alte Uploads im Admin lesbar bleiben
   bankauszug_eigenkapital: { de: "Bankauszug (Eigenkapital-Nachweis)", en: "Bank statement (equity proof)" },
-  lohnausweis: { de: "Lohnausweis (letztes Jahr)", en: "Salary certificate (last year)" },
-  lohnabrechnungen_3mt: { de: "Lohnabrechnungen letzte 3 Monate", en: "Pay slips last 3 months" },
-  geschaeftsabschluss_3j: { de: "Geschäftsabschlüsse letzte 3 Jahre", en: "Business statements last 3 years" },
+  lohnausweis: { de: "Lohnausweis", en: "Salary certificate" },
+  lohnabrechnungen_3mt: { de: "Lohnabrechnungen 3 Mt.", en: "Pay slips last 3 months" },
+  geschaeftsabschluss_3j: { de: "Geschäftsabschlüsse 3 Jahre", en: "Business statements 3 years" },
   ahv_bescheinigung: { de: "AHV-Bescheinigung", en: "AHV certificate" },
-  rentenausweis: { de: "Rentenausweis (1./2./3. Säule)", en: "Pension certificate (Pillar 1/2/3)" },
+  rentenausweis: { de: "Rentenausweis", en: "Pension certificate" },
   saeule_3a_auszug: { de: "Säule 3a-Auszug", en: "Pillar 3a statement" },
   steuererklaerung_letzte: { de: "Letzte Steuererklärung", en: "Latest tax return" },
   steuerveranlagung_letzte: { de: "Letzte Steuerveranlagung", en: "Latest tax assessment" },
-  pensionskassenausweis: { de: "Pensionskassenausweis (aktuell)", en: "Pension fund statement (current)" },
+  pensionskassenausweis: { de: "Pensionskassenausweis", en: "Pension fund statement" },
   aktueller_hypothekvertrag: { de: "Aktueller Hypothekarvertrag", en: "Current mortgage contract" },
-  grundbuchauszug: { de: "Grundbuchauszug", en: "Land register extract" },
   liegenschaftsschaetzung: { de: "Liegenschaftsschätzung", en: "Property valuation" },
   liegenschaftsbeschrieb: { de: "Liegenschaftsbeschrieb", en: "Property description" },
-  mietvertraege: { de: "Mietverträge (vermietete Teile)", en: "Lease agreements (rented parts)" },
-  baubeschrieb: { de: "Baubeschrieb", en: "Building specification" },
-  kaufvertrag_entwurf: { de: "Kaufvertrag-Entwurf", en: "Draft purchase agreement" },
-  baubewilligung: { de: "Baubewilligung", en: "Building permit" },
+  mietvertraege: { de: "Mietverträge", en: "Lease agreements" },
 };

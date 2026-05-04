@@ -15,6 +15,7 @@ import {
   IconBlog,
   IconScale,
   IconSettings,
+  IconStamp,
 } from "@/components/admin/AdminIcons";
 
 interface NavItem {
@@ -31,6 +32,7 @@ const navItems: NavItem[] = [
   { href: "/admin/verfuegbarkeit", label: "Verfügbarkeit", Icon: IconClock },
   { href: "/admin/pipeline", label: "Pipeline", Icon: IconTrendingUp },
   { href: "/admin/dokumente", label: "Dokumente", Icon: IconFolder },
+  { href: "/admin/vorlagen", label: "Vorlagen", Icon: IconStamp },
   { href: "/admin/blogposts", label: "Blog", Icon: IconBlog },
   { href: "/admin/rechtliches", label: "Rechtliches", Icon: IconScale },
   { href: "/admin/einstellungen", label: "Einstellungen", Icon: IconSettings },

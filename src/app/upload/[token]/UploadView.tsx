@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast";
+import VorlagenDownloadBlock from "@/components/VorlagenDownloadBlock";
 
 type Lang = "de" | "en";
 
@@ -119,6 +120,7 @@ interface Props {
   categories: { key: string; label: string }[];
   existingDocuments: ExistingDoc[];
   expiresAt: string;
+  submissionType: "abloesung" | "neukauf" | null;
 }
 
 const OPTIONAL_KEY = "__optional__";
@@ -135,7 +137,7 @@ function formatDate(iso: string, lang: Lang) {
   return d.toLocaleDateString(lang === "de" ? "de-CH" : "en-GB", { day: "numeric", month: "long", year: "numeric" });
 }
 
-export default function UploadView({ token, lang, leadName, categories, existingDocuments, expiresAt }: Props) {
+export default function UploadView({ token, lang, leadName, categories, existingDocuments, expiresAt, submissionType }: Props) {
   const t = COPY[lang];
   const [docs, setDocs] = useState<ExistingDoc[]>(existingDocuments);
   const [pending, setPending] = useState<PendingFile[]>([]);
@@ -262,6 +264,9 @@ export default function UploadView({ token, lang, leadName, categories, existing
             <div style={{ fontSize: 14, color: "#1a1a1a" }}>{formatDate(expiresAt, lang)}</div>
           </div>
         </div>
+
+        {/* Vorlagen zum Download (Vollmacht etc.) — wird nur angezeigt wenn aktive Vorlagen vorhanden sind */}
+        {submissionType && <VorlagenDownloadBlock kategorie={submissionType} lang={lang} variant="compact" />}
 
         {total > 0 && (
           <div style={{ marginBottom: 24 }}>

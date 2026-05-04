@@ -1,6 +1,50 @@
 # HYPONOVA – Entwicklungsnotizen
 
-## Status: Pre-Launch-fertig — Stand 01.05.2026
+## Status: Pre-Launch-fertig — Stand 04.05.2026
+
+## Phase 18: Dokument-Vorlagen + Excel-Checklisten + Mobile-Fix ✅ FERTIG (04.05.2026)
+
+**Auslöser**: Simon hat WhatsApp/Email gesendet — er möchte (a) das offizielle Vollmachtsformular vom Anwalt im Workflow einbauen (analog Kündigungsvorlage) und (b) die Bestätigungs-Email-Checklisten passend zur ausgefüllten Variante. Dazu Mobile-Bug auf `/abloesung` (Tranchen-Tabelle zu eng).
+
+**Mobile-Fix Tranchen-Grid (commit a641818):**
+- 3-Spalten-Grid in `AbloesungForm` stackt unter 720px (1 Spalte)
+- Bonus: `inputMode="numeric"` beim Betrag → Zahlentastatur Mobile
+- Bug: Title war hardcoded "Hypothekartranchen" auch bei EN — fixed via `t.qTranchen` / `t.qTranchenDesc`
+
+**Dokument-Vorlagen (Vollmacht etc.)**:
+- Tabelle `dokument_vorlagen`: id, name_de/en, description_de/en, kategorie ('abloesung'|'neukauf'|'beide'), file_url, file_name, file_size, sort_order, active. RLS: public-read aktive Einträge.
+- Storage-Bucket `dokument-vorlagen` (public, max 10 MB, nur PDF). Public-read Policy auf storage.objects.
+- API-Routes:
+  - `/api/admin/vorlagen` GET (Liste) + POST (neu)
+  - `/api/admin/vorlagen/[id]` GET/PATCH/DELETE (mit auto-cleanup alter Dateien aus Storage)
+  - `/api/admin/vorlagen/upload` POST File-Upload
+  - `/api/public/vorlagen?kategorie=...` GET (nur aktive)
+- Admin-UI `/admin/vorlagen`: Liste mit Kategorie-Filter, neue Sidebar-Eintrag "Vorlagen" mit IconStamp. Modal mit Name DE/EN, Beschreibung DE/EN, Workflow-Selector, PDF-Upload/Replace, Sort-Order, Aktiv-Toggle.
+- Customer-Touchpoints — `VorlagenDownloadBlock` Komponente:
+  - Success-Screen Ablösung (vor "Nächster Schritt: Kündigung") als card-Variant
+  - Success-Screen Neukauf als card-Variant
+  - Upload-Portal `/upload/[token]` als compact-Banner ganz oben
+  - Block rendert nur wenn aktive Vorlagen existieren (kein leerer Block)
+- Email: Edge Function v20 fetcht Vorlagen aus DB via REST API (Supabase REST mit Service-Role) und rendert "Wichtige Dokumente zum Download"-Block in der Bestätigungs-Email mit Direktlinks zum PDF.
+
+**Checklisten 1:1 an Simons offiziellen Excel-Listen** (Simon-shared/Checklisten Ablösung.xlsx + Neukauf.xlsx):
+- `requiredDocumentCategories()` neu geschrieben — modular: Basis (immer) + Tätigkeit (angestellt/selbständig/pensioniert) + Workflow (abloesung/neukauf) + Objektart (efh/stwe) + (Neukauf) Status (bestehend/neubau) + (Abloesung+EFH) Baurecht
+- Neue Document-Category-Keys (1:1 zu Excel-Wording): mandatsvereinbarung, steuererklaerung, konto_wertschriften, leasing_kreditvertrag, betreibungsregister, lohnausweis_aktuell, geschaeftsabschluesse_3j, rentennachweis, saeule_3a, lebensversicherung, hypothekarvertrag, aufstellung_eigenmittel, gebaeudeversicherung, fotos_liegenschaft, fragebogen_renovationen, baurechtsvertrag, grundrissplaene, katasterplan, grundrissplaene_wohnflaeche, erneuerungsfonds, kaufvertrag_werkvertrag, kubische_berechnung, baubeschrieb, grundriss_fassadenplaene, baubewilligung, zahlungsplan_oder_kostenvoranschlag, verkaufsdokumentation, kaufvertrag_entwurf
+- Legacy-Keys bleiben in `DOCUMENT_CATEGORY_LABELS` für alte `documents`-Einträge (Backwards-Compat)
+- Edge Function v20 DOC_LABELS synchronisiert mit `submissions.ts`
+
+**Bekannte Punkte / TODO später**:
+- Baurecht-Frage gibts im Neukauf-Fragebogen noch nicht — sobald sie hinzukommt, "baurechtsvertrag" auch dort pushen wenn EFH + baurecht=true
+- Edge Function nutzt `SUPABASE_URL` env (nicht `NEXT_PUBLIC_SUPABASE_URL`) — sollte automatisch im Edge-Runtime gesetzt sein, ggf. nochmal validieren
+- Simon muss Vollmacht-PDF noch hochladen (kommt vom Anwalt, ist noch nicht da). Bis dahin zeigt der VorlagenDownloadBlock nichts — passt.
+
+## Phase 17: Custom Confirm/Toast statt Browser-Popups ✅ FERTIG (04.05.2026)
+- ConfirmProvider (Promise-basiertes Modal mit ESC/Enter, danger-Variante in Rot)
+- ToastProvider (auto-dismiss, success/error/info, slide-in oben rechts)
+- Beide global in `Providers.tsx` — auch für public Upload-Portal
+- 22 Browser-confirm/alert in 11 Dateien ersetzt (Admin Dokumente, Lead-Detail, Blogposts, Leads, Nachrichten, Upload-Portal)
+- Mobile-Bug gelöst (native confirm hatte teilweise nicht funktioniert auf Handy)
+- Bekannt: 1× `window.prompt` im Blog-Editor (Link-URL) noch nativ — nicht in dieser Sweep enthalten, separat lösbar mit Prompt-Modal
 
 ## Phase 16: Pre-Launch-Polish + kritischer Bug-Fix ✅ FERTIG (01.05.2026)
 

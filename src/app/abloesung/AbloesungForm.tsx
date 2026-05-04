@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useI18n } from "@/i18n/context";
+import VorlagenDownloadBlock from "@/components/VorlagenDownloadBlock";
 
 type Lang = "de" | "en";
 
@@ -435,7 +436,7 @@ export default function AbloesungForm({ initialLang }: { initialLang: Lang }) {
             { val: "termin", label: t.optEndTermin, desc: t.optEndTerminDesc },
           ]} />}
           {step === "contact" && <ContactStep t={t} answers={answers} setAnswers={setAnswers} />}
-          {step === "success" && <SuccessStep t={t} endPath={answers.end_path} />}
+          {step === "success" && <SuccessStep t={t} endPath={answers.end_path} lang={lang} />}
 
           {error && (
             <div style={{ marginTop: 16, padding: "10px 14px", background: "rgba(239,68,68,0.08)", color: "#c00", borderRadius: 0, fontSize: 13 }}>{error}</div>
@@ -624,7 +625,7 @@ function ContactStep({ t, answers, setAnswers }: { t: any; answers: Answers; set
   );
 }
 
-function SuccessStep({ t, endPath }: { t: any; endPath: string }) {
+function SuccessStep({ t, endPath, lang }: { t: any; endPath: string; lang: Lang }) {
   return (
     <div style={{ padding: "10px 0" }}>
       <div style={{ textAlign: "center" }}>
@@ -641,8 +642,11 @@ function SuccessStep({ t, endPath }: { t: any; endPath: string }) {
         </div>
       </div>
 
+      {/* Vorlagen zum Download — Vollmacht etc., dynamisch aus DB */}
+      <VorlagenDownloadBlock kategorie="abloesung" lang={lang} variant="card" />
+
       {/* Naechster-Schritt Card: Kuendigungsvorlage — gehoert logisch in den Abloesungs-Workflow */}
-      <div style={{ marginTop: 32, padding: 20, background: "#fafafa", border: `1px solid ${ACCENT}33`, borderRadius: 0 }}>
+      <div style={{ marginTop: 24, padding: 20, background: "#fafafa", border: `1px solid ${ACCENT}33`, borderRadius: 0 }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14, flexWrap: "wrap" }}>
           <div style={{ width: 40, height: 40, borderRadius: 0, background: `${ACCENT}1a`, color: ACCENT, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, flexShrink: 0 }}>2</div>
           <div style={{ flex: 1, minWidth: 200 }}>

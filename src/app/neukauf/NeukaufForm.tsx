@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useI18n } from "@/i18n/context";
+import VorlagenDownloadBlock from "@/components/VorlagenDownloadBlock";
 
 type Lang = "de" | "en";
 
@@ -201,7 +202,7 @@ export default function NeukaufForm({ initialLang }: { initialLang: Lang }) {
             { val: "pensioniert", label: t.optPensioniert },
           ]} />}
           {step === "contact" && <ContactStep t={t} a={a} setA={setA} />}
-          {step === "success" && <SuccessStep t={t} />}
+          {step === "success" && <SuccessStep t={t} lang={lang} />}
 
           {error && <div style={{ marginTop: 16, padding: "10px 14px", background: "rgba(239,68,68,0.08)", color: "#c00", borderRadius: 0, fontSize: 13 }}>{error}</div>}
 
@@ -253,17 +254,22 @@ function ContactStep({ t, a, setA }: { t: any; a: Answers; setA: (a: Answers) =>
     <div><label style={lbl}>{t.phone}</label><input type="tel" value={a.phone} onChange={(e) => setA({ ...a, phone: e.target.value })} style={inp} /></div>
     <p style={{ fontSize: 12, color: "#888", marginTop: 14, lineHeight: 1.5 }}>{t.privacy}</p></>);
 }
-function SuccessStep({ t }: { t: any }) {
+function SuccessStep({ t, lang }: { t: any; lang: Lang }) {
   return (
-    <div style={{ textAlign: "center", padding: "20px 0" }}>
-      <div style={{ width: 56, height: 56, borderRadius: 0, background: "#dcfce7", color: "#166534", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 16 }}>✓</div>
-      <h2 style={{ fontSize: 24, fontWeight: 600, color: "#1a1a1a", marginBottom: 12 }}>{t.successTitle}</h2>
-      <p style={{ fontSize: 15, color: "#555", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 12px" }}>{t.successDesc}</p>
-      <p style={{ fontSize: 12, color: "#888", margin: "0 auto 24px", maxWidth: 480 }}>{t.successCheckEmail}</p>
-      <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-        <Link href="/termin" style={{ padding: "12px 24px", background: ACCENT, color: "#fff", borderRadius: 0, fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{t.successCalendarBtn}</Link>
-        <Link href="/" style={{ padding: "12px 24px", background: "#fff", color: "#666", border: "1px solid #ddd", borderRadius: 0, fontSize: 14, textDecoration: "none" }}>{t.successHomeBtn}</Link>
+    <div style={{ padding: "10px 0" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ width: 56, height: 56, borderRadius: 0, background: "#dcfce7", color: "#166534", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 28, marginBottom: 16 }}>✓</div>
+        <h2 style={{ fontSize: 24, fontWeight: 600, color: "#1a1a1a", marginBottom: 12 }}>{t.successTitle}</h2>
+        <p style={{ fontSize: 15, color: "#555", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 12px" }}>{t.successDesc}</p>
+        <p style={{ fontSize: 12, color: "#888", margin: "0 auto 24px", maxWidth: 480 }}>{t.successCheckEmail}</p>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          <Link href="/termin" style={{ padding: "12px 24px", background: ACCENT, color: "#fff", borderRadius: 0, fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{t.successCalendarBtn}</Link>
+          <Link href="/" style={{ padding: "12px 24px", background: "#fff", color: "#666", border: "1px solid #ddd", borderRadius: 0, fontSize: 14, textDecoration: "none" }}>{t.successHomeBtn}</Link>
+        </div>
       </div>
+
+      {/* Vorlagen zum Download — Vollmacht etc., dynamisch aus DB */}
+      <VorlagenDownloadBlock kategorie="neukauf" lang={lang} variant="card" />
     </div>
   );
 }

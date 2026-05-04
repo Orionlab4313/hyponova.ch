@@ -167,3 +167,11 @@ export const IconPlus = (p: IconProps) => (
     <line x1="5" y1="12" x2="19" y2="12" />
   </I>
 );
+
+// Stempel/Siegel — passt fuer "Vorlagen" (Vollmacht, Mandat, etc.)
+export const IconStamp = (p: IconProps) => (
+  <I {...p}>
+    <path d="M9 3h6l-1 7h2a3 3 0 0 1 3 3v2H5v-2a3 3 0 0 1 3-3h2L9 3z" />
+    <line x1="4" y1="20" x2="20" y2="20" />
+  </I>
+);

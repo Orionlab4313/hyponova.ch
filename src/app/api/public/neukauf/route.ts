@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     kanton: String(body.kanton || ""),
     objektart: body.objektart || undefined,
     status: body.status || undefined,
+    baurecht: typeof body.baurecht === "boolean" ? body.baurecht : undefined,
     taetigkeit: body.taetigkeit || undefined,
   };
 

@@ -29,6 +29,10 @@ const COPY = {
     optBestehendDesc: "Wiederverkauf oder bestehender Bau",
     optNeubau: "Neubau",
     optNeubauDesc: "In Planung oder im Bau",
+    qBaurecht: "Befindet sich die Liegenschaft im Baurecht?",
+    qBaurechtDesc: "Baurecht bedeutet, das Land gehört einem Dritten (z.B. Gemeinde, Stiftung). Falls unsicher, im Kaufvertrag nachschauen oder «Nein» wählen.",
+    yes: "Ja",
+    no: "Nein",
     qTaetigkeit: "Welche Tätigkeit trifft auf Sie zu?",
     optAngestellt: "Angestellt",
     optSelbstaendig: "Selbständig",
@@ -73,6 +77,10 @@ const COPY = {
     optBestehendDesc: "Resale or existing build",
     optNeubau: "New build",
     optNeubauDesc: "In planning or under construction",
+    qBaurecht: "Is the property on leased land (Baurecht)?",
+    qBaurechtDesc: "Baurecht means the land belongs to a third party (e.g. municipality, foundation). If unsure, check the purchase agreement or select «No».",
+    yes: "Yes",
+    no: "No",
     qTaetigkeit: "What is your employment situation?",
     optAngestellt: "Employed",
     optSelbstaendig: "Self-employed",
@@ -113,13 +121,13 @@ interface Answers {
   kanton: string;
   objektart: "efh" | "stwe" | "2fh" | "";
   status: "bestehend" | "neubau" | "";
+  baurecht: boolean | null;
   taetigkeit: "angestellt" | "selbstaendig" | "pensioniert" | "";
   first_name: string; last_name: string; email: string; phone: string;
 }
 
-const init: Answers = { kanton: "", objektart: "", status: "", taetigkeit: "", first_name: "", last_name: "", email: "", phone: "" };
-type StepKey = "kanton" | "objektart" | "status" | "taetigkeit" | "contact" | "success";
-const FLOW: StepKey[] = ["kanton", "objektart", "status", "taetigkeit", "contact"];
+const init: Answers = { kanton: "", objektart: "", status: "", baurecht: null, taetigkeit: "", first_name: "", last_name: "", email: "", phone: "" };
+type StepKey = "kanton" | "objektart" | "status" | "baurecht" | "taetigkeit" | "contact" | "success";
 const ACCENT = "#c8553d";
 
 export default function NeukaufForm({ initialLang }: { initialLang: Lang }) {
@@ -133,8 +141,20 @@ export default function NeukaufForm({ initialLang }: { initialLang: Lang }) {
   const [submitting, setSubmitting] = useState(false);
 
   function up<K extends keyof Answers>(k: K, v: Answers[K]) { setA((p) => ({ ...p, [k]: v })); setError(null); }
-  const idx = FLOW.indexOf(step);
-  const total = FLOW.length;
+
+  // Baurecht-Frage nur bei Hausobjekten (EFH/2FH) — bei Stockwerkeigentum
+  // ist Baurecht unueblich, daher Step uebersprungen.
+  const flow = useMemo<StepKey[]>(() => {
+    const list: StepKey[] = ["kanton", "objektart", "status"];
+    if (a.objektart === "efh" || a.objektart === "2fh") {
+      list.push("baurecht");
+    }
+    list.push("taetigkeit", "contact");
+    return list;
+  }, [a.objektart]);
+
+  const idx = flow.indexOf(step);
+  const total = flow.length;
   const pct = step === "success" ? 100 : Math.round(((idx + 1) / total) * 100);
 
   function next() {
@@ -143,12 +163,13 @@ export default function NeukaufForm({ initialLang }: { initialLang: Lang }) {
       case "kanton": if (!a.kanton) { setError(t.fieldRequired); return; } break;
       case "objektart": if (!a.objektart) { setError(t.fieldRequired); return; } break;
       case "status": if (!a.status) { setError(t.fieldRequired); return; } break;
+      case "baurecht": if (a.baurecht === null) { setError(t.fieldRequired); return; } break;
       case "taetigkeit": if (!a.taetigkeit) { setError(t.fieldRequired); return; } break;
     }
-    const n = FLOW[idx + 1];
+    const n = flow[idx + 1];
     if (n) setStep(n);
   }
-  function back() { if (idx > 0) setStep(FLOW[idx - 1]); }
+  function back() { if (idx > 0) setStep(flow[idx - 1]); }
 
   async function submit() {
     if (!a.first_name || !a.last_name || !a.email) { setError(t.fieldRequired); return; }
@@ -196,6 +217,10 @@ export default function NeukaufForm({ initialLang }: { initialLang: Lang }) {
             { val: "bestehend", label: t.optBestehend, desc: t.optBestehendDesc },
             { val: "neubau", label: t.optNeubau, desc: t.optNeubauDesc },
           ]} />}
+          {step === "baurecht" && <RadioStep title={t.qBaurecht} desc={t.qBaurechtDesc} value={a.baurecht === null ? "" : a.baurecht ? "yes" : "no"} setValue={(v) => up("baurecht", v === "yes")} options={[
+            { val: "yes", label: t.yes },
+            { val: "no", label: t.no },
+          ]} />}
           {step === "taetigkeit" && <RadioStep title={t.qTaetigkeit} value={a.taetigkeit} setValue={(v) => up("taetigkeit", v as any)} options={[
             { val: "angestellt", label: t.optAngestellt },
             { val: "selbstaendig", label: t.optSelbstaendig },
@@ -236,8 +261,8 @@ function StepHeader({ title, desc }: { title: string; desc?: string }) {
 function SelectStep({ title, value, setValue, placeholder, options }: { title: string; value: string; setValue: (v: string) => void; placeholder: string; options: { val: string; label: string }[] }) {
   return (<><StepHeader title={title} /><select value={value} onChange={(e) => setValue(e.target.value)} style={{ ...inp, fontSize: 16 }}><option value="">{placeholder}</option>{options.map((o) => <option key={o.val} value={o.val}>{o.label}</option>)}</select></>);
 }
-function RadioStep({ title, value, setValue, options }: { title: string; value: string; setValue: (v: string) => void; options: { val: string; label: string; desc?: string }[] }) {
-  return (<><StepHeader title={title} /><div style={{ display: "flex", flexDirection: "column", gap: 10 }}>{options.map((o) => { const active = value === o.val; return (
+function RadioStep({ title, desc, value, setValue, options }: { title: string; desc?: string; value: string; setValue: (v: string) => void; options: { val: string; label: string; desc?: string }[] }) {
+  return (<><StepHeader title={title} desc={desc} /><div style={{ display: "flex", flexDirection: "column", gap: 10 }}>{options.map((o) => { const active = value === o.val; return (
     <button key={o.val} type="button" onClick={() => setValue(o.val)} style={{ textAlign: "left", padding: "14px 16px", background: active ? `${ACCENT}0d` : "#fff", border: `2px solid ${active ? ACCENT : "#e5e5e5"}`, borderRadius: 0, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>
       <div style={{ fontSize: 15, fontWeight: 600, color: "#1a1a1a" }}>{o.label}</div>
       {o.desc && <div style={{ fontSize: 13, color: "#666", marginTop: 4 }}>{o.desc}</div>}

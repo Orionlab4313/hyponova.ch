@@ -31,6 +31,7 @@ export interface NeukaufAnswers {
   kanton?: string;
   objektart?: "efh" | "stwe" | "2fh";
   status?: "bestehend" | "neubau";
+  baurecht?: boolean;
   taetigkeit?: "angestellt" | "selbstaendig" | "pensioniert";
 }
 
@@ -209,8 +210,12 @@ export function requiredDocumentCategories(
       base.push("erneuerungsfonds");
     }
 
-    // TODO: Baurecht-Frage gibts im Neukauf-Fragebogen noch nicht — sobald
-    // sie hinzukommt, hier "baurechtsvertrag" pushen wenn EFH + baurecht=true
+    // Baurecht: nur bei Hausobjekten relevant (EFH/2FH), bei STWE wird die
+    // Frage gar nicht gestellt — Excel-Modell verlangt Baurechtsvertrag
+    // nur bei "EFH ... (sofern im Baurecht)".
+    if ((a.objektart === "efh" || a.objektart === "2fh") && a.baurecht === true) {
+      base.push("baurechtsvertrag");
+    }
   }
 
   return Array.from(new Set(base));
@@ -323,6 +328,7 @@ export function formatSubmissionAnswers(
   if (type === "neukauf") {
     const a = answers as NeukaufAnswers;
     if (a.status) out.push({ label: "Objekt-Status", value: STATUS_LABELS[a.status] || a.status });
+    if (typeof a.baurecht === "boolean") out.push({ label: "Baurecht", value: a.baurecht ? "Ja" : "Nein" });
   }
 
   if (answers.taetigkeit) {

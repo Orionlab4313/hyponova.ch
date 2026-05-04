@@ -21,6 +21,8 @@ const COPY = {
     submitting: "Wird gesendet…",
     addTranche: "Weitere Tranche hinzufügen",
     removeTranche: "Entfernen",
+    qTranchen: "Hypothekartranchen",
+    qTranchenDesc: "Tragen Sie alle Ihre aktuellen Tranchen ein. Wir prüfen automatisch, ob eine Ablösung möglich ist.",
     fieldBetrag: "Hypothek-Betrag",
     fieldModell: "Hypothekenmodell",
     fieldFaelligkeit: "Fälligkeitsdatum",
@@ -117,6 +119,8 @@ const COPY = {
     submitting: "Sending…",
     addTranche: "Add another tranche",
     removeTranche: "Remove",
+    qTranchen: "Mortgage tranches",
+    qTranchenDesc: "Enter all your current tranches. We automatically check whether refinancing is possible.",
     fieldBetrag: "Mortgage amount",
     fieldModell: "Mortgage type",
     fieldFaelligkeit: "Maturity date",
@@ -486,14 +490,14 @@ function TranchenStep({ t, answers, setAnswers }: { t: any; answers: Answers; se
   }
   return (
     <>
-      <StepHeader title={t.qContact && "Hypothekartranchen" || "Tranches"} desc="Tragen Sie alle Ihre aktuellen Tranchen ein. Wir prüfen automatisch, ob eine Ablösung möglich ist." />
+      <StepHeader title={t.qTranchen} desc={t.qTranchenDesc} />
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {answers.tranchen.map((tr, i) => (
           <div key={i} style={{ background: "#fafafa", borderRadius: 0, padding: 16, border: "1px solid #ececec" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
+            <div className="tranche-grid">
               <div>
                 <label style={lbl}>{t.fieldBetrag} ({t.chf})</label>
-                <input value={tr.betrag} onChange={(e) => update(i, "betrag", e.target.value)} placeholder={t.placeholderBetrag} style={inp} />
+                <input value={tr.betrag} onChange={(e) => update(i, "betrag", e.target.value)} placeholder={t.placeholderBetrag} style={inp} inputMode="numeric" />
               </div>
               <div>
                 <label style={lbl}>{t.fieldModell}</label>
@@ -516,6 +520,19 @@ function TranchenStep({ t, answers, setAnswers }: { t: any; answers: Answers; se
         ))}
       </div>
       <button type="button" onClick={addRow} style={{ marginTop: 12, padding: "8px 14px", background: "transparent", color: ACCENT, border: `1px dashed ${ACCENT}66`, borderRadius: 0, fontSize: 13, cursor: "pointer", fontFamily: "inherit", width: "100%" }}>+ {t.addTranche}</button>
+      <style>{`
+        .tranche-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 10px;
+        }
+        @media (max-width: 720px) {
+          .tranche-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+        }
+      `}</style>
     </>
   );
 }

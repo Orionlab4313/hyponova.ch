@@ -10,6 +10,7 @@ type Status = {
   site_password_set: boolean;
   admin_password_set: boolean;
   site_protection_enabled: boolean;
+  teams_meeting_url: string;
 };
 
 export default function EinstellungenPage() {
@@ -40,10 +41,94 @@ export default function EinstellungenPage() {
       </div>
 
       <SiteProtectionSection enabled={status.site_protection_enabled} onChange={reload} />
+      <TeamsMeetingSection initialUrl={status.teams_meeting_url} onChange={reload} />
       <SitePasswordSection onChange={reload} />
       <AdminPasswordSection onChange={reload} email={status.notification_email} />
       <TwoFASection status={status} onChange={reload} />
     </div>
+  );
+}
+
+/* ---------- Microsoft Teams Meeting Link ---------- */
+
+function TeamsMeetingSection({ initialUrl, onChange }: { initialUrl: string; onChange: () => void }) {
+  const [url, setUrl] = useState(initialUrl || "");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  const dirty = url.trim() !== (initialUrl || "").trim();
+
+  async function save() {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teams_meeting_url: url.trim() }),
+      });
+      if (res.ok) {
+        setMsg({ type: "ok", text: url.trim() ? "Teams-Link gespeichert." : "Teams-Link entfernt." });
+        onChange();
+      } else {
+        const j = await res.json().catch(() => ({}));
+        setMsg({ type: "err", text: j.error || "Speichern fehlgeschlagen." });
+      }
+    } catch {
+      setMsg({ type: "err", text: "Netzwerkfehler beim Speichern." });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section style={{ background: "#fff", border: "1px solid #e5e5e5", padding: "20px 24px" }}>
+      <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 4px" }}>Microsoft Teams Meeting</h2>
+      <p style={{ fontSize: 13, color: "#666", margin: "0 0 16px", lineHeight: 1.6 }}>
+        Wenn gesetzt, wird dieser Link automatisch in jede Termin-Bestätigungs-E-Mail eingefügt. Empfehlung: «Teams Personal Meeting Room» URL — die ist immer gleich, immer verfügbar.
+      </p>
+
+      <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#444", marginBottom: 5 }}>
+        Teams-Link
+      </label>
+      <input
+        type="url"
+        value={url}
+        onChange={(e) => { setUrl(e.target.value); setMsg(null); }}
+        placeholder="https://teams.microsoft.com/l/meetup-join/..."
+        style={{ width: "100%", padding: "10px 12px", fontSize: 14, border: "1px solid #ddd", boxSizing: "border-box", fontFamily: "inherit" }}
+      />
+      <p style={{ fontSize: 11, color: "#888", margin: "6px 0 0", lineHeight: 1.5 }}>
+        So findest du deinen Personal Meeting Room: Teams öffnen → Kalender → «Jetzt besprechen» → Link kopieren. Oder leer lassen wenn du pro Termin individuell einlädst.
+      </p>
+
+      {msg && (
+        <p style={{ fontSize: 12, marginTop: 10, color: msg.type === "ok" ? "#0a7a2e" : "#c00" }}>
+          {msg.text}
+        </p>
+      )}
+
+      {dirty && (
+        <div style={{ marginTop: 14, display: "flex", gap: 8 }}>
+          <button
+            type="button"
+            onClick={save}
+            disabled={busy}
+            style={{ padding: "8px 18px", background: "#c8553d", color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: busy ? "wait" : "pointer", fontFamily: "inherit", opacity: busy ? 0.6 : 1 }}
+          >
+            {busy ? "Speichert…" : "Speichern"}
+          </button>
+          <button
+            type="button"
+            onClick={() => { setUrl(initialUrl || ""); setMsg(null); }}
+            disabled={busy}
+            style={{ padding: "8px 14px", background: "transparent", color: "#666", border: "1px solid #ddd", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}
+          >
+            Verwerfen
+          </button>
+        </div>
+      )}
+    </section>
   );
 }
 

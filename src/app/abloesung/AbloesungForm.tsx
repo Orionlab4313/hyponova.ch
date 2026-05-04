@@ -250,11 +250,25 @@ type StepKey =
   | "taetigkeit" | "weiss_modell" | "modell" | "laufzeit" | "end_path"
   | "contact" | "success";
 
+/**
+ * Schweizer CHF-Format mit Apostroph als Tausendertrenner.
+ * Akzeptiert beliebigen User-Input und gibt formatierten String zurueck.
+ * "300000" -> "300'000"  /  "1500000" -> "1'500'000"
+ */
+function formatChfInput(s: string): string {
+  const digits = s.replace(/[^0-9]/g, "");
+  if (!digits) return "";
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+}
+
 function isAbloesbarLocal(tranchen: Tranche[]): boolean {
   if (!tranchen || tranchen.length === 0) return false;
   const now = new Date();
   const cutoff = new Date(now.getFullYear() + 2, now.getMonth(), now.getDate());
-  return tranchen.some((t) => {
+  // Alle Tranchen muessen innerhalb 2 Jahren faellig sein (sonst lohnt sich
+  // die Abloesung wegen Vorfaelligkeitsentschaedigung nicht). Variable
+  // Tranchen sind jederzeit kuendbar.
+  return tranchen.every((t) => {
     if (t.modell === "variable") return true;
     if (!t.faelligkeit) return false;
     const d = new Date(t.faelligkeit);
@@ -498,7 +512,7 @@ function TranchenStep({ t, answers, setAnswers }: { t: any; answers: Answers; se
             <div className="tranche-grid">
               <div>
                 <label style={lbl}>{t.fieldBetrag} ({t.chf})</label>
-                <input value={tr.betrag} onChange={(e) => update(i, "betrag", e.target.value)} placeholder={t.placeholderBetrag} style={inp} inputMode="numeric" />
+                <input value={tr.betrag} onChange={(e) => update(i, "betrag", formatChfInput(e.target.value))} placeholder={t.placeholderBetrag} style={inp} inputMode="numeric" />
               </div>
               <div>
                 <label style={lbl}>{t.fieldModell}</label>

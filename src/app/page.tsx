@@ -270,7 +270,7 @@ export default function Home() {
 
             <div className="grid md:grid-cols-2 gap-8">
               <SlideUp delay={0.05}>
-                <Link href="/dienstleistungen" className="group block">
+                <Link href="/dienstleistungen/eigenheim-kaufen" className="group block">
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
                     <img
                       src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=700&q=80"
@@ -295,7 +295,7 @@ export default function Home() {
               </SlideUp>
 
               <SlideUp delay={0.1}>
-                <Link href="/dienstleistungen" className="group block">
+                <Link href="/dienstleistungen/hypothek-abloesen" className="group block">
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
                     <img
                       src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=700&q=80"
@@ -512,7 +512,7 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
-                  href="/rechner"
+                  href="/dienstleistungen"
                   className="inline-flex items-center justify-center px-8 py-4 text-sm font-medium transition-colors"
                   style={{ backgroundColor: "#fff", color: "#000" }}
                 >

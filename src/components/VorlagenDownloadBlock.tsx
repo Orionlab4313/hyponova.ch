@@ -140,7 +140,7 @@ function VorlagenRow({
         </div>
       </div>
       <a
-        href={v.file_url}
+        href={`/api/public/vorlagen/${v.id}/download`}
         target="_blank"
         rel="noopener noreferrer"
         download={v.file_name}

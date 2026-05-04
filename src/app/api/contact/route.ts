@@ -11,9 +11,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Bitte füllen Sie alle Pflichtfelder aus." }, { status: 400 });
   }
 
+  const safeLang: "de" | "en" = lang === "en" ? "en" : "de";
   const { data, error } = await supabase
     .from("contact_requests")
-    .insert({ first_name, last_name, email, phone: phone || null, subject, message })
+    .insert({ first_name, last_name, email, phone: phone || null, subject, message, lang: safeLang })
     .select().single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

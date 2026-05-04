@@ -20,6 +20,9 @@ const COPY = {
     salutationFrau: "Frau",
     firstName: "Vorname",
     lastName: "Nachname",
+    addPerson: "+ Zweite Person hinzufügen",
+    removePerson: "× Zweite Person entfernen",
+    person2Label: "Zweite Person (optional)",
     addressStreet: "Strasse / Hausnummer",
     addressPlz: "PLZ",
     addressOrt: "Ort",
@@ -53,6 +56,9 @@ const COPY = {
     salutationFrau: "Mrs",
     firstName: "First name",
     lastName: "Last name",
+    addPerson: "+ Add second person",
+    removePerson: "× Remove second person",
+    person2Label: "Second person (optional)",
     addressStreet: "Street / number",
     addressPlz: "ZIP",
     addressOrt: "City",
@@ -80,6 +86,11 @@ const ACCENT = "#c8553d";
 interface Form {
   salutation: "Herr" | "Frau" | "";
   first_name: string; last_name: string;
+  // Optionale zweite Person (z.B. bei Ehepaar oder Konkubinat).
+  // Wenn ausgefuellt -> 2 Unterschriftslinien im PDF.
+  has_person2: boolean;
+  salutation2: "Herr" | "Frau" | "";
+  first_name2: string; last_name2: string;
   address_street: string; address_plz: string; address_ort: string;
   bank_name: string; bank_street: string; bank_plz: string; bank_ort: string;
   property_address: string; mortgage_holder: string; mortgage_amount: string;
@@ -88,10 +99,21 @@ interface Form {
 
 const init: Form = {
   salutation: "", first_name: "", last_name: "",
+  has_person2: false,
+  salutation2: "", first_name2: "", last_name2: "",
   address_street: "", address_plz: "", address_ort: "",
   bank_name: "", bank_street: "", bank_plz: "", bank_ort: "",
   property_address: "", mortgage_holder: "", mortgage_amount: "", city_today: "",
 };
+
+/**
+ * Schweizer CHF-Format mit Apostroph waehrend der Eingabe.
+ */
+function formatChfInput(s: string): string {
+  const digits = s.replace(/[^0-9]/g, "");
+  if (!digits) return "";
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, "'");
+}
 
 export default function KuendigungForm({ initialLang }: { initialLang: Lang }) {
   const { lang: ctxLang } = useI18n();
@@ -108,6 +130,8 @@ export default function KuendigungForm({ initialLang }: { initialLang: Lang }) {
     for (const k of required) {
       if (!f[k]) { setError(t.fieldRequired); return; }
     }
+    // Wenn 2. Person aktiviert: Vor- und Nachname Pflicht
+    if (f.has_person2 && (!f.first_name2 || !f.last_name2)) { setError(t.fieldRequired); return; }
     setGenerating(true);
     setError(null);
     try {
@@ -156,6 +180,46 @@ export default function KuendigungForm({ initialLang }: { initialLang: Lang }) {
               <div><label style={lbl}>{t.firstName} *</label><input value={f.first_name} onChange={(e) => up("first_name", e.target.value)} style={inp} /></div>
               <div><label style={lbl}>{t.lastName} *</label><input value={f.last_name} onChange={(e) => up("last_name", e.target.value)} style={inp} /></div>
             </Field2>
+
+            {/* Zweite Person — optional, fuer Ehepaar/Konkubinat */}
+            {!f.has_person2 ? (
+              <button
+                type="button"
+                onClick={() => up("has_person2", true)}
+                style={{ alignSelf: "flex-start", padding: "8px 14px", background: "transparent", color: ACCENT, border: `1px dashed ${ACCENT}66`, borderRadius: 0, fontSize: 13, cursor: "pointer", fontFamily: "inherit", marginTop: 4 }}
+              >
+                {t.addPerson}
+              </button>
+            ) : (
+              <div style={{ background: "#fafafa", padding: 14, border: "1px solid #ececec", marginTop: 4 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "#555" }}>{t.person2Label}</span>
+                  <button
+                    type="button"
+                    onClick={() => { up("has_person2", false); up("first_name2", ""); up("last_name2", ""); up("salutation2", ""); }}
+                    style={{ padding: "4px 8px", background: "transparent", color: "#c00", border: "none", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}
+                  >
+                    {t.removePerson}
+                  </button>
+                </div>
+                <Field2>
+                  <div>
+                    <label style={lbl}>{t.salutation}</label>
+                    <select value={f.salutation2} onChange={(e) => up("salutation2", e.target.value as any)} style={inp}>
+                      <option value="">—</option>
+                      <option value="Herr">{t.salutationHerr}</option>
+                      <option value="Frau">{t.salutationFrau}</option>
+                    </select>
+                  </div>
+                  <div></div>
+                </Field2>
+                <Field2>
+                  <div><label style={lbl}>{t.firstName} *</label><input value={f.first_name2} onChange={(e) => up("first_name2", e.target.value)} style={inp} /></div>
+                  <div><label style={lbl}>{t.lastName} *</label><input value={f.last_name2} onChange={(e) => up("last_name2", e.target.value)} style={inp} /></div>
+                </Field2>
+              </div>
+            )}
+
             <div><label style={lbl}>{t.addressStreet} *</label><input value={f.address_street} onChange={(e) => up("address_street", e.target.value)} style={inp} /></div>
             <Field2>
               <div><label style={lbl}>{t.addressPlz} *</label><input value={f.address_plz} onChange={(e) => up("address_plz", e.target.value)} style={inp} /></div>
@@ -176,7 +240,7 @@ export default function KuendigungForm({ initialLang }: { initialLang: Lang }) {
             <div><label style={lbl}>{t.propertyAddress} *</label><input value={f.property_address} onChange={(e) => up("property_address", e.target.value)} style={inp} /></div>
             <div><label style={lbl}>{t.mortgageHolder} *</label><input value={f.mortgage_holder} onChange={(e) => up("mortgage_holder", e.target.value)} style={inp} /></div>
             <Field2>
-              <div><label style={lbl}>{t.mortgageAmount} *</label><input value={f.mortgage_amount} onChange={(e) => up("mortgage_amount", e.target.value)} placeholder={t.placeholderAmount} style={inp} /></div>
+              <div><label style={lbl}>{t.mortgageAmount} *</label><input value={f.mortgage_amount} onChange={(e) => up("mortgage_amount", formatChfInput(e.target.value))} placeholder={t.placeholderAmount} style={inp} inputMode="numeric" /></div>
               <div><label style={lbl}>{t.cityToday} *</label><input value={f.city_today} onChange={(e) => up("city_today", e.target.value)} placeholder="Möhlin" style={inp} /></div>
             </Field2>
           </Section>

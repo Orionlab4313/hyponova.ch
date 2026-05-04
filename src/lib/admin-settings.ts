@@ -23,6 +23,9 @@ export type AdminSettings = {
   backup_codes: string[];
   notification_email: string;
   site_protection_enabled: boolean;
+  // Microsoft Teams Personal/Standing Meeting URL — wird in
+  // Termin-Bestaetigungs-Emails inkludiert wenn gesetzt.
+  teams_meeting_url: string | null;
   updated_at: string;
 };
 

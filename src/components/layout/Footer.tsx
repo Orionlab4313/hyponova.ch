@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useI18n } from "@/i18n/context";
+import BrandText from "@/components/BrandText";
 
 export default function Footer() {
   const { t, lang } = useI18n();
@@ -143,7 +144,7 @@ export default function Footer() {
               ))}
             </ul>
             <div className="mt-6 text-[13px] leading-relaxed" style={{ color: "#666" }}>
-              <p>{t.footer.company}</p>
+              <p><BrandText>{t.footer.company}</BrandText></p>
               <p>Dahlienweg 22</p>
               <p>4313 Möhlin, {country[lang]}</p>
               <p className="mt-3">
@@ -160,7 +161,7 @@ export default function Footer() {
       <div style={{ borderTop: "1px solid #222" }}>
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-[12px]" style={{ color: "#555" }}>
-            {copyright}
+            <BrandText>{copyright}</BrandText>
           </p>
           <div className="flex items-center gap-4">
             <Link href="/datenschutz" className="text-[12px] transition-colors duration-200 hover:text-white" style={{ color: "#555" }}>

@@ -110,17 +110,22 @@ export async function listSubmissionsForLead(
 }
 
 /**
- * Geschaeftslogik: Hypothek ist abloesbar wenn mindestens eine Tranche
- * innerhalb der naechsten 24 Monate faellig ist (oder bereits ueberfaellig).
+ * Geschaeftslogik (Simon, Mai 2026): Hypothek ist nur dann sinnvoll abloesbar,
+ * wenn ALLE Tranchen innerhalb der naechsten 24 Monate faellig sind.
  *
- * Variable Hypotheken sind jederzeit kuendbar, also immer abloesbar.
+ * Wenn eine Tranche viel spaeter faellig wird, muesste sie vorzeitig
+ * gekuendigt werden -> Vorfaelligkeitsentschaedigung (Strafzins) macht den
+ * Wechsel unwirtschaftlich.
+ *
+ * Variable Hypotheken sind jederzeit kuendbar, zaehlen also immer als ok.
  */
 export function isAbloesbar(tranchen: AbloesungAnswers["tranchen"]): boolean {
   if (!tranchen || tranchen.length === 0) return false;
   const now = new Date();
   const cutoff = new Date(now.getFullYear() + 2, now.getMonth(), now.getDate());
-  return tranchen.some((t) => {
+  return tranchen.every((t) => {
     if (t.modell === "variable") return true;
+    if (!t.faelligkeit) return false;
     const d = new Date(t.faelligkeit);
     if (isNaN(d.getTime())) return false;
     return d <= cutoff;

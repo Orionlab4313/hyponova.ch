@@ -30,8 +30,15 @@ export async function POST(request: NextRequest) {
   const year = today.getFullYear();
 
   const salutation = body.salutation === "Frau" ? "Frau" : body.salutation === "Herr" ? "Herr" : "";
+  const salutation2 = body.salutation2 === "Frau" ? "Frau" : body.salutation2 === "Herr" ? "Herr" : "";
+  const hasPerson2 = !!body.has_person2 && !!body.first_name2 && !!body.last_name2;
+
+  const personLine = (sal: string, fn: string, ln: string) =>
+    sal ? `${sal} ${fn} ${ln}` : `${fn} ${ln}`;
+
   const senderLines = [
-    salutation ? `${salutation} ${body.first_name} ${body.last_name}` : `${body.first_name} ${body.last_name}`,
+    personLine(salutation, body.first_name, body.last_name),
+    ...(hasPerson2 ? [personLine(salutation2, body.first_name2, body.last_name2)] : []),
     body.address_street,
     `${body.address_plz} ${body.address_ort}`,
   ];
@@ -130,14 +137,23 @@ export async function POST(request: NextRequest) {
   text(sign, left, y);
   y -= 60;
 
-  // Unterschriftslinien
-  text("_______________________", left, y);
-  text("_______________________", left + 200, y);
-  y -= 14;
-  text(`${body.first_name} ${body.last_name}`, left, y, { size: 10, color: rgb(0.4, 0.4, 0.4) });
+  // Unterschriftslinien — 1 oder 2 je nach Personen-Anzahl
+  if (hasPerson2) {
+    // Zwei Unterschriftsfelder nebeneinander
+    text("_______________________", left, y);
+    text("_______________________", left + 200, y);
+    y -= 14;
+    text(`${body.first_name} ${body.last_name}`, left, y, { size: 10, color: rgb(0.4, 0.4, 0.4) });
+    text(`${body.first_name2} ${body.last_name2}`, left + 200, y, { size: 10, color: rgb(0.4, 0.4, 0.4) });
+  } else {
+    // Nur ein Unterschriftsfeld
+    text("_______________________", left, y);
+    y -= 14;
+    text(`${body.first_name} ${body.last_name}`, left, y, { size: 10, color: rgb(0.4, 0.4, 0.4) });
+  }
 
   // Footer-Hinweis
-  text("Erstellt mit hyponova.ch", left, 40, { size: 8, color: rgb(0.6, 0.6, 0.6) });
+  text("Erstellt mit HYPONOVA.ch", left, 40, { size: 8, color: rgb(0.6, 0.6, 0.6) });
 
   const pdfBytes = await pdf.save();
 

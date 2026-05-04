@@ -2,6 +2,62 @@
 
 ## Status: Pre-Launch-fertig — Stand 04.05.2026
 
+## Phase 19: Simon-Feedback Sweep — UX, Email, Teams, Vollmacht-URL ✅ FERTIG (04.05.2026)
+
+**Auslöser**: Simon-Feedback nach Test der Phase 18:
+- Tranchen-Logik falsch (alle Tranchen in 2 Jahren, nicht nur eine)
+- CHF-Beträge brauchen Apostroph beim Tippen
+- DE-Anrede-Komma falsch ("Guten Tag X," → "Guten Tag X")
+- "(Bitte nur Kopien!)" entfernen
+- HYPONOVA überall fett
+- Vollmacht-Download zeigt Supabase-URL (sieht unprofessionell aus)
+- Kündigung: 2. Person für Ehepaare/Konkubinat
+- Index-Cards: direkt zur Detail-Seite, nicht zur Übersicht
+- Index-CTA: Hypothekenrechner-Button → /dienstleistungen
+- Nachrichten-Antwort: Subject in Sprache der Originalnachricht
+- Termin → Microsoft Teams Meeting
+
+**Geschäftslogik gefixt:**
+- `isAbloesbar()` + `isAbloesbarLocal()`: `some` → `every` (alle Tranchen müssen innerhalb 2 Jahre fällig sein, sonst Vorfälligkeitsentschädigung)
+
+**UX-Polish:**
+- `formatChfInput()`: Schweizer Apostroph beim Tippen (Ablösung-Tranchen + Kündigungs-Betrag)
+- `inputMode="numeric"` für Mobile-Zahlentastatur
+- Index `page.tsx`: "Eigenheim kaufen" Card → /dienstleistungen/eigenheim-kaufen, "Hypothek ablösen" Card → /dienstleistungen/hypothek-abloesen, CTA-Bottom-Button "Hypothekenrechner" → /dienstleistungen
+- Footer + alle Email-Templates: HYPONOVA als `<strong>` (Edge Function v22)
+- Neue Komponente `BrandText` — wandelt "HYPONOVA" in Strings automatisch in `<strong>HYPONOVA</strong>` um. Eingebunden in Footer.
+
+**Vollmacht-URL via Proxy** (Branded URL):
+- Neue Route `/api/public/vorlagen/[id]/download` — fetcht PDF aus Supabase Storage, streamt mit Original-Filename und Content-Disposition: inline
+- VorlagenDownloadBlock + Edge Function v22 nutzen jetzt diese URL statt direkter Storage-URL
+- Resultat: hyponova.ch/api/public/vorlagen/<id>/download statt xxx.supabase.co/storage/v1/object/public/...
+
+**Kündigungsvorlage 2. Person** (Form + API):
+- Toggle "+ Zweite Person hinzufügen" — wenn aktiv: Salutation/Vorname/Nachname für 2. Person
+- PDF-Generator: Sender-Block listet beide Personen, 2 Unterschriftslinien nebeneinander mit beiden Namen
+- Wenn nur 1 Person: 1 Unterschriftslinie (wie vorher)
+
+**Email-Templates poliert (Edge Function v21 → v22):**
+- DE-Anrede ohne Komma: `Guten Tag Davide D'Amato` (nicht mehr `,`)
+- "(Bitte nur Kopien!)" entfernt aus DE + EN Bestätigungs-Mails
+- HYPONOVA als `<strong>` im Header + Footer + Body
+- Vollmacht-Links nutzen jetzt SITE_URL/api/public/vorlagen/.../download
+
+**Nachrichten-EN-Subject:**
+- DB: `contact_requests.lang` Spalte hinzugefügt (DE als Default)
+- `/api/contact`: speichert lang vom I18n-Context
+- Admin/nachrichten: liest msg.lang, render `subjectLabel(key, lang)`. EN-Kunde bekommt Reply mit "Re: Refinance mortgage — HYPONOVA" statt "Re: Hypothek ablösen"
+
+**Microsoft Teams Meeting:**
+- Pragmatischer Ansatz: Simon hinterlegt seinen Standing/Personal Teams Meeting Link in `/admin/einstellungen` (neue Section)
+- DB: `admin_settings.teams_meeting_url` Spalte
+- API: PATCH /api/admin/settings nimmt teams_meeting_url entgegen
+- Edge Function v22 (action="create" + "update"): fetcht Teams-URL, rendert Block "Microsoft Teams Meeting beitreten" in Bestätigungs-Email mit Beitritts-Button. ICS bekommt URL/LOCATION-Property → Kalender-Apps zeigen direkten Klick-Link.
+- Alternative für später: Microsoft Graph API + OAuth → automatische Meeting-Erstellung pro Termin
+
+**TODO/Bekannt:**
+- HYPONOVA bold ist nur in Footer + Email aktiv. Andere Pages haben "HYPONOVA" oft schon visuell stark (font-weight: 600 in Headings). Wenn Simon konkrete weitere Stellen nennt → BrandText dort einsetzen.
+
 ## Phase 18: Dokument-Vorlagen + Excel-Checklisten + Mobile-Fix ✅ FERTIG (04.05.2026)
 
 **Auslöser**: Simon hat WhatsApp/Email gesendet — er möchte (a) das offizielle Vollmachtsformular vom Anwalt im Workflow einbauen (analog Kündigungsvorlage) und (b) die Bestätigungs-Email-Checklisten passend zur ausgefüllten Variante. Dazu Mobile-Bug auf `/abloesung` (Tranchen-Tabelle zu eng).

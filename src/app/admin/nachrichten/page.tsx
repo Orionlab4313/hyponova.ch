@@ -13,6 +13,7 @@ interface Message {
   subject: string;
   message: string;
   created_at: string;
+  lang: "de" | "en";
 }
 
 interface Reply {
@@ -22,12 +23,27 @@ interface Reply {
   sent_at: string;
 }
 
-const subjectLabels: Record<string, string> = {
-  neukauf: "Eigenheim kaufen",
-  abloesung: "Hypothek ablösen",
-  beratung: "Allgemeine Beratung",
-  sonstiges: "Sonstiges",
+// Subject-Labels nach Sprache der Originalnachricht — wird sowohl in der
+// UI als auch im Reply-Subject verwendet, damit EN-Kunden auch eine
+// englische "Re: ..." Zeile sehen.
+const SUBJECT_LABELS: Record<"de" | "en", Record<string, string>> = {
+  de: {
+    neukauf: "Eigenheim kaufen",
+    abloesung: "Hypothek ablösen",
+    beratung: "Allgemeine Beratung",
+    sonstiges: "Sonstiges",
+  },
+  en: {
+    neukauf: "Buy a property",
+    abloesung: "Refinance mortgage",
+    beratung: "General consultation",
+    sonstiges: "Other",
+  },
 };
+
+function subjectLabel(key: string, lang: "de" | "en"): string {
+  return SUBJECT_LABELS[lang]?.[key] || key;
+}
 
 export default function NachrichtenPage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -101,7 +117,7 @@ export default function NachrichtenPage() {
         phone: msg.phone || "",
         status: "neu",
         source: "website",
-        notes: `Betreff: ${subjectLabels[msg.subject] || msg.subject}\n\n${msg.message}`,
+        notes: `Betreff: ${subjectLabel(msg.subject, msg.lang || "de")}\n\n${msg.message}`,
       }),
     });
     toast({ type: "success", message: `${msg.first_name} ${msg.last_name} wurde als Kontakt angelegt.` });
@@ -161,7 +177,7 @@ export default function NachrichtenPage() {
                   </span>
                 </div>
                 <p style={{ fontSize: 11, color: "#c8553d", margin: "0 0 2px", fontWeight: 500 }}>
-                  {subjectLabels[msg.subject] || msg.subject}
+                  {subjectLabel(msg.subject, msg.lang || "de")}
                 </p>
                 <p style={{ fontSize: 12, color: "#666", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {msg.message}
@@ -180,7 +196,7 @@ export default function NachrichtenPage() {
                   {selected.first_name} {selected.last_name}
                 </h3>
                 <p style={{ fontSize: 12, color: "#c8553d", margin: 0, fontWeight: 500 }}>
-                  {subjectLabels[selected.subject] || selected.subject}
+                  {subjectLabel(selected.subject, selected.lang || "de")}
                 </p>
               </div>
               <button
@@ -227,7 +243,7 @@ export default function NachrichtenPage() {
               <div style={{ marginBottom: 8 }}>
                 <div style={{ background: "#f9f9f9", borderRadius: 6, padding: 10, marginBottom: 8 }}>
                   <p style={{ fontSize: 11, color: "#888", margin: "0 0 2px" }}>An: {selected.email}</p>
-                  <p style={{ fontSize: 11, color: "#888", margin: 0 }}>Betreff: Re: {subjectLabels[selected.subject] || selected.subject} — HYPONOVA</p>
+                  <p style={{ fontSize: 11, color: "#888", margin: 0 }}>{(selected.lang || "de") === "en" ? "Subject" : "Betreff"}: Re: {subjectLabel(selected.subject, selected.lang || "de")} — HYPONOVA</p>
                 </div>
                 <textarea
                   value={replyText}
@@ -249,7 +265,7 @@ export default function NachrichtenPage() {
                           body: JSON.stringify({
                             action: "reply",
                             to: selected.email,
-                            subject: `Re: ${subjectLabels[selected.subject] || selected.subject} — HYPONOVA`,
+                            subject: `Re: ${subjectLabel(selected.subject, selected.lang || "de")} — HYPONOVA`,
                             message: replyText,
                             firstName: selected.first_name,
                             lastName: selected.last_name,

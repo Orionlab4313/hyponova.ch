@@ -525,7 +525,7 @@ function TranchenStep({ t, answers, setAnswers }: { t: any; answers: Answers; se
               </div>
               <div>
                 <label style={lbl}>{t.fieldFaelligkeit}</label>
-                <input type="date" value={tr.faelligkeit} onChange={(e) => update(i, "faelligkeit", e.target.value)} style={inp} disabled={tr.modell === "variable"} />
+                <input type="date" value={tr.faelligkeit} onChange={(e) => update(i, "faelligkeit", e.target.value)} className="tranche-date" style={inp} disabled={tr.modell === "variable"} />
               </div>
             </div>
             {answers.tranchen.length > 1 && (
@@ -547,6 +547,24 @@ function TranchenStep({ t, answers, setAnswers }: { t: any; answers: Answers; se
             gap: 12px;
           }
         }
+        /* iOS Safari rendert <input type="date"> rechtsbuendig wenn leer.
+           Wir zwingen Linksausrichtung damit der Inhalt links steht und
+           der Calendar-Picker rechts klein bleibt. */
+        .tranche-date {
+          text-align: left;
+          -webkit-appearance: none;
+          appearance: none;
+          min-height: 44px;
+        }
+        .tranche-date::-webkit-date-and-time-value {
+          text-align: left;
+        }
+        .tranche-date::-webkit-calendar-picker-indicator {
+          margin-left: 4px;
+        }
+        /* Wenn leer: zeigt iOS gar nichts an. Mit ::before-Pseudo ein
+           Format-Hint einblenden damit der Nutzer weiss was rein soll. */
+        .tranche-date:not(:focus):in-range::-webkit-datetime-edit-fields-wrapper { color: #1a1a1a; }
       `}</style>
     </>
   );

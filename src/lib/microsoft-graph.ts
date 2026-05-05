@@ -79,7 +79,7 @@ export async function getMicrosoftConfig(): Promise<MicrosoftConfig | null> {
  * Wenn Microsoft uns einen neuen Refresh-Token gibt (Sliding-Refresh), speichern
  * wir den auch ab.
  */
-async function getAccessToken(config: MicrosoftConfig): Promise<string> {
+export async function getAccessToken(config: MicrosoftConfig): Promise<string> {
   // Cache-Hit (Token gueltig fuer >60 Sekunden)
   if (tokenCache && tokenCache.expiresAt > Date.now() + 60_000) {
     return tokenCache.accessToken;

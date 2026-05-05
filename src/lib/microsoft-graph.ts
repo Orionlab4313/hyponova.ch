@@ -163,16 +163,24 @@ export interface CreateMeetingInput {
 
 export interface CreatedMeeting {
   eventId: string; // Outlook Calendar Event ID
+  onlineMeetingId: string; // Teams Online-Meeting ID (separat)
   joinUrl: string; // Teams Join-URL
   joinUrlHtml: string; // HTML-Block fuer Email-Embed
 }
 
 /**
- * Erstellt ein Online-Meeting (Outlook Calendar Event mit Teams) im Postfach
- * des verbundenen Microsoft-Users (Simon).
+ * 2-Schritt-Ansatz fuer Teams Online Meetings:
  *
- * Returns: eventId + joinUrl. eventId speichern wir in der appointments-Tabelle,
- * damit wir spaeter updaten/loeschen koennen.
+ * 1) POST /me/onlineMeetings -> garantiert einen frischen Teams Join-Link.
+ *    Funktioniert immer, unabhaengig von Mailbox-Settings.
+ *
+ * 2) POST /me/events -> Outlook-Kalendereintrag mit dem Join-Link im Body.
+ *    Setzt isOnlineMeeting NICHT mehr (das wird bei manchen Mailboxen
+ *    stumm ignoriert wenn defaultOnlineMeetingProvider=unknown ist).
+ *
+ * Dieser Ansatz war noetig weil der frueher genutzte 1-Schritt-Weg
+ * (events mit isOnlineMeeting=true) bei frisch erstellten M365-Tenants
+ * einfach false zurueckkam, ohne Fehler.
  */
 export async function createOnlineMeeting(input: CreateMeetingInput): Promise<CreatedMeeting | null> {
   const config = await getMicrosoftConfig();
@@ -180,49 +188,107 @@ export async function createOnlineMeeting(input: CreateMeetingInput): Promise<Cr
 
   const tz = input.timeZone || "Europe/Zurich";
 
-  const body = {
+  // ISO mit Timezone-Suffix berechnen — Online Meetings API braucht ISO 8601
+  // mit Timezone-Offset (nicht das events-Format mit separater timeZone-Property).
+  const offset = computeIsoOffset(tz, input.startIso);
+  const startIsoTz = `${input.startIso}${offset}`;
+  const endIsoTz = `${input.endIso}${offset}`;
+
+  // ---------- Step 1: Online Meeting erstellen ----------
+  const meetingBody = {
+    startDateTime: startIsoTz,
+    endDateTime: endIsoTz,
+    subject: input.subject,
+  };
+
+  const meetingRes = await graphFetch(config, "/me/onlineMeetings", {
+    method: "POST",
+    body: JSON.stringify(meetingBody),
+  });
+
+  if (!meetingRes.ok) {
+    const errText = await meetingRes.text().catch(() => "");
+    console.error("createOnlineMeeting Step 1 (/me/onlineMeetings) failed:", meetingRes.status, errText.slice(0, 500));
+    return null;
+  }
+
+  const meeting = (await meetingRes.json()) as {
+    id: string;
+    joinWebUrl?: string;
+    joinUrl?: string;
+  };
+
+  const joinUrl = meeting.joinWebUrl || meeting.joinUrl || "";
+  if (!joinUrl) {
+    console.error("createOnlineMeeting Step 1: kein joinWebUrl in Response", meeting);
+    return null;
+  }
+
+  // ---------- Step 2: Calendar Event mit Join-Link im Body ----------
+  const eventHtmlBody = `${input.bodyText ? `<p>${escapeHtml(input.bodyText).replace(/\n/g, "<br>")}</p><br>` : ""}<p><strong>Microsoft Teams Meeting</strong></p><p><a href="${joinUrl}">Hier klicken um beizutreten</a></p><p style="color:#666;font-size:12px;">Oder in den Browser kopieren: ${joinUrl}</p>`;
+
+  const eventBody = {
     subject: input.subject,
     start: { dateTime: input.startIso, timeZone: tz },
     end: { dateTime: input.endIso, timeZone: tz },
-    isOnlineMeeting: true,
-    onlineMeetingProvider: "teamsForBusiness",
-    body: input.bodyText
-      ? { contentType: "text", content: input.bodyText }
-      : undefined,
+    body: { contentType: "html", content: eventHtmlBody },
+    location: { displayName: "Microsoft Teams" },
     attendees: (input.attendees || []).map((a) => ({
       emailAddress: { address: a.email, name: a.name || a.email },
       type: "required",
     })),
   };
 
-  const r = await graphFetch(config, "/me/events", {
+  const eventRes = await graphFetch(config, "/me/events", {
     method: "POST",
-    body: JSON.stringify(body),
+    body: JSON.stringify(eventBody),
   });
 
-  if (!r.ok) {
-    const errText = await r.text().catch(() => "");
-    console.error("Microsoft Graph createOnlineMeeting failed:", r.status, errText.slice(0, 300));
+  if (!eventRes.ok) {
+    const errText = await eventRes.text().catch(() => "");
+    console.error("createOnlineMeeting Step 2 (/me/events) failed:", eventRes.status, errText.slice(0, 500));
+    // Online Meeting wieder loeschen — wir haben es ja schon erstellt
+    await fetch(`${GRAPH_BASE}/me/onlineMeetings/${meeting.id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${await getAccessToken(config)}` },
+    }).catch(() => {});
     return null;
   }
 
-  const data = (await r.json()) as {
-    id: string;
-    onlineMeeting?: { joinUrl?: string };
-    onlineMeetingUrl?: string;
-  };
-
-  const joinUrl = data.onlineMeeting?.joinUrl || data.onlineMeetingUrl || "";
-  if (!joinUrl) {
-    console.error("Microsoft Graph: kein joinUrl in Response", data);
-    return null;
-  }
+  const event = (await eventRes.json()) as { id: string };
 
   return {
-    eventId: data.id,
+    eventId: event.id,
+    onlineMeetingId: meeting.id,
     joinUrl,
     joinUrlHtml: joinUrl,
   };
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+/**
+ * Berechnet den ISO 8601 Timezone-Offset (z.B. "+02:00") fuer eine Zone
+ * zu einem bestimmten Zeitpunkt — wichtig wegen Sommer-/Winterzeit.
+ */
+function computeIsoOffset(tz: string, isoLocal: string): string {
+  try {
+    const date = new Date(isoLocal);
+    const dtf = new Intl.DateTimeFormat("en-US", {
+      timeZone: tz,
+      timeZoneName: "longOffset",
+      hour12: false,
+    });
+    const parts = dtf.formatToParts(date);
+    const offsetPart = parts.find((p) => p.type === "timeZoneName")?.value || "GMT+02:00";
+    // "GMT+02:00" -> "+02:00"
+    const m = offsetPart.match(/GMT([+-]\d{2}:\d{2})/);
+    return m ? m[1] : "+02:00";
+  } catch {
+    return "+02:00";
+  }
 }
 
 export interface UpdateMeetingInput {
@@ -258,19 +324,37 @@ export async function updateOnlineMeeting(input: UpdateMeetingInput): Promise<bo
   return true;
 }
 
-/** Loescht ein Meeting (Cancel). Returns true auch wenn Event nicht mehr existiert (idempotent). */
-export async function deleteOnlineMeeting(eventId: string): Promise<boolean> {
+/**
+ * Loescht das Calendar Event UND das zugehoerige OnlineMeeting (idempotent).
+ * Beide IDs muss man uebergeben — wir speichern sie in appointments.
+ */
+export async function deleteOnlineMeeting(eventId: string, onlineMeetingId?: string | null): Promise<boolean> {
   const config = await getMicrosoftConfig();
   if (!config) return false;
 
-  const r = await graphFetch(config, `/me/events/${eventId}`, { method: "DELETE" });
+  let allOk = true;
 
-  // 204 = success, 404 = bereits weg (auch ok), alles andere = Fehler
-  if (r.ok || r.status === 404) return true;
+  // Calendar Event
+  if (eventId) {
+    const r = await graphFetch(config, `/me/events/${eventId}`, { method: "DELETE" });
+    if (!r.ok && r.status !== 404) {
+      const errText = await r.text().catch(() => "");
+      console.error("delete /me/events failed:", r.status, errText.slice(0, 300));
+      allOk = false;
+    }
+  }
 
-  const errText = await r.text().catch(() => "");
-  console.error("Microsoft Graph deleteOnlineMeeting failed:", r.status, errText.slice(0, 300));
-  return false;
+  // Online Meeting (separat — falls wir's beim Cancel auch loeschen wollen)
+  if (onlineMeetingId) {
+    const r = await graphFetch(config, `/me/onlineMeetings/${onlineMeetingId}`, { method: "DELETE" });
+    if (!r.ok && r.status !== 404) {
+      const errText = await r.text().catch(() => "");
+      console.error("delete /me/onlineMeetings failed:", r.status, errText.slice(0, 300));
+      allOk = false;
+    }
+  }
+
+  return allOk;
 }
 
 /* ---------- OAuth-Flow Helpers ---------- */

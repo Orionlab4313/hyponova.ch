@@ -133,12 +133,13 @@ export async function POST(request: NextRequest) {
     if (meeting) {
       teamsJoinUrl = meeting.joinUrl;
       teamsMeetingId = meeting.eventId;
-      // Termin in DB updaten mit Teams-Daten
+      // Termin in DB updaten mit Teams-Daten (Event-ID + Online-Meeting-ID)
       await supabase
         .from("appointments")
         .update({
           teams_join_url: teamsJoinUrl,
           teams_meeting_id: teamsMeetingId,
+          teams_online_meeting_id: meeting.onlineMeetingId,
         })
         .eq("id", appointment.id);
     }

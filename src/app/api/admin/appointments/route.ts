@@ -102,10 +102,10 @@ export async function DELETE(request: NextRequest) {
   const { id } = await request.json();
   if (!id) return NextResponse.json({ error: "id fehlt" }, { status: 400 });
 
-  // Microsoft-Meeting-ID vorher holen
+  // Microsoft-Meeting-ID vorher holen (Event + Online Meeting separat)
   const { data: previous } = await supabase
     .from("appointments")
-    .select("teams_meeting_id")
+    .select("teams_meeting_id, teams_online_meeting_id")
     .eq("id", id)
     .maybeSingle();
 
@@ -116,7 +116,7 @@ export async function DELETE(request: NextRequest) {
   // Best-effort: Microsoft-Meeting auch loeschen (Outlook-Kalender + Teams-Link)
   if (previous?.teams_meeting_id) {
     try {
-      await deleteOnlineMeeting(previous.teams_meeting_id);
+      await deleteOnlineMeeting(previous.teams_meeting_id, previous.teams_online_meeting_id);
     } catch (e) {
       console.error("Teams meeting delete failed:", e);
     }

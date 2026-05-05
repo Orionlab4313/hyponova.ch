@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { getAvailability, getBlockedEntries } from "@/lib/availability-store";
 import { triggerIntegration } from "@/lib/integrations";
+import { createOnlineMeeting } from "@/lib/microsoft-graph";
 
 const SLOT_DURATION = 60;
 
@@ -112,8 +113,46 @@ export async function POST(request: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Trigger Supabase Edge Function (non-blocking)
-  triggerIntegration({ action: "create", appointment, lead, lang: lang || "de" });
+  // Microsoft Teams Online-Meeting erstellen (non-blocking — wenn fehlschlaegt,
+  // wird der Termin trotzdem ohne Teams-Link gebucht, Email warnt nicht).
+  // Best-effort: Wenn Microsoft-Konto nicht verbunden ist -> null, alles laeuft normal weiter.
+  let teamsJoinUrl: string | null = null;
+  let teamsMeetingId: string | null = null;
+  try {
+    const startIso = `${date}T${time}:00`;
+    const endIso = `${date}T${endTime}:00`;
+    const meeting = await createOnlineMeeting({
+      subject: `Beratungsgespräch ${first_name} ${last_name} — HYPONOVA`,
+      startIso,
+      endIso,
+      timeZone: "Europe/Zurich",
+      attendees: [{ email, name: `${first_name} ${last_name}` }],
+      bodyText: `Kostenloses Beratungsgespräch mit HYPONOVA GmbH.\nKunde: ${first_name} ${last_name}\nE-Mail: ${email}\nTelefon: ${phone || "-"}${notes ? "\n\nNotizen: " + notes : ""}`,
+    });
 
-  return NextResponse.json(appointment);
+    if (meeting) {
+      teamsJoinUrl = meeting.joinUrl;
+      teamsMeetingId = meeting.eventId;
+      // Termin in DB updaten mit Teams-Daten
+      await supabase
+        .from("appointments")
+        .update({
+          teams_join_url: teamsJoinUrl,
+          teams_meeting_id: teamsMeetingId,
+        })
+        .eq("id", appointment.id);
+    }
+  } catch (msErr) {
+    console.error("Teams meeting creation failed (continuing without):", msErr);
+  }
+
+  // Trigger Supabase Edge Function (non-blocking) — Email + ICS bekommen Teams-URL mit
+  triggerIntegration({
+    action: "create",
+    appointment: { ...appointment, teams_join_url: teamsJoinUrl, teams_meeting_id: teamsMeetingId },
+    lead,
+    lang: lang || "de",
+  });
+
+  return NextResponse.json({ ...appointment, teams_join_url: teamsJoinUrl });
 }

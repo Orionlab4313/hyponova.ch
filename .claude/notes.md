@@ -1,6 +1,54 @@
 # HYPONOVA – Entwicklungsnotizen
 
-## Status: Pre-Launch-fertig — Stand 04.05.2026
+## Status: Pre-Launch-fertig — Stand 05.05.2026
+
+## Phase 20: Microsoft Teams Auto-Meeting via Graph API ✅ FERTIG (05.05.2026)
+
+**Auslöser**: Standing-Teams-Link hatte Datenschutz-Risiko (Lobby-Konflikte bei mehreren Terminen). Simon wollte saubere Lösung mit Pro-Termin frischem Link.
+
+**Setup Simon hat gemacht**:
+- Microsoft 365 Business Basic Lizenz gelöst (CHF 4.90/Monat)
+- Eigenen Tenant `hyponova.onmicrosoft.com` erstellt
+- Admin-Login: `simontopalli@hyponova.onmicrosoft.com`
+- Azure App-Registrierung "HYPONOVA Booking System"
+  - Tenant ID: 786e3ec5-7fde-4109-9f42-710a8a531af5
+  - Client ID: 83372449-d53b-479d-b99c-5d1480226373
+  - Client Secret: in DB verschlüsselt gespeichert (24 Mt Gültigkeit)
+  - Redirect URI: https://hyponova.ch/api/admin/microsoft/callback
+- 4 Delegierte API-Berechtigungen: Calendars.ReadWrite, OnlineMeetings.ReadWrite, User.Read, offline_access
+- Admin-Consent erteilt
+
+**Implementiert**:
+- `src/lib/microsoft-graph.ts` — Graph API Wrapper mit Token-Refresh, In-Memory-Cache, Calendar-Event-basierte Online-Meeting-Erstellung
+- DB-Migration: `admin_settings` um `microsoft_tenant_id`, `microsoft_client_id`, `microsoft_client_secret_encrypted`, `microsoft_refresh_token_encrypted`, `microsoft_user_email`, `microsoft_connected_at`. `appointments` um `teams_join_url`, `teams_meeting_id`.
+- 5 OAuth-Routes:
+  - `GET /api/admin/microsoft/connect` — initiiert Authorization-Code-Flow
+  - `GET /api/admin/microsoft/callback` — empfängt Code, tauscht gegen Refresh-Token, speichert verschlüsselt
+  - `POST /api/admin/microsoft/disconnect` — löscht Refresh-Token
+  - `GET /api/admin/microsoft/status` — fürs UI
+  - `POST /api/admin/microsoft/config` — Admin trägt Tenant/Client/Secret ein
+- Admin-UI in `/admin/einstellungen`: neue Section "Microsoft Teams Integration" mit App-Setup-Form (3 Felder), "Mit Microsoft verbinden"-Button, Status-Block mit Verbindungs-Email, Disconnect/Reconnect-Buttons
+- `/api/booking` POST: nach DB-Insert wird Microsoft Graph aufgerufen → erstellt Calendar-Event mit `isOnlineMeeting=true` → speichert `joinUrl` + `eventId` zurück. Fallback: wenn fehlschlägt, läuft Termin trotzdem durch (ohne Teams-Link). Edge Function bekommt teams_join_url im Appointment-Object.
+- `/api/admin/appointments` PATCH/DELETE: bei Reschedule wird Microsoft Meeting verschoben (PATCH /me/events/:id), bei Delete wird Meeting gelöscht (DELETE).
+- Edge Function v23 (`on-booking`): nutzt jetzt `appointment.teams_join_url` (pro Termin) statt globalem Standing-Link. Standing-Link bleibt als Fallback im teamsBlockHTML.
+
+**Sicherheit**:
+- Client Secret + Refresh Token via AES-256-GCM verschlüsselt (crypto-helper.ts), Schlüssel aus ADMIN_SESSION_SECRET abgeleitet
+- CSRF-State-Cookie (HttpOnly, 10 Min TTL) im OAuth-Flow
+- Token-Rotation: wenn Microsoft uns einen neuen Refresh-Token gibt, wird automatisch in DB überschrieben
+
+**Workflow für Simon**:
+1. Geht in /admin/einstellungen
+2. Trägt Tenant/Client/Secret ein → "Speichern" (einmalig)
+3. Klickt "Mit Microsoft verbinden" → Microsoft-Login → Berechtigungen bestätigen → zurück
+4. Status zeigt "✓ Verbunden als simontopalli@hyponova.onmicrosoft.com"
+5. Ab dann: jede Termin-Buchung → automatisch Teams-Link in Bestätigungs-Email + Outlook-Kalender + ICS-Anhang
+
+**TODO-Bekannt**:
+- Admin-Manual-Created Appointments (über /admin/kalender) bekommen aktuell keinen Teams-Link automatisch — wird einfach nachgereicht falls Simon es braucht
+- Token-Rotation alle 24 Monate: Client Secret muss erneuert werden (Microsoft sagt vorher Bescheid via Email)
+- Wenn `OnlineMeetings.ReadWrite` Probleme macht (Teams Tenant Policy), Fallback ist `/me/events` mit `isOnlineMeeting:true` — das nutzen wir bereits
+- Client Secret wurde im Klartext im Chat geteilt — sollte bei nächster Gelegenheit rotiert werden
 
 ## Phase 19: Simon-Feedback Sweep — UX, Email, Teams, Vollmacht-URL ✅ FERTIG (04.05.2026)
 

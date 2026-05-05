@@ -41,7 +41,7 @@ export default function EinstellungenPage() {
       </div>
 
       <SiteProtectionSection enabled={status.site_protection_enabled} onChange={reload} />
-      <TeamsMeetingSection initialUrl={status.teams_meeting_url} onChange={reload} />
+      <MicrosoftTeamsSection />
       <SitePasswordSection onChange={reload} />
       <AdminPasswordSection onChange={reload} email={status.notification_email} />
       <TwoFASection status={status} onChange={reload} />
@@ -49,88 +49,248 @@ export default function EinstellungenPage() {
   );
 }
 
-/* ---------- Microsoft Teams Meeting Link ---------- */
+/* ---------- Microsoft Teams Integration (OAuth + Auto-Meetings) ---------- */
 
-function TeamsMeetingSection({ initialUrl, onChange }: { initialUrl: string; onChange: () => void }) {
-  const [url, setUrl] = useState(initialUrl || "");
+interface MsStatus {
+  app_configured: boolean;
+  connected: boolean;
+  user_email: string | null;
+  connected_at: string | null;
+}
+
+function MicrosoftTeamsSection() {
+  const [status, setStatus] = useState<MsStatus | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [showSetup, setShowSetup] = useState(false);
+  const [tenantId, setTenantId] = useState("");
+  const [clientId, setClientId] = useState("");
+  const [clientSecret, setClientSecret] = useState("");
 
-  const dirty = url.trim() !== (initialUrl || "").trim();
+  function load() {
+    fetch("/api/admin/microsoft/status")
+      .then((r) => r.json())
+      .then(setStatus)
+      .catch(() => setStatus(null));
+  }
 
-  async function save() {
+  useEffect(() => {
+    load();
+    // OAuth-Callback-Result aus URL lesen
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("ms_success")) {
+        setMsg({ type: "ok", text: "Microsoft Teams erfolgreich verbunden." });
+        history.replaceState(null, "", window.location.pathname);
+      } else if (params.get("ms_error")) {
+        setMsg({ type: "err", text: "Verbindung fehlgeschlagen: " + params.get("ms_error") });
+        history.replaceState(null, "", window.location.pathname);
+      }
+    }
+  }, []);
+
+  async function saveAppConfig() {
+    if (!tenantId.trim() || !clientId.trim() || !clientSecret.trim()) {
+      setMsg({ type: "err", text: "Bitte alle 3 Felder ausfüllen (Tenant ID, Client ID, Client Secret)." });
+      return;
+    }
     setBusy(true);
     setMsg(null);
     try {
-      const res = await fetch("/api/admin/settings", {
-        method: "PATCH",
+      const res = await fetch("/api/admin/microsoft/config", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ teams_meeting_url: url.trim() }),
+        body: JSON.stringify({
+          tenant_id: tenantId.trim(),
+          client_id: clientId.trim(),
+          client_secret: clientSecret.trim(),
+        }),
       });
       if (res.ok) {
-        setMsg({ type: "ok", text: url.trim() ? "Teams-Link gespeichert." : "Teams-Link entfernt." });
-        onChange();
+        setMsg({ type: "ok", text: "App-Credentials gespeichert. Klick jetzt auf «Mit Microsoft verbinden»." });
+        setShowSetup(false);
+        setTenantId(""); setClientId(""); setClientSecret("");
+        load();
       } else {
         const j = await res.json().catch(() => ({}));
         setMsg({ type: "err", text: j.error || "Speichern fehlgeschlagen." });
       }
     } catch {
-      setMsg({ type: "err", text: "Netzwerkfehler beim Speichern." });
+      setMsg({ type: "err", text: "Netzwerkfehler." });
     } finally {
       setBusy(false);
     }
   }
 
+  async function disconnect() {
+    if (!confirm("Microsoft Teams trennen? Neue Termine bekommen dann keinen Teams-Link mehr.")) return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      const res = await fetch("/api/admin/microsoft/disconnect", { method: "POST" });
+      if (res.ok) {
+        setMsg({ type: "ok", text: "Verbindung getrennt." });
+        load();
+      } else {
+        setMsg({ type: "err", text: "Trennen fehlgeschlagen." });
+      }
+    } catch {
+      setMsg({ type: "err", text: "Netzwerkfehler." });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!status) {
+    return (
+      <section style={{ background: "#fff", border: "1px solid #e5e5e5", padding: "20px 24px" }}>
+        <div style={{ color: "#888", fontSize: 13 }}>Lade Microsoft-Status…</div>
+      </section>
+    );
+  }
+
   return (
     <section style={{ background: "#fff", border: "1px solid #e5e5e5", padding: "20px 24px" }}>
-      <h2 style={{ fontSize: 16, fontWeight: 700, margin: "0 0 4px" }}>Microsoft Teams Meeting</h2>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 4 }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Microsoft Teams Integration</h2>
+        {status.connected && (
+          <span style={{ fontSize: 11, padding: "3px 8px", background: "#dcfce7", color: "#166534", fontWeight: 600 }}>
+            ✓ Verbunden
+          </span>
+        )}
+      </div>
       <p style={{ fontSize: 13, color: "#666", margin: "0 0 16px", lineHeight: 1.6 }}>
-        Wenn gesetzt, wird dieser Link automatisch in jede Termin-Bestätigungs-E-Mail eingefügt. Empfehlung: «Teams Personal Meeting Room» URL — die ist immer gleich, immer verfügbar.
+        Wenn aktiv: Pro Termin wird automatisch ein frischer Microsoft Teams Meeting-Link generiert und in der Bestätigungs-E-Mail + Outlook-Kalender eingefügt. Kein Lobby-Stress, kein Datenschutz-Risiko durch geteilte Links.
       </p>
 
-      <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#444", marginBottom: 5 }}>
-        Teams-Link
-      </label>
-      <input
-        type="url"
-        value={url}
-        onChange={(e) => { setUrl(e.target.value); setMsg(null); }}
-        placeholder="https://teams.microsoft.com/l/meetup-join/..."
-        style={{ width: "100%", padding: "10px 12px", fontSize: 14, border: "1px solid #ddd", boxSizing: "border-box", fontFamily: "inherit" }}
-      />
-      <p style={{ fontSize: 11, color: "#888", margin: "6px 0 0", lineHeight: 1.5 }}>
-        So findest du deinen Personal Meeting Room: Teams öffnen → Kalender → «Jetzt besprechen» → Link kopieren. Oder leer lassen wenn du pro Termin individuell einlädst.
-      </p>
+      {/* Status-Block */}
+      <div style={{ background: "#f7f5f2", padding: "12px 16px", marginBottom: 14, fontSize: 13 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+          <span style={{ color: "#666" }}>App-Credentials:</span>
+          <span style={{ fontWeight: 600, color: status.app_configured ? "#166534" : "#c00" }}>
+            {status.app_configured ? "✓ Konfiguriert" : "✗ Nicht konfiguriert"}
+          </span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: status.connected ? 4 : 0 }}>
+          <span style={{ color: "#666" }}>Microsoft-Konto verbunden:</span>
+          <span style={{ fontWeight: 600, color: status.connected ? "#166534" : "#888" }}>
+            {status.connected ? "✓ Ja" : "Nein"}
+          </span>
+        </div>
+        {status.connected && status.user_email && (
+          <div style={{ display: "flex", justifyContent: "space-between", color: "#666", fontSize: 12, marginTop: 4 }}>
+            <span>Verbunden als:</span>
+            <span style={{ fontFamily: "monospace" }}>{status.user_email}</span>
+          </div>
+        )}
+      </div>
 
-      {msg && (
-        <p style={{ fontSize: 12, marginTop: 10, color: msg.type === "ok" ? "#0a7a2e" : "#c00" }}>
-          {msg.text}
-        </p>
+      {/* App-Setup-Block */}
+      {!status.app_configured || showSetup ? (
+        <div style={{ border: "1px dashed #c8553d66", padding: 14, marginBottom: 14, background: "#fafafa" }}>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>
+            {status.app_configured ? "App-Credentials aktualisieren" : "Schritt 1: Azure App-Credentials hinterlegen"}
+          </div>
+          <p style={{ fontSize: 12, color: "#666", marginTop: 0, lineHeight: 1.5 }}>
+            Aus dem Azure Portal → App-Registrierung. Tenant ID + Client ID stehen auf der Übersicht, Client Secret unter «Zertifikate &amp; Geheimnisse» (24-Monate-Wert).
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
+            <input
+              type="text"
+              value={tenantId}
+              onChange={(e) => setTenantId(e.target.value)}
+              placeholder="Tenant ID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)"
+              style={{ width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid #ddd", boxSizing: "border-box", fontFamily: "monospace" }}
+            />
+            <input
+              type="text"
+              value={clientId}
+              onChange={(e) => setClientId(e.target.value)}
+              placeholder="Client ID (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)"
+              style={{ width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid #ddd", boxSizing: "border-box", fontFamily: "monospace" }}
+            />
+            <input
+              type="password"
+              value={clientSecret}
+              onChange={(e) => setClientSecret(e.target.value)}
+              placeholder="Client Secret (Wert, nicht ID)"
+              style={{ width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid #ddd", boxSizing: "border-box", fontFamily: "monospace" }}
+            />
+          </div>
+          <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+            <button
+              type="button"
+              onClick={saveAppConfig}
+              disabled={busy}
+              style={{ padding: "8px 16px", background: "#c8553d", color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: busy ? "wait" : "pointer", fontFamily: "inherit", opacity: busy ? 0.6 : 1 }}
+            >
+              {busy ? "Speichert…" : "Speichern"}
+            </button>
+            {showSetup && (
+              <button
+                type="button"
+                onClick={() => { setShowSetup(false); setTenantId(""); setClientId(""); setClientSecret(""); }}
+                style={{ padding: "8px 14px", background: "transparent", color: "#666", border: "1px solid #ddd", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}
+              >
+                Abbrechen
+              </button>
+            )}
+          </div>
+        </div>
+      ) : null}
+
+      {/* Action-Buttons */}
+      {status.app_configured && (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {!status.connected ? (
+            <a
+              href="/api/admin/microsoft/connect"
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "10px 18px", background: "#5059c9", color: "#fff", textDecoration: "none", fontSize: 13, fontWeight: 600, fontFamily: "inherit" }}
+            >
+              Mit Microsoft verbinden →
+            </a>
+          ) : (
+            <>
+              <a
+                href="/api/admin/microsoft/connect"
+                style={{ padding: "8px 14px", background: "#fff", color: "#444", border: "1px solid #ddd", textDecoration: "none", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}
+              >
+                Erneut autorisieren
+              </a>
+              <button
+                type="button"
+                onClick={disconnect}
+                disabled={busy}
+                style={{ padding: "8px 14px", background: "transparent", color: "#c00", border: "1px solid #f2caca", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}
+              >
+                Verbindung trennen
+              </button>
+            </>
+          )}
+          {!showSetup && (
+            <button
+              type="button"
+              onClick={() => setShowSetup(true)}
+              style={{ padding: "8px 14px", background: "transparent", color: "#666", border: "1px solid #ddd", fontSize: 12, cursor: "pointer", fontFamily: "inherit", marginLeft: "auto" }}
+            >
+              App-Credentials ändern
+            </button>
+          )}
+        </div>
       )}
 
-      {dirty && (
-        <div style={{ marginTop: 14, display: "flex", gap: 8 }}>
-          <button
-            type="button"
-            onClick={save}
-            disabled={busy}
-            style={{ padding: "8px 18px", background: "#c8553d", color: "#fff", border: "none", fontSize: 13, fontWeight: 600, cursor: busy ? "wait" : "pointer", fontFamily: "inherit", opacity: busy ? 0.6 : 1 }}
-          >
-            {busy ? "Speichert…" : "Speichern"}
-          </button>
-          <button
-            type="button"
-            onClick={() => { setUrl(initialUrl || ""); setMsg(null); }}
-            disabled={busy}
-            style={{ padding: "8px 14px", background: "transparent", color: "#666", border: "1px solid #ddd", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}
-          >
-            Verwerfen
-          </button>
-        </div>
+      {msg && (
+        <p style={{ fontSize: 12, marginTop: 12, color: msg.type === "ok" ? "#0a7a2e" : "#c00" }}>
+          {msg.text}
+        </p>
       )}
     </section>
   );
 }
+
+/* TeamsMeetingSection (Standing-Link) wurde durch die volle Microsoft Graph
+   Integration ersetzt — siehe MicrosoftTeamsSection oben. Die DB-Spalte
+   admin_settings.teams_meeting_url bleibt als Legacy-Fallback erhalten. */
 
 /* ---------- Site Protection (Schutz an/aus) ---------- */
 

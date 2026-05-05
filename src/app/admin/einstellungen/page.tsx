@@ -66,6 +66,22 @@ function MicrosoftTeamsSection() {
   const [tenantId, setTenantId] = useState("");
   const [clientId, setClientId] = useState("");
   const [clientSecret, setClientSecret] = useState("");
+  const [testResult, setTestResult] = useState<any | null>(null);
+  const [testing, setTesting] = useState(false);
+
+  async function runTest() {
+    setTesting(true);
+    setTestResult(null);
+    try {
+      const res = await fetch("/api/admin/microsoft/test", { method: "POST" });
+      const data = await res.json();
+      setTestResult(data);
+    } catch (e) {
+      setTestResult({ success: false, steps: [{ step: "Netzwerk", ok: false, detail: String(e) }] });
+    } finally {
+      setTesting(false);
+    }
+  }
 
   function load() {
     fetch("/api/admin/microsoft/status")
@@ -267,6 +283,16 @@ function MicrosoftTeamsSection() {
               </button>
             </>
           )}
+          {status.connected && (
+            <button
+              type="button"
+              onClick={runTest}
+              disabled={testing}
+              style={{ padding: "8px 14px", background: "#fff", color: "#444", border: "1px solid #ddd", fontSize: 13, cursor: testing ? "wait" : "pointer", fontFamily: "inherit" }}
+            >
+              {testing ? "Teste…" : "Verbindung testen"}
+            </button>
+          )}
           {!showSetup && (
             <button
               type="button"
@@ -275,6 +301,28 @@ function MicrosoftTeamsSection() {
             >
               App-Credentials ändern
             </button>
+          )}
+        </div>
+      )}
+
+      {/* Test-Ergebnis */}
+      {testResult && (
+        <div style={{ marginTop: 14, padding: 12, background: testResult.success ? "#f0fdf4" : "#fef2f2", border: `1px solid ${testResult.success ? "#86efac" : "#fca5a5"}` }}>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8, color: testResult.success ? "#166534" : "#991b1b" }}>
+            {testResult.success ? "✓ Test erfolgreich" : "✗ Test fehlgeschlagen"}
+          </div>
+          {Array.isArray(testResult.steps) && testResult.steps.map((s: any, i: number) => (
+            <div key={i} style={{ fontSize: 12, marginBottom: 6, lineHeight: 1.5 }}>
+              <span style={{ fontWeight: 600 }}>{s.ok ? "✓" : "✗"} {s.step}:</span>{" "}
+              <span style={{ color: "#444", fontFamily: s.detail?.startsWith("Event") || s.detail?.includes("URL") ? "monospace" : undefined, wordBreak: "break-all" }}>
+                {s.detail}
+              </span>
+            </div>
+          ))}
+          {testResult.joinUrl && (
+            <div style={{ fontSize: 11, marginTop: 8, padding: 8, background: "#fff", border: "1px solid #ddd", wordBreak: "break-all", fontFamily: "monospace" }}>
+              <strong>Test Join-URL:</strong> {testResult.joinUrl}
+            </div>
           )}
         </div>
       )}

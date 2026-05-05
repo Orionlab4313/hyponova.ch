@@ -225,7 +225,9 @@ export async function createOnlineMeeting(input: CreateMeetingInput): Promise<Cr
   }
 
   // ---------- Step 2: Calendar Event mit Join-Link im Body ----------
-  const eventHtmlBody = `${input.bodyText ? `<p>${escapeHtml(input.bodyText).replace(/\n/g, "<br>")}</p><br>` : ""}<p><strong>Microsoft Teams Meeting</strong></p><p><a href="${joinUrl}">Hier klicken um beizutreten</a></p><p style="color:#666;font-size:12px;">Oder in den Browser kopieren: ${joinUrl}</p>`;
+  // URL nicht als Plain-Text — nur als klickbarer Button. Wer den Link kopieren
+  // will, macht Rechtsklick auf den Button -> "Link kopieren".
+  const eventHtmlBody = `${input.bodyText ? `<p>${escapeHtml(input.bodyText).replace(/\n/g, "<br>")}</p><br>` : ""}<p><strong>Microsoft Teams Meeting</strong></p><p><a href="${joinUrl}" style="display:inline-block;background:#5059c9;color:#fff;text-decoration:none;padding:10px 18px;font-size:14px;font-weight:600;border-radius:4px;">Teams Meeting beitreten</a></p>`;
 
   const eventBody = {
     subject: input.subject,

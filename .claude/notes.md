@@ -47,8 +47,53 @@
 **TODO-Bekannt**:
 - Admin-Manual-Created Appointments (über /admin/kalender) bekommen aktuell keinen Teams-Link automatisch — wird einfach nachgereicht falls Simon es braucht
 - Token-Rotation alle 24 Monate: Client Secret muss erneuert werden (Microsoft sagt vorher Bescheid via Email)
-- Wenn `OnlineMeetings.ReadWrite` Probleme macht (Teams Tenant Policy), Fallback ist `/me/events` mit `isOnlineMeeting:true` — das nutzen wir bereits
+- Lizenz-Verlängerung: M365 Business Basic (CHF 4.90/Mt) verlängert sich automatisch am 5. Mai 2027
 - Client Secret wurde im Klartext im Chat geteilt — sollte bei nächster Gelegenheit rotiert werden
+
+**Bug-Fix Round 1 — 1-Step → 2-Step Approach (Edge Function v23 → keine Lib-Änderung, dann v25 Lib-Update):**
+
+Symptom: Test-Endpoint zeigte `event.onlineMeeting=null, onlineMeetingProvider=unknown, isOnlineMeeting=false`. Microsoft hat unser `isOnlineMeeting:true` stumm ignoriert.
+
+Root-Cause: Bei frisch erstellten M365-Tenants ist die Mailbox-Setting `defaultOnlineMeetingProvider` auf `unknown`. Ohne diese Setting auf `teamsForBusiness` setzt Microsoft `isOnlineMeeting` IMMER auf false zurück, ohne Fehler zu werfen.
+
+Fix in `src/lib/microsoft-graph.ts` `createOnlineMeeting`: 2-Step-Approach statt 1-Step:
+1. `POST /me/onlineMeetings` mit `startDateTime`/`endDateTime` (ISO 8601 mit Timezone-Offset) → garantiert frischer `joinWebUrl`
+2. `POST /me/events` mit dem joinUrl als HTML-Link im Body → Outlook-Kalendereintrag
+3. Bei Step 2 Fehler: rollback Step 1 (DELETE /me/onlineMeetings/:id)
+
+Beides wird gespeichert: `appointments.teams_meeting_id` (Event-ID) + `appointments.teams_online_meeting_id` (Meeting-ID). `deleteOnlineMeeting()` löscht jetzt beides.
+
+`computeIsoOffset()` Helper: berechnet `+02:00`/`+01:00` Offset für Europe/Zurich basierend auf Sommer-/Winterzeit.
+
+Plus: `getAccessToken()` exportiert (war private), für Diagnose-Endpoint.
+
+Test-Endpoint `/api/admin/microsoft/test`: zeigt jetzt 5 Schritte mit HTTP-Status + Microsoft-Error-Body bei jedem (Config, Token, /me, /me/onlineMeetings, /me/events). Sehr hilfreich für Debug bei zukünftigen Problemen.
+
+**Bug-Fix Round 2 — ICS LOCATION → Google Maps (Edge Function v25):**
+
+Symptom: Klick auf Teams-Link in Bestätigungs-Email öffnete Google Maps statt Teams.
+
+Root-Cause: Im ICS-Anhang stand `LOCATION:https://teams.microsoft.com/...`. Email-Clients (Gmail, Outlook) interpretieren `LOCATION:` immer als physische Adresse und verlinken automatisch auf Google Maps — egal ob URL oder Text.
+
+Fix in `supabase/functions/on-booking/calendar.ts` `buildICS()`:
+```
+URL:https://teams.microsoft.com/...    ← bleibt für Klick-Link
+LOCATION:Microsoft Teams                ← jetzt nur Text, kein Maps-Trigger
+```
+
+Plus: Email-Body zeigt nur den blauen "Teams Meeting beitreten"-Button, URL nirgends als Plain-Text. Wer kopieren will → Rechtsklick auf Button.
+
+Plus: Microsoft Graph `/me/events` Body zeigt jetzt einen Button (statt "Oder kopieren: URL" Zeile).
+
+**Edge Function Versionen**:
+- v22: Standing-Link Approach (Phase 19)
+- v23: Per-Termin Teams-URL aus appointments-Tabelle
+- v24: Email-Body ohne URL als Plain-Text (nur Button)
+- v25: ICS LOCATION als Text statt URL (Maps-Bug-Fix)
+
+**Test-Status (05.05.2026)**:
+- ✓ Test-Endpoint: alle 5 Steps grün, frischer `teams.microsoft.com` Link generiert
+- ⏳ End-to-End mit echter Termin-Buchung: läuft noch
 
 ## Phase 19: Simon-Feedback Sweep — UX, Email, Teams, Vollmacht-URL ✅ FERTIG (04.05.2026)
 

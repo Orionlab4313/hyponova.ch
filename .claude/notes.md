@@ -1,6 +1,68 @@
 # HYPONOVA – Entwicklungsnotizen
 
-## Status: Pre-Launch-fertig — Stand 05.05.2026
+## Status: Pre-Launch-fertig — Stand 08.05.2026
+
+## Phase 22: Admin-Kontakte Batch-Delete + Duplikat-Schutz ✅ FERTIG (08.05.2026)
+
+**Auslöser**: David testet Admin → Kontakte. Liste hat 18 Test-Einträge, viele davon Duplikate (gleicher Vorname/Nachname/Email/Telefon). Wunsch: Mehrere Kontakte aufs Mal löschen können (mit Bestätigungs-Modal vor Delete) und Duplikate verhindern bzw. bereinigen.
+
+**Implementiert**:
+- `src/lib/leads-dedupe.ts` — Normalisierung (lowercase + trim für Namen/Email, nur Ziffern für Telefon) + `groupDuplicates()` Helper. Schlüssel = first_name|last_name|email|phone normalisiert. Leerer Schlüssel (alle Felder leer) wird ignoriert.
+- `POST /api/admin/leads`: prüft Duplikat vor Insert, gibt 409 mit `duplicateOf` ID zurück
+- `DELETE /api/admin/leads`: akzeptiert `id` (single) ODER `ids` (array). Storage-Cleanup macht jetzt einen einzigen `.in("lead_id", ids)`-Query, dann ein `.delete().in("id", ids)`
+- `GET /api/admin/leads/dedupe`: liefert Preview (groupCount + removeCount + Gruppen mit keep+remove)
+- `POST /api/admin/leads/dedupe`: führt die Bereinigung aus. Behält pro Gruppe den ältesten Eintrag (created_at ASC), löscht den Rest inkl. Storage-Files
+- Admin-UI `/admin/leads`:
+  - Checkbox pro Lead + "Alle auswählen"-Header (nur sichtbare Leads, respektiert Status-Filter)
+  - Batch-Action-Bar oben (orange, fed7aa-Border) wenn ≥1 ausgewählt: zeigt Anzahl + "Auswahl aufheben" + "X löschen"
+  - "Duplikate bereinigen"-Button neben "+ Neuer Kontakt": macht Preview-Fetch → ConfirmDialog mit Anzahl → POST-Trigger
+  - Beim Erstellen: 409 → Toast "Kontakt mit identischen Angaben existiert bereits."
+  - Toast bei Erfolg/Fehler statt nur silent fetch
+  - Selected-State wird nach Delete/Dedupe sauber zurückgesetzt
+
+**Design-Entscheidungen**:
+- Ältesten Eintrag behalten (nicht neuesten) → erstes Kontaktdatum bleibt erhalten für Analytics/Historie
+- Notes zählen NICHT für Dedup-Erkennung — sonst wäre die "neuer Eintrag erlaubt"-Logik trivial umgehbar durch leeren Notes-Vergleich
+- Telefon-Normalisierung strippt alle Nicht-Ziffern → "079 249 70 90", "+41792497090", "0792497090" zählen alle als gleich
+- Confirm-Modal (eigenes ConfirmDialog) für die "bist du sicher?"-Frage, Toast für Result-Feedback
+- Modal mit `danger: true` zeigt rote Bestätigungs-Variante
+
+## Phase 21: Gmail Maps-Bug bei Teams-Termin endgültig fixen ✅ FERTIG (05.05.2026)
+
+**Auslöser**: David hat Termin gebucht und Bestätigungsmail in Gmail erhalten. Beim Klick auf "Microsoft Teams" in der Gmail-Smart-Card oben (mit Datum/Titel/Location) öffnete sich Google Maps mit Suche nach "Microsoft Teams" in Möhlin — leeres Resultat.
+
+**Root-Cause (Korrektur Phase 20 Round 2)**: Gmails Smart-Card baut bei JEDEM `LOCATION:`-Wert einen "Route"-Button — egal ob URL oder Text. Der Phase-20-Fix von URL → "Microsoft Teams"-Text hat das Problem nur verlagert: statt URL-Maps-Lookup gab's jetzt Text-Maps-Lookup. Beides falsch.
+
+**Fix (Option B vom User gewählt)**: 
+- `calendar.ts` `buildICS()`: `LOCATION:` enthält jetzt die echte Teams-URL. Plus 3 X-Properties:
+  - `X-MICROSOFT-SKYPETEAMSMEETINGURL:<url>` — Outlook erkennt das Meeting nativ und zeigt einen "Teams-Besprechung beitreten"-Button im Event
+  - `X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY` — Slot wird in Outlook als belegt markiert
+  - `X-MICROSOFT-DISALLOW-COUNTER:FALSE` — Counter-Proposals erlaubt
+- `index.ts` `icsDescription` (create + update): Hint-Text "siehe Button in E-Mail" wurde ersetzt durch echte URL als Plain-Text. So ist der Teams-Link auch direkt aus dem Kalender-Eintrag klickbar (Apple Cal, Outlook, Google Cal — alle rendern URLs in DESCRIPTION als Links).
+- Auch CalDAV-Description (Simons Outlook) bekommt die echte URL statt Hint.
+
+**Wie es jetzt rendert**:
+- Gmail Smart-Card: `LOCATION:<url>` → Gmail erkennt URL und rendert klickbaren Link statt Maps-Route
+- Outlook: `X-MICROSOFT-SKYPETEAMSMEETINGURL` triggert nativen "Beitreten"-Button im Termin
+- Apple Calendar: `URL:` rendert Klick-Link plus URL in DESCRIPTION
+- Google Calendar: `LOCATION:<url>` und URL in DESCRIPTION beide klickbar
+- Kunde-Email-Body: blauer "Teams Meeting beitreten"-Button (unverändert)
+
+**v26 Test-Ergebnis**: Gmail mappt URL trotzdem (`google.com/maps/search/?query=https%3A%2F%2Fteams.microsoft.com...`). Bestätigt: Gmail's Smart-Card schickt JEDEN LOCATION-Wert an Maps, egal ob URL oder Text. Es gibt keinen Property-basierten Workaround.
+
+**v27 (05.05.2026) — Option A: LOCATION komplett raus.**
+- `calendar.ts` `buildICS()`: keine `LOCATION:`-Zeile mehr
+- ICS hat nur noch: `URL:` + `X-MICROSOFT-SKYPETEAMSMEETINGURL` + `X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY` + `X-MICROSOFT-DISALLOW-COUNTER:FALSE`
+- Gmail Smart-Card oben: zeigt nur Datum + Uhrzeit + Titel "Beratungsgespräch - HYPONOVA". Keine Location-Zeile, kein Route-Button, keine Maps-Falle.
+- Outlook: erkennt Teams via X-MICROSOFT-Property → eigener Beitreten-Button im Termin
+- Apple/Google Calendar: URL in Beschreibung (Plain-Text) bleibt klickbar — User klickt aus dem Kalender-Eintrag
+
+**Wo der Teams-Link nach v27 erreichbar ist**:
+1. Email-Body: blauer "Teams Meeting beitreten"-Button (primäre CTA)
+2. Outlook-Termin: native Teams-Beitritts-Schaltfläche
+3. Jeder andere Kalender-Eintrag: Plain-Text-URL in der Description (klickbar in allen Apps)
+
+**Trade-off**: Smart-Card oben in Gmail hat keinen 1-Klick-Beitreten-Button mehr — User muss in der Email runter scrollen. Aber: kein falscher Maps-Link mehr. Sauber.
 
 ## Phase 20: Microsoft Teams Auto-Meeting via Graph API ✅ FERTIG (05.05.2026)
 

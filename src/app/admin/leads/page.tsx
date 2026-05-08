@@ -28,6 +28,8 @@ export default function LeadsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editLead, setEditLead] = useState<Lead | null>(null);
   const [form, setForm] = useState({ first_name: "", last_name: "", email: "", phone: "", status: "neu", source: "website", notes: "" });
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [busy, setBusy] = useState(false);
   const confirm = useConfirm();
   const toast = useToast();
 
@@ -41,15 +43,33 @@ export default function LeadsPage() {
 
   async function saveLead(e: React.FormEvent) {
     e.preventDefault();
-    if (editLead) {
-      await fetch("/api/admin/leads", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editLead.id, ...form }) });
-    } else {
-      await fetch("/api/admin/leads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+    if (busy) return;
+    setBusy(true);
+    try {
+      let res: Response;
+      if (editLead) {
+        res = await fetch("/api/admin/leads", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: editLead.id, ...form }) });
+      } else {
+        res = await fetch("/api/admin/leads", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      }
+
+      if (res.status === 409) {
+        toast({ type: "error", message: "Kontakt mit identischen Angaben existiert bereits." });
+        return;
+      }
+      if (!res.ok) {
+        toast({ type: "error", message: "Speichern fehlgeschlagen." });
+        return;
+      }
+
+      toast({ type: "success", message: editLead ? "Kontakt gespeichert." : "Kontakt erstellt." });
+      setShowForm(false);
+      setEditLead(null);
+      setForm({ first_name: "", last_name: "", email: "", phone: "", status: "neu", source: "website", notes: "" });
+      fetchLeads();
+    } finally {
+      setBusy(false);
     }
-    setShowForm(false);
-    setEditLead(null);
-    setForm({ first_name: "", last_name: "", email: "", phone: "", status: "neu", source: "website", notes: "" });
-    fetchLeads();
   }
 
   async function deleteLead(id: string) {
@@ -67,9 +87,87 @@ export default function LeadsPage() {
     const res = await fetch("/api/admin/leads", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
     if (res.ok) {
       toast({ type: "success", message: "Kontakt gelöscht." });
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
       fetchLeads();
     } else {
       toast({ type: "error", message: "Löschen fehlgeschlagen." });
+    }
+  }
+
+  async function deleteSelected() {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+
+    const ok = await confirm({
+      title: `${ids.length} Kontakte endgültig löschen?`,
+      body: `Alle ausgewählten Kontakte werden mit ihren Dokumenten, Fragebogen-Antworten, Notizen und Aufgaben gelöscht. Das kann nicht rückgängig gemacht werden.`,
+      confirmLabel: `${ids.length} löschen`,
+      cancelLabel: "Abbrechen",
+      danger: true,
+    });
+    if (!ok) return;
+
+    setBusy(true);
+    try {
+      const res = await fetch("/api/admin/leads", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      if (res.ok) {
+        const json = await res.json().catch(() => ({}));
+        toast({ type: "success", message: `${json.deletedCount ?? ids.length} Kontakte gelöscht.` });
+        setSelected(new Set());
+        fetchLeads();
+      } else {
+        toast({ type: "error", message: "Löschen fehlgeschlagen." });
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function dedupe() {
+    setBusy(true);
+    try {
+      const previewRes = await fetch("/api/admin/leads/dedupe");
+      if (!previewRes.ok) {
+        toast({ type: "error", message: "Duplikat-Prüfung fehlgeschlagen." });
+        return;
+      }
+      const preview = await previewRes.json();
+      const removeCount: number = preview.removeCount || 0;
+      const groupCount: number = preview.groupCount || 0;
+
+      if (removeCount === 0) {
+        toast({ type: "info", message: "Keine Duplikate gefunden." });
+        return;
+      }
+
+      const ok = await confirm({
+        title: "Duplikate bereinigen?",
+        body: `${removeCount} doppelte Kontakte in ${groupCount} Gruppen gefunden. Der jeweils älteste Eintrag bleibt erhalten, die neueren werden mit allen zugehörigen Dokumenten und Daten gelöscht. Das kann nicht rückgängig gemacht werden.`,
+        confirmLabel: `${removeCount} löschen`,
+        cancelLabel: "Abbrechen",
+        danger: true,
+      });
+      if (!ok) return;
+
+      const res = await fetch("/api/admin/leads/dedupe", { method: "POST" });
+      if (res.ok) {
+        const json = await res.json();
+        toast({ type: "success", message: `${json.deletedCount} Duplikate gelöscht.` });
+        setSelected(new Set());
+        fetchLeads();
+      } else {
+        toast({ type: "error", message: "Bereinigung fehlgeschlagen." });
+      }
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -79,7 +177,32 @@ export default function LeadsPage() {
     setShowForm(true);
   }
 
+  function toggleOne(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAllVisible() {
+    const visibleIds = filtered.map((l) => l.id);
+    const allSelected = visibleIds.every((id) => selected.has(id));
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allSelected) {
+        visibleIds.forEach((id) => next.delete(id));
+      } else {
+        visibleIds.forEach((id) => next.add(id));
+      }
+      return next;
+    });
+  }
+
   const filtered = filter === "alle" ? leads : leads.filter((l) => l.status === filter);
+  const visibleSelectedCount = filtered.filter((l) => selected.has(l.id)).length;
+  const allVisibleSelected = filtered.length > 0 && visibleSelectedCount === filtered.length;
 
   const inputStyle = { width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid #ddd", borderRadius: 6, outline: "none", boxSizing: "border-box" as const };
 
@@ -103,13 +226,53 @@ export default function LeadsPage() {
             </button>
           ))}
         </div>
-        <button
-          onClick={() => { setShowForm(true); setEditLead(null); setForm({ first_name: "", last_name: "", email: "", phone: "", status: "neu", source: "website", notes: "" }); }}
-          style={{ padding: "6px 14px", fontSize: 12, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", whiteSpace: "nowrap" }}
-        >
-          + Neuer Kontakt
-        </button>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button
+            onClick={dedupe}
+            disabled={busy}
+            title="Findet Kontakte mit identischem Vorname, Nachname, E-Mail und Telefon und löscht die neueren Duplikate."
+            style={{ padding: "6px 14px", fontSize: 12, fontWeight: 500, background: "#fff", color: "#555", border: "1px solid #ddd", borderRadius: 6, cursor: busy ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: busy ? 0.6 : 1 }}
+          >
+            Duplikate bereinigen
+          </button>
+          <button
+            onClick={() => { setShowForm(true); setEditLead(null); setForm({ first_name: "", last_name: "", email: "", phone: "", status: "neu", source: "website", notes: "" }); }}
+            style={{ padding: "6px 14px", fontSize: 12, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", whiteSpace: "nowrap" }}
+          >
+            + Neuer Kontakt
+          </button>
+        </div>
       </div>
+
+      {/* Batch-Action-Bar */}
+      {selected.size > 0 && (
+        <div
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+            padding: "8px 14px", marginBottom: 10,
+            background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: 8,
+          }}
+        >
+          <div style={{ fontSize: 12, color: "#9a3412", fontWeight: 500 }}>
+            {selected.size} ausgewählt
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => setSelected(new Set())}
+              style={{ padding: "5px 12px", fontSize: 12, background: "#fff", color: "#555", border: "1px solid #ddd", borderRadius: 6, cursor: "pointer" }}
+            >
+              Auswahl aufheben
+            </button>
+            <button
+              onClick={deleteSelected}
+              disabled={busy}
+              style={{ padding: "5px 12px", fontSize: 12, fontWeight: 500, background: "#ef4444", color: "#fff", border: "none", borderRadius: 6, cursor: busy ? "not-allowed" : "pointer", opacity: busy ? 0.6 : 1 }}
+            >
+              {selected.size} löschen
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Form Modal */}
       {showForm && (
@@ -159,7 +322,7 @@ export default function LeadsPage() {
                 <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={2} style={{ ...inputStyle, resize: "vertical" }} />
               </div>
               <div style={{ display: "flex", gap: 8 }}>
-                <button type="submit" style={{ flex: 1, padding: 9, fontSize: 13, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>
+                <button type="submit" disabled={busy} style={{ flex: 1, padding: 9, fontSize: 13, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 6, cursor: busy ? "not-allowed" : "pointer", opacity: busy ? 0.6 : 1 }}>
                   {editLead ? "Speichern" : "Erstellen"}
                 </button>
                 <button type="button" onClick={() => { setShowForm(false); setEditLead(null); }} style={{ padding: "9px 16px", fontSize: 13, background: "#f5f5f5", border: "1px solid #ddd", borderRadius: 6, cursor: "pointer" }}>
@@ -173,28 +336,48 @@ export default function LeadsPage() {
 
       {/* Leads List */}
       <div style={{ background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+        {filtered.length > 0 && (
+          <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 14px", borderBottom: "1px solid #f0f0f0", background: "#fafafa", cursor: "pointer", fontSize: 11, color: "#666" }}>
+            <input
+              type="checkbox"
+              checked={allVisibleSelected}
+              onChange={toggleAllVisible}
+              style={{ cursor: "pointer", margin: 0 }}
+            />
+            Alle auswählen ({filtered.length})
+          </label>
+        )}
         {filtered.length === 0 ? (
           <p style={{ padding: 20, textAlign: "center", color: "#999", fontSize: 13, margin: 0 }}>Keine Kontakte gefunden</p>
         ) : (
-          filtered.map((lead) => (
-            <div key={lead.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", padding: "10px 14px", borderBottom: "1px solid #f0f0f0", gap: 8 }}>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                  <span style={{ fontSize: 13, fontWeight: 500 }}>{lead.first_name} {lead.last_name}</span>
-                  <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 10, background: `${statusColors[lead.status]}15`, color: statusColors[lead.status], fontWeight: 600 }}>
-                    {lead.status}
-                  </span>
+          filtered.map((lead) => {
+            const isSel = selected.has(lead.id);
+            return (
+              <div key={lead.id} style={{ display: "flex", alignItems: "flex-start", padding: "10px 14px", borderBottom: "1px solid #f0f0f0", gap: 10, background: isSel ? "#fff7ed" : "transparent" }}>
+                <input
+                  type="checkbox"
+                  checked={isSel}
+                  onChange={() => toggleOne(lead.id)}
+                  style={{ marginTop: 4, cursor: "pointer", flexShrink: 0 }}
+                />
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                    <span style={{ fontSize: 13, fontWeight: 500 }}>{lead.first_name} {lead.last_name}</span>
+                    <span style={{ fontSize: 10, padding: "2px 7px", borderRadius: 10, background: `${statusColors[lead.status]}15`, color: statusColors[lead.status], fontWeight: 600 }}>
+                      {lead.status}
+                    </span>
+                  </div>
+                  {lead.email && <p style={{ fontSize: 11, color: "#888", margin: "1px 0 0" }}>{lead.email}</p>}
+                  {lead.phone && <p style={{ fontSize: 11, color: "#888", margin: "1px 0 0" }}>{lead.phone}</p>}
+                  {lead.source && <p style={{ fontSize: 10, color: "#aaa", margin: "1px 0 0" }}>{lead.source}</p>}
                 </div>
-                {lead.email && <p style={{ fontSize: 11, color: "#888", margin: "1px 0 0" }}>{lead.email}</p>}
-                {lead.phone && <p style={{ fontSize: 11, color: "#888", margin: "1px 0 0" }}>{lead.phone}</p>}
-                {lead.source && <p style={{ fontSize: 10, color: "#aaa", margin: "1px 0 0" }}>{lead.source}</p>}
+                <div style={{ display: "flex", gap: 8, flexShrink: 0, paddingTop: 2 }}>
+                  <button onClick={() => openEdit(lead)} style={{ fontSize: 11, color: "#3b82f6", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Bearbeiten</button>
+                  <button onClick={() => deleteLead(lead.id)} style={{ fontSize: 11, color: "#ef4444", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Löschen</button>
+                </div>
               </div>
-              <div style={{ display: "flex", gap: 8, flexShrink: 0, paddingTop: 2 }}>
-                <button onClick={() => openEdit(lead)} style={{ fontSize: 11, color: "#3b82f6", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Bearbeiten</button>
-                <button onClick={() => deleteLead(lead.id)} style={{ fontSize: 11, color: "#ef4444", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Löschen</button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

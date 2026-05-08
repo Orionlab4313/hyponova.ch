@@ -60,8 +60,8 @@ export default function KontaktPage() {
   };
 
   const heroDesc = {
-    de: "Haben Sie Fragen zu Ihrer Hypothek? Wir sind für Sie da — kostenlos und unverbindlich.",
-    en: "Have questions about your mortgage? We are here for you — free and non-binding.",
+    de: "Haben Sie Fragen zu Ihrer Hypothek? Wir sind für Sie da, kostenlos und unverbindlich.",
+    en: "Have questions about your mortgage? We are here for you, free and non-binding.",
   };
 
   const successTitle = {

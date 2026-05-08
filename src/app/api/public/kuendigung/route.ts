@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     : `Unsere Hypothek (Total CHF ${body.mortgage_amount}) möchten wir per nächstmöglichem Kündigungstermin vorsorglich kündigen.\n\nWir danken Ihnen für eine Bestätigung des Erhalts dieses Kündigungsschreibens.`;
   const sign = lang === "en" ? "Kind regards" : "Freundliche Grüsse";
 
-  // PDF erzeugen — A4 595x842 pt
+  // PDF erzeugen, A4 595x842 pt
   const pdf = await PDFDocument.create();
   const page = pdf.addPage([595, 842]);
   const font = await pdf.embedFont(StandardFonts.Helvetica);
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
   text(sign, left, y);
   y -= 60;
 
-  // Unterschriftslinien — 1 oder 2 je nach Personen-Anzahl
+  // Unterschriftslinien, 1 oder 2 je nach Personen-Anzahl
   if (hasPerson2) {
     // Zwei Unterschriftsfelder nebeneinander
     text("_______________________", left, y);

@@ -235,7 +235,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  // Public admin path (Token-Reset) — kein Sidebar/Layout, nur die Page anzeigen
+  // Public admin path (Token-Reset), kein Sidebar/Layout, nur die Page anzeigen
   if (isPublicAdminPath) {
     return (
       <html lang="de">

@@ -71,7 +71,7 @@ export async function checkRateLimit(opts: {
       .eq("key", key);
     return { ok: true, remaining: max - row.count - 1, retryAfterSeconds: 0 };
   } catch (err) {
-    // Fail-open bei Infra-Fehler — sonst sperren wir uns selbst aus
+    // Fail-open bei Infra-Fehler, sonst sperren wir uns selbst aus
     console.error("Rate-Limit DB error:", err);
     return { ok: true, remaining: max, retryAfterSeconds: 0 };
   }
@@ -87,7 +87,7 @@ export async function resetRateLimit(bucket: string, key: string) {
   }
 }
 
-/** IP aus Request-Headers extrahieren — Vercel setzt x-forwarded-for. */
+/** IP aus Request-Headers extrahieren, Vercel setzt x-forwarded-for. */
 export function clientIp(headers: Headers): string {
   const fwd = headers.get("x-forwarded-for");
   if (fwd) return fwd.split(",")[0].trim();

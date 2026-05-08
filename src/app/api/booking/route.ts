@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Microsoft Teams Online-Meeting erstellen (non-blocking — wenn fehlschlaegt,
+  // Microsoft Teams Online-Meeting erstellen (non-blocking, wenn fehlschlaegt,
   // wird der Termin trotzdem ohne Teams-Link gebucht, Email warnt nicht).
   // Best-effort: Wenn Microsoft-Konto nicht verbunden ist -> null, alles laeuft normal weiter.
   let teamsJoinUrl: string | null = null;
@@ -122,7 +122,7 @@ export async function POST(request: NextRequest) {
     const startIso = `${date}T${time}:00`;
     const endIso = `${date}T${endTime}:00`;
     const meeting = await createOnlineMeeting({
-      subject: `Beratungsgespräch ${first_name} ${last_name} — HYPONOVA`,
+      subject: `Beratungsgespräch ${first_name} ${last_name}, HYPONOVA`,
       startIso,
       endIso,
       timeZone: "Europe/Zurich",
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     console.error("Teams meeting creation failed (continuing without):", msErr);
   }
 
-  // Trigger Supabase Edge Function (non-blocking) — Email + ICS bekommen Teams-URL mit
+  // Trigger Supabase Edge Function (non-blocking), Email + ICS bekommen Teams-URL mit
   triggerIntegration({
     action: "create",
     appointment: { ...appointment, teams_join_url: teamsJoinUrl, teams_meeting_id: teamsMeetingId },

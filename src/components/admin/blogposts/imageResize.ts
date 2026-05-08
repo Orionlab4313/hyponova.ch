@@ -2,10 +2,10 @@
  * Client-seitige Bild-Kompression und -Skalierung.
  *
  * Problem: Vercel Serverless Functions haben ein 4.5 MB Request-Body-Limit.
- * iPhone-Fotos sind oft 5–10 MB und werden daher abgelehnt bevor unsere
+ * iPhone-Fotos sind oft 5-10 MB und werden daher abgelehnt bevor unsere
  * Upload-Route überhaupt läuft. Lösung: vor dem Upload im Browser
  * herunterrechnen auf max. 1920px Breite und als JPEG bei 0.85 Quality
- * kodieren — das ergibt typischerweise < 800 KB und verliert visuell
+ * kodieren, das ergibt typischerweise < 800 KB und verliert visuell
  * praktisch nichts.
  *
  * SVG und GIF werden unverändert durchgereicht (keine Rasterisierung).

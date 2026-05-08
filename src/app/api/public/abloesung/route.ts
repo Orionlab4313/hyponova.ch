@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Submission-Fehler" }, { status: 500 });
   }
 
-  // 3. Upload-Token erzeugen (nur wenn Offerten-Pfad — bei Termin sammelt Berater die Docs)
+  // 3. Upload-Token erzeugen (nur wenn Offerten-Pfad, bei Termin sammelt Berater die Docs)
   let uploadUrl: string | null = null;
   if (endPath === "offerten") {
     try {

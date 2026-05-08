@@ -36,7 +36,7 @@ const KATEGORIE_COLORS: Record<Kategorie, { bg: string; color: string }> = {
 };
 
 function formatBytes(n: number | null) {
-  if (!n) return "—";
+  if (!n) return ",";
   if (n < 1024) return `${n} B`;
   if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
   return `${(n / (1024 * 1024)).toFixed(1)} MB`;
@@ -230,7 +230,7 @@ export default function VorlagenPage() {
       ) : filtered.length === 0 ? (
         <div style={{ padding: 40, textAlign: "center", color: "#888", background: "#fff", border: "1px solid #e5e5e5" }}>
           {vorlagen.length === 0
-            ? "Noch keine Vorlagen — leg deine erste an (z.B. die Vollmacht vom Anwalt)."
+            ? "Noch keine Vorlagen, leg deine erste an (z.B. die Vollmacht vom Anwalt)."
             : "Keine Vorlagen in dieser Kategorie."}
         </div>
       ) : (
@@ -397,7 +397,7 @@ function EditModal({
           <textarea
             value={data.description_de}
             onChange={(e) => onChange({ ...data, description_de: e.target.value })}
-            placeholder="Kurze Beschreibung — was ist das Dokument, wofür wird es benötigt?"
+            placeholder="Kurze Beschreibung, was ist das Dokument, wofür wird es benötigt?"
             rows={2}
             style={{ ...inp, resize: "vertical", minHeight: 60 }}
           />

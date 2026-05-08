@@ -57,7 +57,7 @@ export async function PATCH(request: NextRequest) {
   const { id } = body;
   if (!id) return NextResponse.json({ error: "id fehlt" }, { status: 400 });
 
-  // Vorherige Daten holen — fuer Microsoft-Meeting-Update
+  // Vorherige Daten holen, fuer Microsoft-Meeting-Update
   const { data: previous } = await supabase
     .from("appointments")
     .select("date, time_start, time_end, teams_meeting_id, lead_id")

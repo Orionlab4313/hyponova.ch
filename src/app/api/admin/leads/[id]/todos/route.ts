@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { requireAdmin } from "@/lib/admin-guard";
 
-/** GET /api/admin/leads/[id]/todos — alle Todos zum Lead (offen zuerst, dann erledigt) */
+/** GET /api/admin/leads/[id]/todos, alle Todos zum Lead (offen zuerst, dann erledigt) */
 export async function GET(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const guard = requireAdmin(request);
   if (guard) return guard;
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ id: str
   return NextResponse.json(data || []);
 }
 
-/** POST /api/admin/leads/[id]/todos — neues Todo anlegen */
+/** POST /api/admin/leads/[id]/todos, neues Todo anlegen */
 export async function POST(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {
   const guard = requireAdmin(request);
   if (guard) return guard;

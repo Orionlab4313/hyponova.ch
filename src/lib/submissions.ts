@@ -144,7 +144,7 @@ export function requiredDocumentCategories(
 ): string[] {
   const base: string[] = [];
 
-  // ---------- Persoenliche Unterlagen — bei allen ----------
+  // ---------- Persoenliche Unterlagen, bei allen ----------
   base.push(
     "mandatsvereinbarung",
     "ausweis",
@@ -216,7 +216,7 @@ export function requiredDocumentCategories(
     }
 
     // Baurecht: nur bei Hausobjekten relevant (EFH/2FH), bei STWE wird die
-    // Frage gar nicht gestellt — Excel-Modell verlangt Baurechtsvertrag
+    // Frage gar nicht gestellt, Excel-Modell verlangt Baurechtsvertrag
     // nur bei "EFH ... (sofern im Baurecht)".
     if ((a.objektart === "efh" || a.objektart === "2fh") && a.baurecht === true) {
       base.push("baurechtsvertrag");
@@ -307,7 +307,7 @@ export function formatSubmissionAnswers(
       const lines = a.tranchen.map((tr, i) => {
         const modell = MODELL_LABELS[tr.modell] || tr.modell;
         const datum = tr.modell === "variable" ? "jederzeit kündbar" : `fällig ${formatDate(tr.faelligkeit)}`;
-        return `${i + 1}. CHF ${formatChf(tr.betrag)} — ${modell} (${datum})`;
+        return `${i + 1}. CHF ${formatChf(tr.betrag)}, ${modell} (${datum})`;
       });
       out.push({ label: "Hypothekartranchen", value: `${a.tranchen.length} Tranche${a.tranchen.length === 1 ? "" : "n"}`, multi: lines });
     }
@@ -353,7 +353,7 @@ export function formatSubmissionAnswers(
 }
 
 export function formatEndPath(endPath: string | null): string {
-  if (!endPath) return "—";
+  if (!endPath) return ",";
   return END_PATH_LABELS[endPath] || endPath;
 }
 
@@ -372,7 +372,7 @@ export const SOURCE_LABELS: Record<string, string> = {
 };
 
 export function formatSource(source: string | null | undefined): string {
-  if (!source) return "—";
+  if (!source) return ",";
   return SOURCE_LABELS[source] || source.replace(/_/g, " ").replace(/-/g, " ");
 }
 
@@ -381,14 +381,14 @@ export function formatSource(source: string | null | undefined): string {
  * Fallback: Key mit Underscores zu Leerzeichen.
  */
 export function formatCategory(key: string | null | undefined, lang: "de" | "en" = "de"): string {
-  if (!key) return "—";
+  if (!key) return ",";
   return DOCUMENT_CATEGORY_LABELS[key]?.[lang] || key.replace(/_/g, " ").replace(/-/g, " ");
 }
 
 export function formatUploadedVia(via: string | null | undefined): string {
   if (via === "customer") return "Kunde";
   if (via === "admin") return "Admin";
-  return via || "—";
+  return via || ",";
 }
 
 export const DOCUMENT_CATEGORY_LABELS: Record<string, { de: string; en: string }> = {

@@ -1,4 +1,4 @@
-// Schweizer Hypothekenrechner — Berechnungslogik
+// Schweizer Hypothekenrechner, Berechnungslogik
 
 // Konstanten
 export const IMPUTED_RATE = 0.05;         // 5% kalkulatorischer Zins (Tragbarkeit)
@@ -32,22 +32,22 @@ export function calculateSecondMortgage(kaufpreis: number, mortgage: number): nu
   return Math.max(0, mortgage - first);
 }
 
-// Kalkulatorische Zinsen (5%) — monatlich
+// Kalkulatorische Zinsen (5%), monatlich
 export function calculateImputedInterest(mortgage: number): number {
   return (IMPUTED_RATE * mortgage) / 12;
 }
 
-// Indikative Zinsen (1.60%) — monatlich
+// Indikative Zinsen (1.60%), monatlich
 export function calculateIndicativeInterest(mortgage: number): number {
   return (INDICATIVE_RATE * mortgage) / 12;
 }
 
-// Unterhaltskosten — monatlich
+// Unterhaltskosten, monatlich
 export function calculateMaintenance(kaufpreis: number): number {
   return (MAINTENANCE_RATE * kaufpreis) / 12;
 }
 
-// Amortisation 2. Hypothek — monatlich
+// Amortisation 2. Hypothek, monatlich
 export function calculateAmortization(secondMortgage: number): number {
   if (secondMortgage <= 0) return 0;
   return secondMortgage / AMORTIZATION_YEARS / 12;

@@ -173,7 +173,7 @@ export default function LegalPageForm({ initial }: Props) {
                 {l === "de" ? "Deutsch" : "English"}
                 {enWarn && (
                   <span
-                    title="EN-Version ist leer — auf der Website wird DE angezeigt"
+                    title="EN-Version ist leer, auf der Website wird DE angezeigt"
                     style={{
                       fontSize: 10,
                       padding: "2px 6px",
@@ -217,7 +217,7 @@ export default function LegalPageForm({ initial }: Props) {
           style={compactInputStyle}
         />
         <div style={{ fontSize: 12, color: "#888", marginTop: 4 }}>
-          Zweiter Teil — wird auf der Seite fett dargestellt.
+          Zweiter Teil, wird auf der Seite fett dargestellt.
         </div>
 
         <label style={labelStyle}>Inhalt {lang === "de" ? "(Deutsch)" : "(English)"}</label>
@@ -246,7 +246,7 @@ export default function LegalPageForm({ initial }: Props) {
               e.target.value
             )
           }
-          placeholder="Kurzbeschreibung für Google (1–2 Sätze)"
+          placeholder="Kurzbeschreibung für Google (1-2 Sätze)"
           style={{ ...inputStyle, minHeight: 70, resize: "vertical" }}
         />
       </div>

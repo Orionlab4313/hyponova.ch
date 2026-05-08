@@ -25,8 +25,8 @@ export default function Home() {
   };
 
   const heroOverlayDesc = {
-    de: "Wir vergleichen Angebote zahlreicher Banken, Versicherungen und Pensionskassen — kostenlos und transparent.",
-    en: "We compare offers from numerous banks, insurance companies and pension funds — free and transparent.",
+    de: "Wir vergleichen Angebote zahlreicher Banken, Versicherungen und Pensionskassen, kostenlos und transparent.",
+    en: "We compare offers from numerous banks, insurance companies and pension funds, free and transparent.",
   };
 
   const servicesLabel = {
@@ -45,8 +45,8 @@ export default function Home() {
   };
 
   const purchaseDesc = {
-    de: "Wir begleiten Sie vollumfänglich bei Ihrem Liegenschaftskauf — von der Finanzierungsberatung bis zur Unterzeichnung.",
-    en: "We support you throughout your property purchase — from financing advice to signing.",
+    de: "Wir begleiten Sie vollumfänglich bei Ihrem Liegenschaftskauf, von der Finanzierungsberatung bis zur Unterzeichnung.",
+    en: "We support you throughout your property purchase, from financing advice to signing.",
   };
 
   const purchaseCta = {
@@ -80,8 +80,8 @@ export default function Home() {
   };
 
   const calcDesc = {
-    de: "Unser Rechner zeigt Ihnen sofort, ob Ihre Wunschimmobilie finanzierbar ist. Belehnung, Tragbarkeit und monatliche Kosten — alles auf einen Blick.",
-    en: "Our calculator instantly shows you whether your dream property is financeable. Loan-to-value, affordability and monthly costs — all at a glance.",
+    de: "Unser Rechner zeigt Ihnen sofort, ob Ihre Wunschimmobilie finanzierbar ist. Belehnung, Tragbarkeit und monatliche Kosten, alles auf einen Blick.",
+    en: "Our calculator instantly shows you whether your dream property is financeable. Loan-to-value, affordability and monthly costs, all at a glance.",
   };
 
   const calcCta = {
@@ -106,7 +106,7 @@ export default function Home() {
 
   const advantages = {
     de: [
-      { num: "01", title: "Umfassender Vergleich", desc: "Wir vergleichen die Angebote verschiedener Partnerbanken, Versicherungen und Pensionskassen — und finden die attraktivste Offerte für Sie." },
+      { num: "01", title: "Umfassender Vergleich", desc: "Wir vergleichen die Angebote verschiedener Partnerbanken, Versicherungen und Pensionskassen, und finden die attraktivste Offerte für Sie." },
       { num: "02", title: "Enorme Zeitersparnis", desc: "Sie sparen sich das Einreichen des Dossiers bei mehreren Banken und die gesamte Korrespondenz. Diese Zeit können Sie besser nutzen." },
       { num: "03", title: "Vollständig kostenlos", desc: "Die Beratung und der Abschlussprozess sind für Sie kostenlos. Wir werden direkt von den Kreditgebern entschädigt." },
       { num: "04", title: "Kein Risiko", desc: "Bei keinem Abschluss fallen für Sie keine Kosten an. Sie gehen keine Verpflichtung ein und können sich jederzeit anders entscheiden." },
@@ -114,7 +114,7 @@ export default function Home() {
       { num: "06", title: "Persönliche Beratung", desc: "Jede Finanzierungssituation ist einzigartig. Wir entwickeln eine Lösung, die exakt zu Ihrer Lebenssituation passt." },
     ],
     en: [
-      { num: "01", title: "Comprehensive comparison", desc: "We compare offers from various partner banks, insurance companies and pension funds — and find the most attractive offer for you." },
+      { num: "01", title: "Comprehensive comparison", desc: "We compare offers from various partner banks, insurance companies and pension funds, and find the most attractive offer for you." },
       { num: "02", title: "Enormous time savings", desc: "You save yourself submitting dossiers to multiple banks and all the correspondence. Use that time better." },
       { num: "03", title: "Completely free", desc: "The consultation and closing process are free for you. We are compensated directly by the lenders." },
       { num: "04", title: "No risk", desc: "If no deal is closed, you incur no costs. You have no obligation and can change your mind at any time." },
@@ -135,14 +135,14 @@ export default function Home() {
 
   const steps = {
     de: [
-      { step: "1", title: "Situation erfassen", desc: "Nutzen Sie unseren kostenlosen Hypothekenrechner oder teilen Sie uns Ihre Eckdaten mit — wir erstellen eine erste Einschätzung." },
+      { step: "1", title: "Situation erfassen", desc: "Nutzen Sie unseren kostenlosen Hypothekenrechner oder teilen Sie uns Ihre Eckdaten mit, wir erstellen eine erste Einschätzung." },
       { step: "2", title: "Kostenlose Beratung", desc: "Buchen Sie ein unverbindliches Onlinegespräch. Gemeinsam definieren wir die optimale Strategie für Ihre Finanzierung." },
-      { step: "3", title: "Beste Offerte wählen", desc: "Wir präsentieren Ihnen die attraktivsten Angebote unserer Partner. Sie entscheiden — ohne Druck, ohne Kosten." },
+      { step: "3", title: "Beste Offerte wählen", desc: "Wir präsentieren Ihnen die attraktivsten Angebote unserer Partner. Sie entscheiden, ohne Druck, ohne Kosten." },
     ],
     en: [
-      { step: "1", title: "Assess your situation", desc: "Use our free mortgage calculator or share your key data — we create an initial assessment." },
+      { step: "1", title: "Assess your situation", desc: "Use our free mortgage calculator or share your key data, we create an initial assessment." },
       { step: "2", title: "Free consultation", desc: "Book a non-binding online meeting. Together we define the optimal strategy for your financing." },
-      { step: "3", title: "Choose the best offer", desc: "We present you the most attractive offers from our partners. You decide — no pressure, no costs." },
+      { step: "3", title: "Choose the best offer", desc: "We present you the most attractive offers from our partners. You decide, no pressure, no costs." },
     ],
   };
 
@@ -162,8 +162,8 @@ export default function Home() {
   };
 
   const trustP2 = {
-    de: "HYPONOVA mit Sitz in Möhlin bietet unabhängige Hypothekenberatung für Kundinnen und Kunden in der gesamten Schweiz — vor Ort oder bequem per Videocall.",
-    en: "HYPONOVA, based in Möhlin, offers independent mortgage consulting for clients throughout Switzerland — on-site or conveniently via video call.",
+    de: "HYPONOVA mit Sitz in Möhlin bietet unabhängige Hypothekenberatung für Kundinnen und Kunden in der gesamten Schweiz, vor Ort oder bequem per Videocall.",
+    en: "HYPONOVA, based in Möhlin, offers independent mortgage consulting for clients throughout Switzerland, on-site or conveniently via video call.",
   };
 
   const trustCta = {

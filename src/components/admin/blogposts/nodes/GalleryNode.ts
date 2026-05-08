@@ -1,7 +1,7 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 
 /**
- * Galerie — atomarer Block. Bilder werden als base64-enkodiertes JSON
+ * Galerie, atomarer Block. Bilder werden als base64-enkodiertes JSON
  * im data-images-Attribut gespeichert, damit HTML-String-Parsing einfach bleibt.
  */
 export const GalleryNode = Node.create({

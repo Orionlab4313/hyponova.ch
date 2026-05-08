@@ -233,7 +233,7 @@ export default function UploadView({ token, lang, leadName, categories, existing
       setLastUploadedCount(succeeded.length);
       setScreen("success");
     } else {
-      // Nur fehlgeschlagene bleiben zurueck — User kann erneut versuchen
+      // Nur fehlgeschlagene bleiben zurueck, User kann erneut versuchen
       setPending(failed);
       setError(`${failed.length} ${failed.length === 1 ? t.uploadCountSuffix : t.uploadCountSuffixPlural} konnte${failed.length === 1 ? "" : "n"} nicht hochgeladen werden.`);
     }
@@ -265,7 +265,7 @@ export default function UploadView({ token, lang, leadName, categories, existing
           </div>
         </div>
 
-        {/* Vorlagen zum Download (Vollmacht etc.) — wird nur angezeigt wenn aktive Vorlagen vorhanden sind */}
+        {/* Vorlagen zum Download (Vollmacht etc.), wird nur angezeigt wenn aktive Vorlagen vorhanden sind */}
         {submissionType && <VorlagenDownloadBlock kategorie={submissionType} lang={lang} variant="compact" />}
 
         {total > 0 && (
@@ -316,7 +316,7 @@ export default function UploadView({ token, lang, leadName, categories, existing
         </p>
       </div>
 
-      {/* Floating Submit-Bar — nur wenn Pending Files vorhanden */}
+      {/* Floating Submit-Bar, nur wenn Pending Files vorhanden */}
       {pending.length > 0 && (
         <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#1a1a1a", color: "#fff", padding: "16px 20px", boxShadow: "0 -4px 24px rgba(0,0,0,0.15)", zIndex: 50 }}>
           <div style={{ maxWidth: 760, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, flexWrap: "wrap" }}>

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest, ctx: { params: Promise<{ id: str
 
   const url = new URL(request.url);
   if (url.searchParams.get("download") === "1") {
-    // Signed URL — 5 Minuten gueltig
+    // Signed URL, 5 Minuten gueltig
     const { data: signed, error: sErr } = await sb.storage
       .from("customer-docs")
       .createSignedUrl(data.file_path, 300);

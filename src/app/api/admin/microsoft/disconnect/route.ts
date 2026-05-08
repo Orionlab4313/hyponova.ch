@@ -4,7 +4,7 @@ import { createServiceClient } from "@/lib/supabase";
 
 /**
  * Loescht den gespeicherten Refresh-Token. Tenant-ID + Client-ID + Secret
- * bleiben erhalten — nur die User-Verknuepfung wird entfernt.
+ * bleiben erhalten, nur die User-Verknuepfung wird entfernt.
  */
 export async function POST(request: NextRequest) {
   const guard = requireAdmin(request);

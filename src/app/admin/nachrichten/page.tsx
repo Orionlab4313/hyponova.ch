@@ -23,7 +23,7 @@ interface Reply {
   sent_at: string;
 }
 
-// Subject-Labels nach Sprache der Originalnachricht — wird sowohl in der
+// Subject-Labels nach Sprache der Originalnachricht, wird sowohl in der
 // UI als auch im Reply-Subject verwendet, damit EN-Kunden auch eine
 // englische "Re: ..." Zeile sehen.
 const SUBJECT_LABELS: Record<"de" | "en", Record<string, string>> = {
@@ -243,7 +243,7 @@ export default function NachrichtenPage() {
               <div style={{ marginBottom: 8 }}>
                 <div style={{ background: "#f9f9f9", borderRadius: 6, padding: 10, marginBottom: 8 }}>
                   <p style={{ fontSize: 11, color: "#888", margin: "0 0 2px" }}>An: {selected.email}</p>
-                  <p style={{ fontSize: 11, color: "#888", margin: 0 }}>{(selected.lang || "de") === "en" ? "Subject" : "Betreff"}: Re: {subjectLabel(selected.subject, selected.lang || "de")} — HYPONOVA</p>
+                  <p style={{ fontSize: 11, color: "#888", margin: 0 }}>{(selected.lang || "de") === "en" ? "Subject" : "Betreff"}: Re: {subjectLabel(selected.subject, selected.lang || "de")}, HYPONOVA</p>
                 </div>
                 <textarea
                   value={replyText}
@@ -265,7 +265,7 @@ export default function NachrichtenPage() {
                           body: JSON.stringify({
                             action: "reply",
                             to: selected.email,
-                            subject: `Re: ${subjectLabel(selected.subject, selected.lang || "de")} — HYPONOVA`,
+                            subject: `Re: ${subjectLabel(selected.subject, selected.lang || "de")}, HYPONOVA`,
                             message: replyText,
                             firstName: selected.first_name,
                             lastName: selected.last_name,

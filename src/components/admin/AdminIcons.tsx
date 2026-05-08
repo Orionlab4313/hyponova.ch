@@ -1,7 +1,7 @@
 /**
- * Admin-Icon-Set — outline-style SVGs (Lucide-inspired).
+ * Admin-Icon-Set, outline-style SVGs (Lucide-inspired).
  * Alle Icons: 24x24 viewBox, stroke-currentColor, stroke-width 2.
- * Default-Groesse 18px — koennen via size-Prop ueberschrieben werden.
+ * Default-Groesse 18px, koennen via size-Prop ueberschrieben werden.
  */
 
 import type { SVGProps } from "react";
@@ -168,7 +168,7 @@ export const IconPlus = (p: IconProps) => (
   </I>
 );
 
-// Stempel/Siegel — passt fuer "Vorlagen" (Vollmacht, Mandat, etc.)
+// Stempel/Siegel, passt fuer "Vorlagen" (Vollmacht, Mandat, etc.)
 export const IconStamp = (p: IconProps) => (
   <I {...p}>
     <path d="M9 3h6l-1 7h2a3 3 0 0 1 3 3v2H5v-2a3 3 0 0 1 3-3h2L9 3z" />

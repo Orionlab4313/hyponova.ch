@@ -141,8 +141,8 @@ function getLoginHTML() {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HYPONOVA – Zugang</title>
-  <meta name="description" content="HYPONOVA – Ihr unabhängiger Hypothekenpartner in der Schweiz. Webseite in Bearbeitung." />
+  <title>HYPONOVA - Zugang</title>
+  <meta name="description" content="HYPONOVA - Ihr unabhängiger Hypothekenpartner in der Schweiz. Webseite in Bearbeitung." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/png" href="/icon-light.png" media="(prefers-color-scheme: light)" />
   <link rel="icon" type="image/png" href="/icon-dark.png" media="(prefers-color-scheme: dark)" />

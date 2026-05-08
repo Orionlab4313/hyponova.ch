@@ -23,7 +23,7 @@ const COPY = {
     readingSuffix: "Lesezeit",
     ctaTitle: "Bereit für den nächsten Schritt?",
     ctaDesc:
-      "In einem kostenlosen Erstgespräch analysieren wir Ihre Hypotheken-Situation und vergleichen Angebote zahlreicher Banken, Versicherungen und Pensionskassen — transparent und unabhängig.",
+      "In einem kostenlosen Erstgespräch analysieren wir Ihre Hypotheken-Situation und vergleichen Angebote zahlreicher Banken, Versicherungen und Pensionskassen, transparent und unabhängig.",
     ctaButton: "Beratung buchen →",
   },
   en: {
@@ -31,7 +31,7 @@ const COPY = {
     readingSuffix: "read",
     ctaTitle: "Ready for the next step?",
     ctaDesc:
-      "In a free initial consultation, we analyse your mortgage situation and compare offers from numerous banks, insurance companies and pension funds — transparently and independently.",
+      "In a free initial consultation, we analyse your mortgage situation and compare offers from numerous banks, insurance companies and pension funds, transparently and independently.",
     ctaButton: "Book consultation →",
   },
 } as const;

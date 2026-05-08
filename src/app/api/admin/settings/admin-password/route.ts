@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       windowSeconds: RL_WINDOW,
     });
     if (!limit.ok) {
-      // Echtes Limit-Feedback — sonst denkt der User die Email kommt und sie kommt nie.
+      // Echtes Limit-Feedback, sonst denkt der User die Email kommt und sie kommt nie.
       return NextResponse.json(
         {
           error: `Zu viele Reset-Anfragen. Bitte in ${Math.ceil(limit.retryAfterSeconds / 60)} Minuten erneut versuchen.`,

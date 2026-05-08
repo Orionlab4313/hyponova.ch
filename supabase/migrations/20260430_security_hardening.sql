@@ -3,7 +3,7 @@
 -- Beschreibung:
 --   1. Tabelle `rate_limit_attempts` fuer DB-basierten Rate-Limiter
 --      (Login + Passwort-Reset).
---   2. Stellt sicher, dass site_password_hash gesetzt ist — wenn die
+--   2. Stellt sicher, dass site_password_hash gesetzt ist, wenn die
 --      Spalte leer war, wird der bisherige Default ("Möhlin4313") als
 --      bcrypt-Hash via pgcrypto eingetragen.
 

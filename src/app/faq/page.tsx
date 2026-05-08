@@ -23,7 +23,7 @@ const faqItemsDe = [
   },
   {
     question: "Was bedeutet Belehnung?",
-    answer: "Die Belehnung (Loan-to-Value, LTV) beschreibt das Verhältnis zwischen der Hypothek und dem Verkehrswert der Liegenschaft. In der Schweiz beträgt die maximale Belehnung in der Regel 80 %. Das bedeutet, dass Sie mindestens 20 % Eigenmittel einbringen müssen — davon mindestens 10 % aus harten Eigenmitteln (nicht aus der Pensionskasse).",
+    answer: "Die Belehnung (Loan-to-Value, LTV) beschreibt das Verhältnis zwischen der Hypothek und dem Verkehrswert der Liegenschaft. In der Schweiz beträgt die maximale Belehnung in der Regel 80 %. Das bedeutet, dass Sie mindestens 20 % Eigenmittel einbringen müssen, davon mindestens 10 % aus harten Eigenmitteln (nicht aus der Pensionskasse).",
   },
   {
     question: "Welche Eigenmittel benötige ich für den Kauf eines Eigenheims?",
@@ -39,7 +39,7 @@ const faqItemsDe = [
   },
   {
     question: "Wie läuft der Prozess bei HYPONOVA ab?",
-    answer: "Der Prozess ist einfach: (1) Sie teilen uns Ihre Eckdaten mit oder nutzen unseren Online-Rechner. (2) Wir vereinbaren ein kostenloses Beratungsgespräch und analysieren Ihre Situation. (3) Wir holen Angebote bei unseren Partnern ein und präsentieren Ihnen die besten Optionen. Sie entscheiden — ohne Druck und ohne Kosten.",
+    answer: "Der Prozess ist einfach: (1) Sie teilen uns Ihre Eckdaten mit oder nutzen unseren Online-Rechner. (2) Wir vereinbaren ein kostenloses Beratungsgespräch und analysieren Ihre Situation. (3) Wir holen Angebote bei unseren Partnern ein und präsentieren Ihnen die besten Optionen. Sie entscheiden, ohne Druck und ohne Kosten.",
   },
   {
     question: "Welche Dokumente benötige ich?",
@@ -66,7 +66,7 @@ const faqItemsEn = [
   },
   {
     question: "What does loan-to-value mean?",
-    answer: "The loan-to-value ratio (LTV) describes the ratio between the mortgage and the market value of the property. In Switzerland, the maximum LTV is generally 80%. This means you must contribute at least 20% equity — of which at least 10% must come from hard equity (not from pension funds).",
+    answer: "The loan-to-value ratio (LTV) describes the ratio between the mortgage and the market value of the property. In Switzerland, the maximum LTV is generally 80%. This means you must contribute at least 20% equity, of which at least 10% must come from hard equity (not from pension funds).",
   },
   {
     question: "How much equity do I need to buy a property?",
@@ -82,7 +82,7 @@ const faqItemsEn = [
   },
   {
     question: "How does the process at HYPONOVA work?",
-    answer: "The process is simple: (1) Share your key data with us or use our online calculator. (2) We arrange a free consultation and analyze your situation. (3) We obtain offers from our partners and present you with the best options. You decide — no pressure, no costs.",
+    answer: "The process is simple: (1) Share your key data with us or use our online calculator. (2) We arrange a free consultation and analyze your situation. (3) We obtain offers from our partners and present you with the best options. You decide, no pressure, no costs.",
   },
   {
     question: "What documents do I need?",

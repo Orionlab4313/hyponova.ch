@@ -31,13 +31,13 @@ export default function UeberUnsPage() {
   };
 
   const whoHeading = {
-    de: { before: "HYPONOVA — Ihr ", bold: "Hypothekenpartner", after: " in der Schweiz." },
-    en: { before: "HYPONOVA — Your ", bold: "mortgage partner", after: " in Switzerland." },
+    de: { before: "HYPONOVA, Ihr ", bold: "Hypothekenpartner", after: " in der Schweiz." },
+    en: { before: "HYPONOVA, Your ", bold: "mortgage partner", after: " in Switzerland." },
   };
 
   const whoP1 = {
-    de: "HYPONOVA ist ein unabhängiger Hypothekenvermittler mit Sitz in Möhlin (AG). Wir vergleichen die Angebote zahlreicher Banken, Versicherungen und Pensionskassen — und finden für Sie die attraktivste Finanzierungslösung.",
-    en: "HYPONOVA is an independent mortgage broker based in Möhlin (AG). We compare offers from numerous banks, insurance companies and pension funds — and find the most attractive financing solution for you.",
+    de: "HYPONOVA ist ein unabhängiger Hypothekenvermittler mit Sitz in Möhlin (AG). Wir vergleichen die Angebote zahlreicher Banken, Versicherungen und Pensionskassen, und finden für Sie die attraktivste Finanzierungslösung.",
+    en: "HYPONOVA is an independent mortgage broker based in Möhlin (AG). We compare offers from numerous banks, insurance companies and pension funds, and find the most attractive financing solution for you.",
   };
 
   const whoP2 = {
@@ -46,8 +46,8 @@ export default function UeberUnsPage() {
   };
 
   const whoP3 = {
-    de: "Ob Neukauf oder Ablösung einer bestehenden Hypothek — wir begleiten Sie persönlich durch den gesamten Prozess. Digital, effizient und transparent.",
-    en: "Whether buying new or refinancing an existing mortgage — we guide you personally through the entire process. Digital, efficient and transparent.",
+    de: "Ob Neukauf oder Ablösung einer bestehenden Hypothek, wir begleiten Sie persönlich durch den gesamten Prozess. Digital, effizient und transparent.",
+    en: "Whether buying new or refinancing an existing mortgage, we guide you personally through the entire process. Digital, efficient and transparent.",
   };
 
   const valuesLabel = {
@@ -62,12 +62,12 @@ export default function UeberUnsPage() {
 
   const values = {
     de: [
-      { num: "01", title: "Unabhängigkeit", desc: "Wir sind an kein Finanzinstitut gebunden. Das bedeutet: Unsere Empfehlungen orientieren sich ausschliesslich an Ihren Interessen — nicht an Vertriebszielen einer Bank." },
+      { num: "01", title: "Unabhängigkeit", desc: "Wir sind an kein Finanzinstitut gebunden. Das bedeutet: Unsere Empfehlungen orientieren sich ausschliesslich an Ihren Interessen, nicht an Vertriebszielen einer Bank." },
       { num: "02", title: "Transparenz", desc: "Sie erhalten alle Angebote übersichtlich aufbereitet, mit klarem Vergleich der Konditionen. Keine versteckten Kosten, keine Überraschungen." },
       { num: "03", title: "Kundenorientierung", desc: "Jede Finanzierungssituation ist einzigartig. Wir nehmen uns Zeit, Ihre persönliche Situation zu verstehen, und entwickeln eine massgeschneiderte Lösung." },
     ],
     en: [
-      { num: "01", title: "Independence", desc: "We are not tied to any financial institution. This means: our recommendations are based solely on your interests — not on a bank's sales targets." },
+      { num: "01", title: "Independence", desc: "We are not tied to any financial institution. This means: our recommendations are based solely on your interests, not on a bank's sales targets." },
       { num: "02", title: "Transparency", desc: "You receive all offers clearly prepared, with a clear comparison of conditions. No hidden costs, no surprises." },
       { num: "03", title: "Client focus", desc: "Every financing situation is unique. We take the time to understand your personal situation and develop a tailor-made solution." },
     ],
@@ -89,8 +89,8 @@ export default function UeberUnsPage() {
   };
 
   const founderP2 = {
-    de: "Sein Ziel: Jeder Eigenheimbesitzer und jede Eigenheimbesitzerin soll Zugang zu einer transparenten, unabhängigen Beratung haben — ohne an eine einzelne Bank gebunden zu sein.",
-    en: "His goal: every homeowner should have access to transparent, independent advice — without being tied to a single bank.",
+    de: "Sein Ziel: Jeder Eigenheimbesitzer und jede Eigenheimbesitzerin soll Zugang zu einer transparenten, unabhängigen Beratung haben, ohne an eine einzelne Bank gebunden zu sein.",
+    en: "His goal: every homeowner should have access to transparent, independent advice, without being tied to a single bank.",
   };
 
   const founderCta = {
@@ -104,8 +104,8 @@ export default function UeberUnsPage() {
   };
 
   const ctaDesc = {
-    de: "Buchen Sie ein kostenloses, unverbindliches Beratungsgespräch — online oder telefonisch.",
-    en: "Book a free, non-binding consultation — online or by phone.",
+    de: "Buchen Sie ein kostenloses, unverbindliches Beratungsgespräch, online oder telefonisch.",
+    en: "Book a free, non-binding consultation, online or by phone.",
   };
 
   const ctaContact = {

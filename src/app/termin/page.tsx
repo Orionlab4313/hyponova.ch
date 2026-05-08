@@ -49,7 +49,7 @@ export default function TerminPage() {
     de: {
       heroLabel: "Terminbuchung",
       heroTitle: { before: "Kostenlose ", bold: "Beratung buchen." },
-      heroDesc: "Vereinbaren Sie ein unverbindliches Onlinegespräch — bequem von zu Hause aus.",
+      heroDesc: "Vereinbaren Sie ein unverbindliches Onlinegespräch, bequem von zu Hause aus.",
       step1: "1. Datum wählen",
       step2: "2. Uhrzeit wählen",
       step3: "3. Angaben",
@@ -73,9 +73,9 @@ export default function TerminPage() {
       consultLabel: "Ihr Beratungsgespräch",
       consultTitle: { before: "Was Sie ", bold: "erwartet." },
       consultSteps: [
-        { step: "1", title: "Persönliche Analyse", desc: "Wir besprechen Ihre aktuelle Situation, Ihre Wünsche und Ihre finanziellen Rahmenbedingungen — vertraulich und unverbindlich." },
+        { step: "1", title: "Persönliche Analyse", desc: "Wir besprechen Ihre aktuelle Situation, Ihre Wünsche und Ihre finanziellen Rahmenbedingungen, vertraulich und unverbindlich." },
         { step: "2", title: "Marktvergleich", desc: "Basierend auf Ihren Angaben holen wir die attraktivsten Angebote unserer Partnerbanken, Versicherungen und Pensionskassen ein." },
-        { step: "3", title: "Ihre Entscheidung", desc: "Wir präsentieren Ihnen die besten Optionen übersichtlich aufbereitet. Sie wählen — ohne Druck, ohne Kosten." },
+        { step: "3", title: "Ihre Entscheidung", desc: "Wir präsentieren Ihnen die besten Optionen übersichtlich aufbereitet. Sie wählen, ohne Druck, ohne Kosten." },
       ],
       ctaTitle: { before: "Lieber ", bold: "schriftlich?" },
       ctaDesc: "Senden Sie uns Ihre Anfrage über unser Kontaktformular. Wir melden uns innerhalb von 24 Stunden bei Ihnen.",
@@ -84,7 +84,7 @@ export default function TerminPage() {
     en: {
       heroLabel: "Appointment booking",
       heroTitle: { before: "Book a free ", bold: "consultation." },
-      heroDesc: "Schedule a non-binding online meeting — conveniently from home.",
+      heroDesc: "Schedule a non-binding online meeting, conveniently from home.",
       step1: "1. Choose date",
       step2: "2. Choose time",
       step3: "3. Your details",
@@ -108,9 +108,9 @@ export default function TerminPage() {
       consultLabel: "Your consultation",
       consultTitle: { before: "What to ", bold: "expect." },
       consultSteps: [
-        { step: "1", title: "Personal analysis", desc: "We discuss your current situation, your wishes and your financial framework — confidentially and without obligation." },
+        { step: "1", title: "Personal analysis", desc: "We discuss your current situation, your wishes and your financial framework, confidentially and without obligation." },
         { step: "2", title: "Market comparison", desc: "Based on your information, we obtain the most attractive offers from our partner banks, insurance companies and pension funds." },
-        { step: "3", title: "Your decision", desc: "We present you the best options clearly prepared. You choose — no pressure, no costs." },
+        { step: "3", title: "Your decision", desc: "We present you the best options clearly prepared. You choose, no pressure, no costs." },
       ],
       ctaTitle: { before: "Prefer ", bold: "writing?" },
       ctaDesc: "Send us your request via our contact form. We will get back to you within 24 hours.",

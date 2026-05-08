@@ -18,7 +18,7 @@ export default function EigenheimKaufenPage() {
       back: "← Alle Dienstleistungen",
       kategorie: "Kauffinanzierung",
       title: "Eigenheim kaufen",
-      intro: "Wir begleiten Sie vollumfänglich bei Ihrem Liegenschaftskauf — von der ersten Tragbarkeitsprüfung bis zur Unterzeichnung des Hypothekarvertrags. Ohne Druck. Ohne versteckte Kosten.",
+      intro: "Wir begleiten Sie vollumfänglich bei Ihrem Liegenschaftskauf, von der ersten Tragbarkeitsprüfung bis zur Unterzeichnung des Hypothekarvertrags. Ohne Druck. Ohne versteckte Kosten.",
       forwhomTitle: "Für wen",
       forwhom: [
         "Sie kaufen erstmals ein Eigenheim und brauchen einen Überblick.",
@@ -28,7 +28,7 @@ export default function EigenheimKaufenPage() {
       processTitle: "So läuft es ab",
       process: [
         { num: "1", t: "Fragebogen ausfüllen", d: "In wenigen Minuten erfassen wir Ihre Situation und Wünsche." },
-        { num: "2", t: "Beratungstermin", d: "Persönliches Online-Gespräch mit Ihrem Hypothekenberater — kostenlos und unverbindlich." },
+        { num: "2", t: "Beratungstermin", d: "Persönliches Online-Gespräch mit Ihrem Hypothekenberater, kostenlos und unverbindlich." },
         { num: "3", t: "Marktvergleich", d: "Wir holen Angebote von Banken, Versicherungen und Pensionskassen ein." },
         { num: "4", t: "Ihre Entscheidung", d: "Wir präsentieren die besten Optionen. Sie wählen ohne Druck." },
       ],
@@ -41,7 +41,7 @@ export default function EigenheimKaufenPage() {
         "Begleitung bis zur Vertragsunterzeichnung",
       ],
       costsTitle: "Was es kostet",
-      costsBody: "Für Sie kostenlos. Wir werden bei einem erfolgreichen Abschluss direkt vom jeweiligen Kreditgeber entschädigt — ohne Auswirkung auf Ihre Konditionen.",
+      costsBody: "Für Sie kostenlos. Wir werden bei einem erfolgreichen Abschluss direkt vom jeweiligen Kreditgeber entschädigt, ohne Auswirkung auf Ihre Konditionen.",
       ctaTitle: "Bereit für den Start?",
       ctaBody: "Starten Sie jetzt unseren Fragebogen. In wenigen Minuten haben wir die Basis für Ihr persönliches Beratungsgespräch.",
       ctaBtn: "Fragebogen starten →",
@@ -52,7 +52,7 @@ export default function EigenheimKaufenPage() {
       back: "← All services",
       kategorie: "Purchase financing",
       title: "Buy a property",
-      intro: "We support you throughout your property purchase — from the first affordability check to signing the mortgage contract. No pressure. No hidden costs.",
+      intro: "We support you throughout your property purchase, from the first affordability check to signing the mortgage contract. No pressure. No hidden costs.",
       forwhomTitle: "Who it's for",
       forwhom: [
         "You're buying a property for the first time and need an overview.",
@@ -62,7 +62,7 @@ export default function EigenheimKaufenPage() {
       processTitle: "How it works",
       process: [
         { num: "1", t: "Fill out the questionnaire", d: "In a few minutes, we'll capture your situation and wishes." },
-        { num: "2", t: "Consultation", d: "Personal online meeting with your advisor — free and without obligation." },
+        { num: "2", t: "Consultation", d: "Personal online meeting with your advisor, free and without obligation." },
         { num: "3", t: "Market comparison", d: "We obtain offers from banks, insurance companies and pension funds." },
         { num: "4", t: "Your decision", d: "We present the best options. You choose without pressure." },
       ],
@@ -75,7 +75,7 @@ export default function EigenheimKaufenPage() {
         "Support until contract signing",
       ],
       costsTitle: "What it costs",
-      costsBody: "Free for you. On successful completion, we're compensated directly by the lender — with no impact on your conditions.",
+      costsBody: "Free for you. On successful completion, we're compensated directly by the lender, with no impact on your conditions.",
       ctaTitle: "Ready to start?",
       ctaBody: "Start our questionnaire now. In a few minutes we'll have the basis for your personal consultation.",
       ctaBtn: "Start questionnaire →",
@@ -119,7 +119,7 @@ export default function EigenheimKaufenPage() {
             {t.forwhom.map((line, i) => (
               <SlideUp key={i} delay={i * 0.05}>
                 <li className="flex items-start gap-4 text-lg" style={{ color: "#444", lineHeight: 1.6 }}>
-                  <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0 }}>—</span>
+                  <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0 }}>,</span>
                   <span>{line}</span>
                 </li>
               </SlideUp>

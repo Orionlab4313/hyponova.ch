@@ -44,8 +44,8 @@ interface Props {
   kategorie: Kategorie;
   lang: Lang;
   /**
-   * "card" — eigener Card-Block mit Header (Success-Screen Style)
-   * "compact" — schmaler Banner (Upload-Portal Style)
+   * "card", eigener Card-Block mit Header (Success-Screen Style)
+   * "compact", schmaler Banner (Upload-Portal Style)
    */
   variant?: "card" | "compact";
 }

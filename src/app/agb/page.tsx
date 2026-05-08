@@ -15,13 +15,13 @@ async function readLang(): Promise<"de" | "en"> {
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getLegalPage("agb");
   const lang = await readLang();
-  if (!page) return { title: "AGB – HYPONOVA" };
+  if (!page) return { title: "AGB - HYPONOVA" };
   const picked = pickLegalContent(page, lang);
-  const fallbackTitle = lang === "en" ? "Terms – HYPONOVA" : "AGB – HYPONOVA";
+  const fallbackTitle = lang === "en" ? "Terms - HYPONOVA" : "AGB - HYPONOVA";
   return {
     title:
       [picked.title, picked.title_highlight].filter(Boolean).join(" ").trim() +
-        " – HYPONOVA" || fallbackTitle,
+        " - HYPONOVA" || fallbackTitle,
     description:
       picked.meta_description ||
       "Allgemeine Geschäftsbedingungen der HYPONOVA GmbH.",

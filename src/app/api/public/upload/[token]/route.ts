@@ -7,7 +7,7 @@ import { checkRateLimit, clientIp } from "@/lib/rate-limit";
 const MAX_SIZE = 25 * 1024 * 1024; // 25 MB
 const ALLOWED = new Set(["application/pdf", "image/jpeg", "image/png", "image/jpg"]);
 const RL_BUCKET = "customer-upload";
-const RL_MAX = 50; // pro Stunde, pro IP — generös da Kunde mehrere Files lädt
+const RL_MAX = 50; // pro Stunde, pro IP, generös da Kunde mehrere Files lädt
 const RL_WINDOW = 60 * 60;
 
 export async function POST(request: NextRequest, ctx: { params: Promise<{ token: string }> }) {

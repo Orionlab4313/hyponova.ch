@@ -337,7 +337,7 @@ function MicrosoftTeamsSection() {
 }
 
 /* TeamsMeetingSection (Standing-Link) wurde durch die volle Microsoft Graph
-   Integration ersetzt — siehe MicrosoftTeamsSection oben. Die DB-Spalte
+   Integration ersetzt, siehe MicrosoftTeamsSection oben. Die DB-Spalte
    admin_settings.teams_meeting_url bleibt als Legacy-Fallback erhalten. */
 
 /* ---------- Site Protection (Schutz an/aus) ---------- */

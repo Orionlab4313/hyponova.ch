@@ -25,7 +25,7 @@ const COPY = {
     headline_pre: "Wissen rund um",
     headline_highlight: "Hypotheken",
     intro:
-      "Praxiswissen zu Hypotheken, Eigenheim und Finanzierung in der Schweiz — verständlich erklärt und direkt anwendbar.",
+      "Praxiswissen zu Hypotheken, Eigenheim und Finanzierung in der Schweiz, verständlich erklärt und direkt anwendbar.",
     empty: "Noch keine Beiträge veröffentlicht.",
     backToHome: "← Zurück zur Startseite",
   },
@@ -34,7 +34,7 @@ const COPY = {
     headline_pre: "Knowledge about",
     headline_highlight: "mortgages",
     intro:
-      "Practical knowledge on mortgages, home ownership and financing in Switzerland — clearly explained and directly applicable.",
+      "Practical knowledge on mortgages, home ownership and financing in Switzerland, clearly explained and directly applicable.",
     empty: "No posts published yet.",
     backToHome: "← Back to home",
   },

@@ -293,7 +293,7 @@ export default function KalenderPage() {
                       <div>
                         <p style={{ fontSize: 13, fontWeight: 500, margin: 0 }}>{appt.title}</p>
                         <p style={{ fontSize: 11, color: "#888", margin: "1px 0 0" }}>
-                          {appt.time_start?.slice(0, 5)} – {appt.time_end?.slice(0, 5)}
+                          {appt.time_start?.slice(0, 5)} - {appt.time_end?.slice(0, 5)}
                           {lead && ` · ${lead.first_name} ${lead.last_name}`}
                         </p>
                       </div>
@@ -351,7 +351,7 @@ export default function KalenderPage() {
               <div style={{ marginBottom: 10 }}>
                 <label style={{ fontSize: 11, color: "#888", display: "block", marginBottom: 3 }}>Kontakt</label>
                 <select value={form.lead_id} onChange={(e) => setForm({ ...form, lead_id: e.target.value })} style={{ ...inputStyle, background: "#fff" }}>
-                  <option value="">– Kein Kontakt –</option>
+                  <option value="">- Kein Kontakt -</option>
                   {leads.map((l) => <option key={l.id} value={l.id}>{l.first_name} {l.last_name}</option>)}
                 </select>
               </div>

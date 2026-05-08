@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/admin-guard";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
-// Nur PDFs — Vollmacht/Mandatsvereinbarung/etc. sind immer PDF.
+// Nur PDFs, Vollmacht/Mandatsvereinbarung/etc. sind immer PDF.
 const ALLOWED_TYPES = ["application/pdf"];
 
 function safeOriginalName(name: string): string {

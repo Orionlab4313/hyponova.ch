@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
       steps.push({
         step: "POST /me/onlineMeetings",
         ok: false,
-        detail: `HTTP ${meetingRes.status} — Microsoft sagt: ${meetingText.slice(0, 800)}`,
+        detail: `HTTP ${meetingRes.status}, Microsoft sagt: ${meetingText.slice(0, 800)}`,
       });
       return NextResponse.json({ success: false, steps });
     }
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
         steps.push({
           step: "POST /me/events",
           ok: false,
-          detail: `HTTP ${eventRes.status} — Microsoft sagt: ${eventText.slice(0, 800)}`,
+          detail: `HTTP ${eventRes.status}, Microsoft sagt: ${eventText.slice(0, 800)}`,
         });
       } else {
         const event = JSON.parse(eventText);
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Step 5: Cleanup — beide löschen
+  // Step 5: Cleanup, beide löschen
   let cleanupOk = true;
   if (eventId) {
     try {
@@ -190,7 +190,7 @@ export async function POST(request: NextRequest) {
   steps.push({
     step: "Cleanup (Event + Meeting)",
     ok: cleanupOk,
-    detail: cleanupOk ? "Beides aus Outlook entfernt." : "Cleanup fehlgeschlagen — manuell aus Outlook löschen.",
+    detail: cleanupOk ? "Beides aus Outlook entfernt." : "Cleanup fehlgeschlagen, manuell aus Outlook löschen.",
   });
 
   const allOk = steps.every((s) => s.ok);

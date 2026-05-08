@@ -1,7 +1,7 @@
 import { Node, mergeAttributes } from "@tiptap/core";
 
 /**
- * Highlight-Box — editierbar im Editor, rendert als
+ * Highlight-Box, editierbar im Editor, rendert als
  * <div data-type="highlight-box">…inner…</div> in HTML.
  * Im Frontend wird das zu .highlight-box (violetter Akzentkasten).
  */

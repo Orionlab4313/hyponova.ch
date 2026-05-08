@@ -11,7 +11,7 @@ const COPY = {
     badge: "Kündigungsvorlage",
     titlePre: "Hypothek",
     titleHl: "vorsorglich kündigen",
-    intro: "Erstellen Sie in 2 Minuten Ihr vorsorgliches Kündigungsschreiben als PDF — bereit zum Versand per Einschreiben.",
+    intro: "Erstellen Sie in 2 Minuten Ihr vorsorgliches Kündigungsschreiben als PDF, bereit zum Versand per Einschreiben.",
     sectionAbsender: "Ihre Angaben (Absender)",
     sectionEmpfaenger: "Bank (Empfänger)",
     sectionDetails: "Details zur Hypothek",
@@ -38,7 +38,7 @@ const COPY = {
     download: "Kündigungs-PDF herunterladen",
     generating: "PDF wird erstellt…",
     hintTitle: "Wichtiger Hinweis",
-    hintBody: "Diese Vorlage ist eine vorsorgliche Kündigung — Sie müssen die Hypothek nicht zwingend ablösen. Versenden Sie das Schreiben rechtzeitig vor dem Kündigungstermin per Einschreiben.",
+    hintBody: "Diese Vorlage ist eine vorsorgliche Kündigung, Sie müssen die Hypothek nicht zwingend ablösen. Versenden Sie das Schreiben rechtzeitig vor dem Kündigungstermin per Einschreiben.",
     fieldRequired: "Pflichtfeld",
     pdfError: "PDF-Erstellung fehlgeschlagen. Bitte versuchen Sie es erneut.",
     homeBtn: "← Zur Startseite",
@@ -47,7 +47,7 @@ const COPY = {
     badge: "Cancellation template",
     titlePre: "Cancel mortgage",
     titleHl: "as a precaution",
-    intro: "Generate your precautionary cancellation letter as a PDF in 2 minutes — ready to send by registered mail.",
+    intro: "Generate your precautionary cancellation letter as a PDF in 2 minutes, ready to send by registered mail.",
     sectionAbsender: "Your details (sender)",
     sectionEmpfaenger: "Bank (recipient)",
     sectionDetails: "Mortgage details",
@@ -74,7 +74,7 @@ const COPY = {
     download: "Download cancellation PDF",
     generating: "Generating PDF…",
     hintTitle: "Important note",
-    hintBody: "This template is a precautionary cancellation — you don't have to refinance. Send the letter by registered mail in good time before the cancellation date.",
+    hintBody: "This template is a precautionary cancellation, you don't have to refinance. Send the letter by registered mail in good time before the cancellation date.",
     fieldRequired: "Required",
     pdfError: "PDF generation failed. Please try again.",
     homeBtn: "← Back to homepage",
@@ -169,7 +169,7 @@ export default function KuendigungForm({ initialLang }: { initialLang: Lang }) {
               <div>
                 <label style={lbl}>{t.salutation}</label>
                 <select value={f.salutation} onChange={(e) => up("salutation", e.target.value as any)} style={inp}>
-                  <option value="">—</option>
+                  <option value="">,</option>
                   <option value="Herr">{t.salutationHerr}</option>
                   <option value="Frau">{t.salutationFrau}</option>
                 </select>
@@ -181,7 +181,7 @@ export default function KuendigungForm({ initialLang }: { initialLang: Lang }) {
               <div><label style={lbl}>{t.lastName} *</label><input value={f.last_name} onChange={(e) => up("last_name", e.target.value)} style={inp} /></div>
             </Field2>
 
-            {/* Zweite Person — optional, fuer Ehepaar/Konkubinat */}
+            {/* Zweite Person, optional, fuer Ehepaar/Konkubinat */}
             {!f.has_person2 ? (
               <button
                 type="button"
@@ -206,7 +206,7 @@ export default function KuendigungForm({ initialLang }: { initialLang: Lang }) {
                   <div>
                     <label style={lbl}>{t.salutation}</label>
                     <select value={f.salutation2} onChange={(e) => up("salutation2", e.target.value as any)} style={inp}>
-                      <option value="">—</option>
+                      <option value="">,</option>
                       <option value="Herr">{t.salutationHerr}</option>
                       <option value="Frau">{t.salutationFrau}</option>
                     </select>

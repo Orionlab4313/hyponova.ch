@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
     if (!body.file_url || !body.file_name) {
       return NextResponse.json(
-        { error: "Datei fehlt — bitte erst hochladen" },
+        { error: "Datei fehlt, bitte erst hochladen" },
         { status: 400 },
       );
     }

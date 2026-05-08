@@ -1,13 +1,13 @@
-# HYPONOVA – Entwicklungsnotizen
+# HYPONOVA - Entwicklungsnotizen
 
-## Status: Pre-Launch-fertig — Stand 08.05.2026
+## Status: Pre-Launch-fertig, Stand 08.05.2026
 
 ## Phase 22: Admin-Kontakte Batch-Delete + Duplikat-Schutz ✅ FERTIG (08.05.2026)
 
 **Auslöser**: David testet Admin → Kontakte. Liste hat 18 Test-Einträge, viele davon Duplikate (gleicher Vorname/Nachname/Email/Telefon). Wunsch: Mehrere Kontakte aufs Mal löschen können (mit Bestätigungs-Modal vor Delete) und Duplikate verhindern bzw. bereinigen.
 
 **Implementiert**:
-- `src/lib/leads-dedupe.ts` — Normalisierung (lowercase + trim für Namen/Email, nur Ziffern für Telefon) + `groupDuplicates()` Helper. Schlüssel = first_name|last_name|email|phone normalisiert. Leerer Schlüssel (alle Felder leer) wird ignoriert.
+- `src/lib/leads-dedupe.ts`, Normalisierung (lowercase + trim für Namen/Email, nur Ziffern für Telefon) + `groupDuplicates()` Helper. Schlüssel = first_name|last_name|email|phone normalisiert. Leerer Schlüssel (alle Felder leer) wird ignoriert.
 - `POST /api/admin/leads`: prüft Duplikat vor Insert, gibt 409 mit `duplicateOf` ID zurück
 - `DELETE /api/admin/leads`: akzeptiert `id` (single) ODER `ids` (array). Storage-Cleanup macht jetzt einen einzigen `.in("lead_id", ids)`-Query, dann ein `.delete().in("id", ids)`
 - `GET /api/admin/leads/dedupe`: liefert Preview (groupCount + removeCount + Gruppen mit keep+remove)
@@ -22,23 +22,23 @@
 
 **Design-Entscheidungen**:
 - Ältesten Eintrag behalten (nicht neuesten) → erstes Kontaktdatum bleibt erhalten für Analytics/Historie
-- Notes zählen NICHT für Dedup-Erkennung — sonst wäre die "neuer Eintrag erlaubt"-Logik trivial umgehbar durch leeren Notes-Vergleich
+- Notes zählen NICHT für Dedup-Erkennung, sonst wäre die "neuer Eintrag erlaubt"-Logik trivial umgehbar durch leeren Notes-Vergleich
 - Telefon-Normalisierung strippt alle Nicht-Ziffern → "079 249 70 90", "+41792497090", "0792497090" zählen alle als gleich
 - Confirm-Modal (eigenes ConfirmDialog) für die "bist du sicher?"-Frage, Toast für Result-Feedback
 - Modal mit `danger: true` zeigt rote Bestätigungs-Variante
 
 ## Phase 21: Gmail Maps-Bug bei Teams-Termin endgültig fixen ✅ FERTIG (05.05.2026)
 
-**Auslöser**: David hat Termin gebucht und Bestätigungsmail in Gmail erhalten. Beim Klick auf "Microsoft Teams" in der Gmail-Smart-Card oben (mit Datum/Titel/Location) öffnete sich Google Maps mit Suche nach "Microsoft Teams" in Möhlin — leeres Resultat.
+**Auslöser**: David hat Termin gebucht und Bestätigungsmail in Gmail erhalten. Beim Klick auf "Microsoft Teams" in der Gmail-Smart-Card oben (mit Datum/Titel/Location) öffnete sich Google Maps mit Suche nach "Microsoft Teams" in Möhlin, leeres Resultat.
 
-**Root-Cause (Korrektur Phase 20 Round 2)**: Gmails Smart-Card baut bei JEDEM `LOCATION:`-Wert einen "Route"-Button — egal ob URL oder Text. Der Phase-20-Fix von URL → "Microsoft Teams"-Text hat das Problem nur verlagert: statt URL-Maps-Lookup gab's jetzt Text-Maps-Lookup. Beides falsch.
+**Root-Cause (Korrektur Phase 20 Round 2)**: Gmails Smart-Card baut bei JEDEM `LOCATION:`-Wert einen "Route"-Button, egal ob URL oder Text. Der Phase-20-Fix von URL → "Microsoft Teams"-Text hat das Problem nur verlagert: statt URL-Maps-Lookup gab's jetzt Text-Maps-Lookup. Beides falsch.
 
 **Fix (Option B vom User gewählt)**: 
 - `calendar.ts` `buildICS()`: `LOCATION:` enthält jetzt die echte Teams-URL. Plus 3 X-Properties:
-  - `X-MICROSOFT-SKYPETEAMSMEETINGURL:<url>` — Outlook erkennt das Meeting nativ und zeigt einen "Teams-Besprechung beitreten"-Button im Event
-  - `X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY` — Slot wird in Outlook als belegt markiert
-  - `X-MICROSOFT-DISALLOW-COUNTER:FALSE` — Counter-Proposals erlaubt
-- `index.ts` `icsDescription` (create + update): Hint-Text "siehe Button in E-Mail" wurde ersetzt durch echte URL als Plain-Text. So ist der Teams-Link auch direkt aus dem Kalender-Eintrag klickbar (Apple Cal, Outlook, Google Cal — alle rendern URLs in DESCRIPTION als Links).
+  - `X-MICROSOFT-SKYPETEAMSMEETINGURL:<url>`, Outlook erkennt das Meeting nativ und zeigt einen "Teams-Besprechung beitreten"-Button im Event
+  - `X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY`, Slot wird in Outlook als belegt markiert
+  - `X-MICROSOFT-DISALLOW-COUNTER:FALSE`, Counter-Proposals erlaubt
+- `index.ts` `icsDescription` (create + update): Hint-Text "siehe Button in E-Mail" wurde ersetzt durch echte URL als Plain-Text. So ist der Teams-Link auch direkt aus dem Kalender-Eintrag klickbar (Apple Cal, Outlook, Google Cal, alle rendern URLs in DESCRIPTION als Links).
 - Auch CalDAV-Description (Simons Outlook) bekommt die echte URL statt Hint.
 
 **Wie es jetzt rendert**:
@@ -50,19 +50,19 @@
 
 **v26 Test-Ergebnis**: Gmail mappt URL trotzdem (`google.com/maps/search/?query=https%3A%2F%2Fteams.microsoft.com...`). Bestätigt: Gmail's Smart-Card schickt JEDEN LOCATION-Wert an Maps, egal ob URL oder Text. Es gibt keinen Property-basierten Workaround.
 
-**v27 (05.05.2026) — Option A: LOCATION komplett raus.**
+**v27 (05.05.2026), Option A: LOCATION komplett raus.**
 - `calendar.ts` `buildICS()`: keine `LOCATION:`-Zeile mehr
 - ICS hat nur noch: `URL:` + `X-MICROSOFT-SKYPETEAMSMEETINGURL` + `X-MICROSOFT-CDO-INTENDEDSTATUS:BUSY` + `X-MICROSOFT-DISALLOW-COUNTER:FALSE`
 - Gmail Smart-Card oben: zeigt nur Datum + Uhrzeit + Titel "Beratungsgespräch - HYPONOVA". Keine Location-Zeile, kein Route-Button, keine Maps-Falle.
 - Outlook: erkennt Teams via X-MICROSOFT-Property → eigener Beitreten-Button im Termin
-- Apple/Google Calendar: URL in Beschreibung (Plain-Text) bleibt klickbar — User klickt aus dem Kalender-Eintrag
+- Apple/Google Calendar: URL in Beschreibung (Plain-Text) bleibt klickbar, User klickt aus dem Kalender-Eintrag
 
 **Wo der Teams-Link nach v27 erreichbar ist**:
 1. Email-Body: blauer "Teams Meeting beitreten"-Button (primäre CTA)
 2. Outlook-Termin: native Teams-Beitritts-Schaltfläche
 3. Jeder andere Kalender-Eintrag: Plain-Text-URL in der Description (klickbar in allen Apps)
 
-**Trade-off**: Smart-Card oben in Gmail hat keinen 1-Klick-Beitreten-Button mehr — User muss in der Email runter scrollen. Aber: kein falscher Maps-Link mehr. Sauber.
+**Trade-off**: Smart-Card oben in Gmail hat keinen 1-Klick-Beitreten-Button mehr, User muss in der Email runter scrollen. Aber: kein falscher Maps-Link mehr. Sauber.
 
 ## Phase 20: Microsoft Teams Auto-Meeting via Graph API ✅ FERTIG (05.05.2026)
 
@@ -81,14 +81,14 @@
 - Admin-Consent erteilt
 
 **Implementiert**:
-- `src/lib/microsoft-graph.ts` — Graph API Wrapper mit Token-Refresh, In-Memory-Cache, Calendar-Event-basierte Online-Meeting-Erstellung
+- `src/lib/microsoft-graph.ts`, Graph API Wrapper mit Token-Refresh, In-Memory-Cache, Calendar-Event-basierte Online-Meeting-Erstellung
 - DB-Migration: `admin_settings` um `microsoft_tenant_id`, `microsoft_client_id`, `microsoft_client_secret_encrypted`, `microsoft_refresh_token_encrypted`, `microsoft_user_email`, `microsoft_connected_at`. `appointments` um `teams_join_url`, `teams_meeting_id`.
 - 5 OAuth-Routes:
-  - `GET /api/admin/microsoft/connect` — initiiert Authorization-Code-Flow
-  - `GET /api/admin/microsoft/callback` — empfängt Code, tauscht gegen Refresh-Token, speichert verschlüsselt
-  - `POST /api/admin/microsoft/disconnect` — löscht Refresh-Token
-  - `GET /api/admin/microsoft/status` — fürs UI
-  - `POST /api/admin/microsoft/config` — Admin trägt Tenant/Client/Secret ein
+  - `GET /api/admin/microsoft/connect`, initiiert Authorization-Code-Flow
+  - `GET /api/admin/microsoft/callback`, empfängt Code, tauscht gegen Refresh-Token, speichert verschlüsselt
+  - `POST /api/admin/microsoft/disconnect`, löscht Refresh-Token
+  - `GET /api/admin/microsoft/status`, fürs UI
+  - `POST /api/admin/microsoft/config`, Admin trägt Tenant/Client/Secret ein
 - Admin-UI in `/admin/einstellungen`: neue Section "Microsoft Teams Integration" mit App-Setup-Form (3 Felder), "Mit Microsoft verbinden"-Button, Status-Block mit Verbindungs-Email, Disconnect/Reconnect-Buttons
 - `/api/booking` POST: nach DB-Insert wird Microsoft Graph aufgerufen → erstellt Calendar-Event mit `isOnlineMeeting=true` → speichert `joinUrl` + `eventId` zurück. Fallback: wenn fehlschlägt, läuft Termin trotzdem durch (ohne Teams-Link). Edge Function bekommt teams_join_url im Appointment-Object.
 - `/api/admin/appointments` PATCH/DELETE: bei Reschedule wird Microsoft Meeting verschoben (PATCH /me/events/:id), bei Delete wird Meeting gelöscht (DELETE).
@@ -107,12 +107,12 @@
 5. Ab dann: jede Termin-Buchung → automatisch Teams-Link in Bestätigungs-Email + Outlook-Kalender + ICS-Anhang
 
 **TODO-Bekannt**:
-- Admin-Manual-Created Appointments (über /admin/kalender) bekommen aktuell keinen Teams-Link automatisch — wird einfach nachgereicht falls Simon es braucht
+- Admin-Manual-Created Appointments (über /admin/kalender) bekommen aktuell keinen Teams-Link automatisch, wird einfach nachgereicht falls Simon es braucht
 - Token-Rotation alle 24 Monate: Client Secret muss erneuert werden (Microsoft sagt vorher Bescheid via Email)
 - Lizenz-Verlängerung: M365 Business Basic (CHF 4.90/Mt) verlängert sich automatisch am 5. Mai 2027
-- Client Secret wurde im Klartext im Chat geteilt — sollte bei nächster Gelegenheit rotiert werden
+- Client Secret wurde im Klartext im Chat geteilt, sollte bei nächster Gelegenheit rotiert werden
 
-**Bug-Fix Round 1 — 1-Step → 2-Step Approach (Edge Function v23 → keine Lib-Änderung, dann v25 Lib-Update):**
+**Bug-Fix Round 1, 1-Step → 2-Step Approach (Edge Function v23 → keine Lib-Änderung, dann v25 Lib-Update):**
 
 Symptom: Test-Endpoint zeigte `event.onlineMeeting=null, onlineMeetingProvider=unknown, isOnlineMeeting=false`. Microsoft hat unser `isOnlineMeeting:true` stumm ignoriert.
 
@@ -131,11 +131,11 @@ Plus: `getAccessToken()` exportiert (war private), für Diagnose-Endpoint.
 
 Test-Endpoint `/api/admin/microsoft/test`: zeigt jetzt 5 Schritte mit HTTP-Status + Microsoft-Error-Body bei jedem (Config, Token, /me, /me/onlineMeetings, /me/events). Sehr hilfreich für Debug bei zukünftigen Problemen.
 
-**Bug-Fix Round 2 — ICS LOCATION → Google Maps (Edge Function v25):**
+**Bug-Fix Round 2, ICS LOCATION → Google Maps (Edge Function v25):**
 
 Symptom: Klick auf Teams-Link in Bestätigungs-Email öffnete Google Maps statt Teams.
 
-Root-Cause: Im ICS-Anhang stand `LOCATION:https://teams.microsoft.com/...`. Email-Clients (Gmail, Outlook) interpretieren `LOCATION:` immer als physische Adresse und verlinken automatisch auf Google Maps — egal ob URL oder Text.
+Root-Cause: Im ICS-Anhang stand `LOCATION:https://teams.microsoft.com/...`. Email-Clients (Gmail, Outlook) interpretieren `LOCATION:` immer als physische Adresse und verlinken automatisch auf Google Maps, egal ob URL oder Text.
 
 Fix in `supabase/functions/on-booking/calendar.ts` `buildICS()`:
 ```
@@ -157,7 +157,7 @@ Plus: Microsoft Graph `/me/events` Body zeigt jetzt einen Button (statt "Oder ko
 - ✓ Test-Endpoint: alle 5 Steps grün, frischer `teams.microsoft.com` Link generiert
 - ⏳ End-to-End mit echter Termin-Buchung: läuft noch
 
-## Phase 19: Simon-Feedback Sweep — UX, Email, Teams, Vollmacht-URL ✅ FERTIG (04.05.2026)
+## Phase 19: Simon-Feedback Sweep, UX, Email, Teams, Vollmacht-URL ✅ FERTIG (04.05.2026)
 
 **Auslöser**: Simon-Feedback nach Test der Phase 18:
 - Tranchen-Logik falsch (alle Tranchen in 2 Jahren, nicht nur eine)
@@ -180,15 +180,15 @@ Plus: Microsoft Graph `/me/events` Body zeigt jetzt einen Button (statt "Oder ko
 - `inputMode="numeric"` für Mobile-Zahlentastatur
 - Index `page.tsx`: "Eigenheim kaufen" Card → /dienstleistungen/eigenheim-kaufen, "Hypothek ablösen" Card → /dienstleistungen/hypothek-abloesen, CTA-Bottom-Button "Hypothekenrechner" → /dienstleistungen
 - Footer + alle Email-Templates: HYPONOVA als `<strong>` (Edge Function v22)
-- Neue Komponente `BrandText` — wandelt "HYPONOVA" in Strings automatisch in `<strong>HYPONOVA</strong>` um. Eingebunden in Footer.
+- Neue Komponente `BrandText`, wandelt "HYPONOVA" in Strings automatisch in `<strong>HYPONOVA</strong>` um. Eingebunden in Footer.
 
 **Vollmacht-URL via Proxy** (Branded URL):
-- Neue Route `/api/public/vorlagen/[id]/download` — fetcht PDF aus Supabase Storage, streamt mit Original-Filename und Content-Disposition: inline
+- Neue Route `/api/public/vorlagen/[id]/download`, fetcht PDF aus Supabase Storage, streamt mit Original-Filename und Content-Disposition: inline
 - VorlagenDownloadBlock + Edge Function v22 nutzen jetzt diese URL statt direkter Storage-URL
 - Resultat: hyponova.ch/api/public/vorlagen/<id>/download statt xxx.supabase.co/storage/v1/object/public/...
 
 **Kündigungsvorlage 2. Person** (Form + API):
-- Toggle "+ Zweite Person hinzufügen" — wenn aktiv: Salutation/Vorname/Nachname für 2. Person
+- Toggle "+ Zweite Person hinzufügen", wenn aktiv: Salutation/Vorname/Nachname für 2. Person
 - PDF-Generator: Sender-Block listet beide Personen, 2 Unterschriftslinien nebeneinander mit beiden Namen
 - Wenn nur 1 Person: 1 Unterschriftslinie (wie vorher)
 
@@ -201,7 +201,7 @@ Plus: Microsoft Graph `/me/events` Body zeigt jetzt einen Button (statt "Oder ko
 **Nachrichten-EN-Subject:**
 - DB: `contact_requests.lang` Spalte hinzugefügt (DE als Default)
 - `/api/contact`: speichert lang vom I18n-Context
-- Admin/nachrichten: liest msg.lang, render `subjectLabel(key, lang)`. EN-Kunde bekommt Reply mit "Re: Refinance mortgage — HYPONOVA" statt "Re: Hypothek ablösen"
+- Admin/nachrichten: liest msg.lang, render `subjectLabel(key, lang)`. EN-Kunde bekommt Reply mit "Re: Refinance mortgage, HYPONOVA" statt "Re: Hypothek ablösen"
 
 **Microsoft Teams Meeting:**
 - Pragmatischer Ansatz: Simon hinterlegt seinen Standing/Personal Teams Meeting Link in `/admin/einstellungen` (neue Section)
@@ -215,12 +215,12 @@ Plus: Microsoft Graph `/me/events` Body zeigt jetzt einen Button (statt "Oder ko
 
 ## Phase 18: Dokument-Vorlagen + Excel-Checklisten + Mobile-Fix ✅ FERTIG (04.05.2026)
 
-**Auslöser**: Simon hat WhatsApp/Email gesendet — er möchte (a) das offizielle Vollmachtsformular vom Anwalt im Workflow einbauen (analog Kündigungsvorlage) und (b) die Bestätigungs-Email-Checklisten passend zur ausgefüllten Variante. Dazu Mobile-Bug auf `/abloesung` (Tranchen-Tabelle zu eng).
+**Auslöser**: Simon hat WhatsApp/Email gesendet, er möchte (a) das offizielle Vollmachtsformular vom Anwalt im Workflow einbauen (analog Kündigungsvorlage) und (b) die Bestätigungs-Email-Checklisten passend zur ausgefüllten Variante. Dazu Mobile-Bug auf `/abloesung` (Tranchen-Tabelle zu eng).
 
 **Mobile-Fix Tranchen-Grid (commit a641818):**
 - 3-Spalten-Grid in `AbloesungForm` stackt unter 720px (1 Spalte)
 - Bonus: `inputMode="numeric"` beim Betrag → Zahlentastatur Mobile
-- Bug: Title war hardcoded "Hypothekartranchen" auch bei EN — fixed via `t.qTranchen` / `t.qTranchenDesc`
+- Bug: Title war hardcoded "Hypothekartranchen" auch bei EN, fixed via `t.qTranchen` / `t.qTranchenDesc`
 
 **Dokument-Vorlagen (Vollmacht etc.)**:
 - Tabelle `dokument_vorlagen`: id, name_de/en, description_de/en, kategorie ('abloesung'|'neukauf'|'beide'), file_url, file_name, file_size, sort_order, active. RLS: public-read aktive Einträge.
@@ -231,7 +231,7 @@ Plus: Microsoft Graph `/me/events` Body zeigt jetzt einen Button (statt "Oder ko
   - `/api/admin/vorlagen/upload` POST File-Upload
   - `/api/public/vorlagen?kategorie=...` GET (nur aktive)
 - Admin-UI `/admin/vorlagen`: Liste mit Kategorie-Filter, neue Sidebar-Eintrag "Vorlagen" mit IconStamp. Modal mit Name DE/EN, Beschreibung DE/EN, Workflow-Selector, PDF-Upload/Replace, Sort-Order, Aktiv-Toggle.
-- Customer-Touchpoints — `VorlagenDownloadBlock` Komponente:
+- Customer-Touchpoints, `VorlagenDownloadBlock` Komponente:
   - Success-Screen Ablösung (vor "Nächster Schritt: Kündigung") als card-Variant
   - Success-Screen Neukauf als card-Variant
   - Upload-Portal `/upload/[token]` als compact-Banner ganz oben
@@ -239,27 +239,27 @@ Plus: Microsoft Graph `/me/events` Body zeigt jetzt einen Button (statt "Oder ko
 - Email: Edge Function v20 fetcht Vorlagen aus DB via REST API (Supabase REST mit Service-Role) und rendert "Wichtige Dokumente zum Download"-Block in der Bestätigungs-Email mit Direktlinks zum PDF.
 
 **Checklisten 1:1 an Simons offiziellen Excel-Listen** (Simon-shared/Checklisten Ablösung.xlsx + Neukauf.xlsx):
-- `requiredDocumentCategories()` neu geschrieben — modular: Basis (immer) + Tätigkeit (angestellt/selbständig/pensioniert) + Workflow (abloesung/neukauf) + Objektart (efh/stwe) + (Neukauf) Status (bestehend/neubau) + (Abloesung+EFH) Baurecht
+- `requiredDocumentCategories()` neu geschrieben, modular: Basis (immer) + Tätigkeit (angestellt/selbständig/pensioniert) + Workflow (abloesung/neukauf) + Objektart (efh/stwe) + (Neukauf) Status (bestehend/neubau) + (Abloesung+EFH) Baurecht
 - Neue Document-Category-Keys (1:1 zu Excel-Wording): mandatsvereinbarung, steuererklaerung, konto_wertschriften, leasing_kreditvertrag, betreibungsregister, lohnausweis_aktuell, geschaeftsabschluesse_3j, rentennachweis, saeule_3a, lebensversicherung, hypothekarvertrag, aufstellung_eigenmittel, gebaeudeversicherung, fotos_liegenschaft, fragebogen_renovationen, baurechtsvertrag, grundrissplaene, katasterplan, grundrissplaene_wohnflaeche, erneuerungsfonds, kaufvertrag_werkvertrag, kubische_berechnung, baubeschrieb, grundriss_fassadenplaene, baubewilligung, zahlungsplan_oder_kostenvoranschlag, verkaufsdokumentation, kaufvertrag_entwurf
 - Legacy-Keys bleiben in `DOCUMENT_CATEGORY_LABELS` für alte `documents`-Einträge (Backwards-Compat)
 - Edge Function v20 DOC_LABELS synchronisiert mit `submissions.ts`
 
 **Bekannte Punkte / TODO später**:
-- Baurecht-Frage gibts im Neukauf-Fragebogen noch nicht — sobald sie hinzukommt, "baurechtsvertrag" auch dort pushen wenn EFH + baurecht=true
-- Edge Function nutzt `SUPABASE_URL` env (nicht `NEXT_PUBLIC_SUPABASE_URL`) — sollte automatisch im Edge-Runtime gesetzt sein, ggf. nochmal validieren
-- Simon muss Vollmacht-PDF noch hochladen (kommt vom Anwalt, ist noch nicht da). Bis dahin zeigt der VorlagenDownloadBlock nichts — passt.
+- Baurecht-Frage gibts im Neukauf-Fragebogen noch nicht, sobald sie hinzukommt, "baurechtsvertrag" auch dort pushen wenn EFH + baurecht=true
+- Edge Function nutzt `SUPABASE_URL` env (nicht `NEXT_PUBLIC_SUPABASE_URL`), sollte automatisch im Edge-Runtime gesetzt sein, ggf. nochmal validieren
+- Simon muss Vollmacht-PDF noch hochladen (kommt vom Anwalt, ist noch nicht da). Bis dahin zeigt der VorlagenDownloadBlock nichts, passt.
 
 ## Phase 17: Custom Confirm/Toast statt Browser-Popups ✅ FERTIG (04.05.2026)
 - ConfirmProvider (Promise-basiertes Modal mit ESC/Enter, danger-Variante in Rot)
 - ToastProvider (auto-dismiss, success/error/info, slide-in oben rechts)
-- Beide global in `Providers.tsx` — auch für public Upload-Portal
+- Beide global in `Providers.tsx`, auch für public Upload-Portal
 - 22 Browser-confirm/alert in 11 Dateien ersetzt (Admin Dokumente, Lead-Detail, Blogposts, Leads, Nachrichten, Upload-Portal)
 - Mobile-Bug gelöst (native confirm hatte teilweise nicht funktioniert auf Handy)
-- Bekannt: 1× `window.prompt` im Blog-Editor (Link-URL) noch nativ — nicht in dieser Sweep enthalten, separat lösbar mit Prompt-Modal
+- Bekannt: 1× `window.prompt` im Blog-Editor (Link-URL) noch nativ, nicht in dieser Sweep enthalten, separat lösbar mit Prompt-Modal
 
 ## Phase 16: Pre-Launch-Polish + kritischer Bug-Fix ✅ FERTIG (01.05.2026)
 
-**Kritischer Bug — Blog/Legal-Routes crashten mit 500:**
+**Kritischer Bug, Blog/Legal-Routes crashten mit 500:**
 - `isomorphic-dompurify` ist auf Vercel mit Next 16 inkompatibel
   (JSDOM/cssom Module-Load-Crash)
 - Alle Routes die `sanitize.ts` importierten (blogposts, blogposts/[id],
@@ -268,7 +268,7 @@ Plus: Microsoft Graph `/me/events` Body zeigt jetzt einen Button (statt "Oder ko
   `src/lib/sanitize.ts`. Killt Script-Tags inkl. Inhalt, gefaehrliche
   Tags (style/iframe/object/embed/form/input/button/link/meta/base),
   on*=Inline-Event-Handler, javascript:/vbscript:/data: URLs.
-  Defense-in-Depth — Auth-Schicht bleibt primaere Verteidigung.
+  Defense-in-Depth, Auth-Schicht bleibt primaere Verteidigung.
 
 **Cookie-Banner (DSGVO/nDSG):**
 - `src/components/layout/CookieBanner.tsx`
@@ -309,11 +309,11 @@ Plus: Microsoft Graph `/me/events` Body zeigt jetzt einen Button (statt "Oder ko
 ## Vercel-Konfiguration nach Phase 16
 
 ENV vars (Production + Preview):
-- `ADMIN_SESSION_SECRET` — HMAC-Secret fuer Admin-Sessions
-- `CRON_SECRET` — Schutz fuer /api/cron/* Endpoints
+- `ADMIN_SESSION_SECRET`, HMAC-Secret fuer Admin-Sessions
+- `CRON_SECRET`, Schutz fuer /api/cron/* Endpoints
 - (zusaetzlich Standard-Vars: SUPABASE_*, SMTP_*, CALDAV_*)
 
-Pre-Launch-Liste — komplett abgehakt:
+Pre-Launch-Liste, komplett abgehakt:
 - ✅ Cookie-Banner
 - ✅ Analytics (Snippet drin, in Vercel-Dashboard aktivieren)
 - ✅ Token-Cleanup Cron
@@ -328,23 +328,23 @@ Pre-Launch-Liste — komplett abgehakt:
 ## Phase 15: Admin-Workspace pro Lead ✅ FERTIG + GETESTET (01.05.2026)
 
 **Was funktioniert (vom User verifiziert)**
-- ✅ **Ablösungs-Fragebogen** — alles geht durch, Sackgasse-Logik korrekt, Email kommt an
-- ✅ **Upload-Portal** — Stage-then-Submit mit grossem "Hochladen"-Button, Confirmation-Screen mit "Vielen Dank"
-- ✅ **Admin-Dokumente** — File-Viewer-Modal (PDF + Bilder), lesbare DE-Antworten statt JSON, Kategorie als grosser bold Titel
+- ✅ **Ablösungs-Fragebogen**, alles geht durch, Sackgasse-Logik korrekt, Email kommt an
+- ✅ **Upload-Portal**, Stage-then-Submit mit grossem "Hochladen"-Button, Confirmation-Screen mit "Vielen Dank"
+- ✅ **Admin-Dokumente**, File-Viewer-Modal (PDF + Bilder), lesbare DE-Antworten statt JSON, Kategorie als grosser bold Titel
 - ✅ **Notizen + Aufgaben** im Lead-Detail (DB-persistiert, Save-Buttons)
 - ✅ **Fragebogen-Antworten editierbar** durch Simon (z.B. Telefonate)
 - ✅ **Doc-Kategorie ändern + Status** mit explizitem Speichern-Button
 - ✅ **Admin-Upload** für Dokumente die per Mail/Post kommen
 - ✅ **Lead komplett löschen** (mit Storage-Cleanup, Cascade über alle Tabellen)
 - ✅ **Mobile-Layout** sauber: Buttons in eigener Zeile, voller File-Name sichtbar
-- ✅ **Sources lesbar** — "Ablösung (Fragebogen)" statt "abloesung-fragebogen", überall Umlaute statt ae/oe/ue
+- ✅ **Sources lesbar**, "Ablösung (Fragebogen)" statt "abloesung-fragebogen", überall Umlaute statt ae/oe/ue
 
 **API-Routes (alle requireAdmin-geschuetzt)**
-- `PATCH /api/admin/submissions/[id]` — Fragebogen-Antworten ändern, Ablösbarkeit auto-recompute
-- `GET/POST /api/admin/leads/[id]/todos` — Todos pro Lead
-- `PATCH/DELETE /api/admin/leads/[id]/todos/[todoId]` — Todo-Edit
-- `POST /api/admin/documents` — Admin-Upload mit Kategorie
-- `DELETE /api/admin/leads` — erweitert um Storage-Cleanup vor Cascade-Delete
+- `PATCH /api/admin/submissions/[id]`, Fragebogen-Antworten ändern, Ablösbarkeit auto-recompute
+- `GET/POST /api/admin/leads/[id]/todos`, Todos pro Lead
+- `PATCH/DELETE /api/admin/leads/[id]/todos/[todoId]`, Todo-Edit
+- `POST /api/admin/documents`, Admin-Upload mit Kategorie
+- `DELETE /api/admin/leads`, erweitert um Storage-Cleanup vor Cascade-Delete
 
 **DB-Migration (via MCP angewandt)**
 - `lead_todos` (id, lead_id FK CASCADE, text, done, due_date, created_at, updated_at)
@@ -371,7 +371,7 @@ Pre-Launch-Liste — komplett abgehakt:
 - [ ] **Bilder** auf `/dienstleistungen` und Detail-Pages durch echte ersetzen (aktuell Unsplash-Stocks)
 
 ### Email-Infrastruktur
-- [ ] **6-Min SMTP-Delay** bei Infomaniak — SPF/DKIM-Records prüfen oder auf Resend/Postmark wechseln (out-of-scope Hyponova-Code)
+- [ ] **6-Min SMTP-Delay** bei Infomaniak, SPF/DKIM-Records prüfen oder auf Resend/Postmark wechseln (out-of-scope Hyponova-Code)
 
 ### Inhalte vom Kunden (Simon)
 - [ ] EN-Versionen für Impressum, AGB, Datenschutz im Admin nachtragen
@@ -391,10 +391,10 @@ Pre-Launch-Liste — komplett abgehakt:
 ## Phase 14: Fragebögen + Customer-Upload + Kündigungsvorlage ✅ FERTIG (01.05.2026)
 
 **Public Funnel-Pfade**
-- `/abloesung` — Multi-Step-Fragebogen (13 Steps, Conditional Logic, Sackgasse wenn nicht ablösbar). End-Path: Offerten-Vergleich von Hyponova ODER Beratungstermin. DE+EN.
-- `/neukauf` — Multi-Step-Fragebogen (4 Steps), endet immer in Termin-Buchung. DE+EN.
-- `/kuendigung` — Formular für vorsorgliches Kündigungsschreiben → PDF-Download via pdf-lib. DE+EN.
-- `/upload/[token]` — Tokenized Customer-Upload-Portal mit Drag&Drop, kategorisiert nach Doc-Typ, Progress-Bar, 30 Tage gültig. DE+EN.
+- `/abloesung`, Multi-Step-Fragebogen (13 Steps, Conditional Logic, Sackgasse wenn nicht ablösbar). End-Path: Offerten-Vergleich von Hyponova ODER Beratungstermin. DE+EN.
+- `/neukauf`, Multi-Step-Fragebogen (4 Steps), endet immer in Termin-Buchung. DE+EN.
+- `/kuendigung`, Formular für vorsorgliches Kündigungsschreiben → PDF-Download via pdf-lib. DE+EN.
+- `/upload/[token]`, Tokenized Customer-Upload-Portal mit Drag&Drop, kategorisiert nach Doc-Typ, Progress-Bar, 30 Tage gültig. DE+EN.
 
 **Geschäftslogik**
 - `isAbloesbar(tranchen)`: Hypothek ist ablösbar wenn Variable ODER Fälligkeit < 24 Monate
@@ -402,20 +402,20 @@ Pre-Launch-Liste — komplett abgehakt:
 - `DOC_LABELS`: 19 Standard-CH-Hypotheken-Doc-Typen mit DE+EN Labels
 
 **API-Routes (alle mit Rate-Limit)**
-- `POST /api/public/abloesung` — Lead anlegen/updaten, Submission speichern, Upload-Token erstellen (nur bei Offerten-Pfad), Email triggern
-- `POST /api/public/neukauf` — Lead + Submission, Email triggern (immer Termin)
-- `POST /api/public/upload/[token]` — File-Upload zu Storage-Bucket `customer-docs/{lead_id}/{category}/`
-- `DELETE /api/public/upload/[token]?docId=X` — File entfernen
-- `POST /api/public/kuendigung` — PDF-Generation via pdf-lib, Download
-- `GET /api/admin/documents` — Aggregation pro Lead
-- `GET /api/admin/documents?leadId=X` — Lead + Submissions + alle Docs
-- `GET /api/admin/documents/[id]?download=1` — Signed URL (5 Min)
-- `PATCH /api/admin/documents/[id]` — Status ändern (received/reviewing/accepted/rejected)
-- `DELETE /api/admin/documents/[id]` — Löschen
+- `POST /api/public/abloesung`, Lead anlegen/updaten, Submission speichern, Upload-Token erstellen (nur bei Offerten-Pfad), Email triggern
+- `POST /api/public/neukauf`, Lead + Submission, Email triggern (immer Termin)
+- `POST /api/public/upload/[token]`, File-Upload zu Storage-Bucket `customer-docs/{lead_id}/{category}/`
+- `DELETE /api/public/upload/[token]?docId=X`, File entfernen
+- `POST /api/public/kuendigung`, PDF-Generation via pdf-lib, Download
+- `GET /api/admin/documents`, Aggregation pro Lead
+- `GET /api/admin/documents?leadId=X`, Lead + Submissions + alle Docs
+- `GET /api/admin/documents/[id]?download=1`, Signed URL (5 Min)
+- `PATCH /api/admin/documents/[id]`, Status ändern (received/reviewing/accepted/rejected)
+- `DELETE /api/admin/documents/[id]`, Löschen
 
 **Admin-Dokumente (überarbeitet)**
-- `/admin/dokumente` — Liste pro Kontakt mit Filter (alle / mit Docs / mit Fragebogen), Badges für Anzahl + Prüf-Status
-- `/admin/dokumente/[leadId]` — Detail-View: Lead-Info, Fragebogen-Antworten als JSON-Toggle, Doc-Liste mit Status-Selector + Download-Button + Delete
+- `/admin/dokumente`, Liste pro Kontakt mit Filter (alle / mit Docs / mit Fragebogen), Badges für Anzahl + Prüf-Status
+- `/admin/dokumente/[leadId]`, Detail-View: Lead-Info, Fragebogen-Antworten als JSON-Toggle, Doc-Liste mit Status-Selector + Download-Button + Delete
 
 **Edge Function on-booking V18**
 - Neue Action `questionnaire-submitted`
@@ -430,7 +430,7 @@ Pre-Launch-Liste — komplett abgehakt:
 - Storage-Bucket `customer-docs` (private, nur via signed URLs / service_role)
 
 **Middleware-Änderung**
-- `/upload/*` ist jetzt von Site-Passwort ausgenommen — Kunden mit Token müssen direkt zugreifen können
+- `/upload/*` ist jetzt von Site-Passwort ausgenommen, Kunden mit Token müssen direkt zugreifen können
 
 **i18n**
 - `services.cancellationTemplate` + Desc + CTA neu in DE+EN
@@ -485,7 +485,7 @@ Pre-Launch-Liste — komplett abgehakt:
 - [x] **Tabelle** `legal_pages` (id text PK: 'impressum'|'agb'|'datenschutz'), pro Seite jeweils DE+EN Felder fuer title, title_highlight, content_html, meta_description
 - [x] **Initial-Seed** mit aktuellen DE-Texten aus den hartkodierten Seiten; EN-Felder leer (Simon ergaenzt)
 - [x] **Admin** `/admin/rechtliches` (Liste mit 3 Karten + DE/EN-Status-Badges) und `/admin/rechtliches/[id]` (Editor mit DE/EN-Tabs)
-- [x] **Editor**: Wiederverwendung von `BlogPostEditor` (Tiptap) — beide Sprachen werden im DOM gehalten, nur visuell ge-toggled, kein State-Verlust beim Sprachwechsel
+- [x] **Editor**: Wiederverwendung von `BlogPostEditor` (Tiptap), beide Sprachen werden im DOM gehalten, nur visuell ge-toggled, kein State-Verlust beim Sprachwechsel
 - [x] **Public** `/impressum`, `/agb`, `/datenschutz`: Server-Components, lesen `hyponova-lang` Cookie + Inhalt aus Supabase, EN faellt auf DE zurueck wenn leer
 - [x] **Hinweis-Banner** im Editor fuer AGB/Datenschutz: juristisch pruefen lassen
 - [x] **revalidatePath** beim Speichern fuer sofortige Sichtbarkeit
@@ -498,7 +498,7 @@ Pre-Launch-Liste — komplett abgehakt:
 
 ---
 
-## Phase 1–5: Website-Grundlagen (abgeschlossen)
+## Phase 1-5: Website-Grundlagen (abgeschlossen)
 - [x] Projekt-Setup (GitHub, Supabase, Vercel, Domain)
 - [x] Homepage, Header, Footer, WhatsApp Button, ScrollReveal
 - [x] Alle Seiten: Über uns, FAQ, Kontakt, Termin, AGB, Datenschutz, Impressum
@@ -507,19 +507,19 @@ Pre-Launch-Liste — komplett abgehakt:
 
 ## Phase 6: Admin Dashboard & CRM ✅ FERTIG
 - [x] Admin Login schliessbar (X-Button, zurück zur Website)
-- [x] **Dashboard** — Statistik-Karten (Nachrichten, Kontakte, Termine, Abschlussrate), letzte Nachrichten/Termine/Kontakte
-- [x] **Nachrichten** — Kontaktanfragen lesen, inline per E-Mail antworten (via Supabase Edge Function SMTP), als Kontakt anlegen, löschen
-- [x] **Kontakte/Leads** — Listenansicht mit Status-Badges, Filter, Bearbeiten/Löschen, Formular-Modal
-- [x] **Kalender** — Monatsansicht, Termine als farbige Badges, Tag anklicken → Detail-Panel mit Kundendaten, Bearbeiten/Löschen, E-Mail an Kunden
-- [x] **Verfügbarkeit** — 2 Tabs:
+- [x] **Dashboard**, Statistik-Karten (Nachrichten, Kontakte, Termine, Abschlussrate), letzte Nachrichten/Termine/Kontakte
+- [x] **Nachrichten**, Kontaktanfragen lesen, inline per E-Mail antworten (via Supabase Edge Function SMTP), als Kontakt anlegen, löschen
+- [x] **Kontakte/Leads**, Listenansicht mit Status-Badges, Filter, Bearbeiten/Löschen, Formular-Modal
+- [x] **Kalender**, Monatsansicht, Termine als farbige Badges, Tag anklicken → Detail-Panel mit Kundendaten, Bearbeiten/Löschen, E-Mail an Kunden
+- [x] **Verfügbarkeit**, 2 Tabs:
   - Öffnungszeiten: Wochentage ein/aus, 2 Zeitfenster pro Tag (Pause/Split), rechts ausgerichtet
   - Kalender: Monatsansicht, Tage/Stunden blockieren per Klick, Legende
-- [x] **Pipeline** — Kanban-Board (Drag & Drop)
-- [x] **Dokumente** — Platzhalter (kommt später)
+- [x] **Pipeline**, Kanban-Board (Drag & Drop)
+- [x] **Dokumente**, Platzhalter (kommt später)
 - [x] Sidebar togglebar, alle Seiten mobile-responsive, max-width 1100px
 
 ## Phase 7: Infomaniak Integration ✅ FERTIG
-- [x] **Supabase Edge Function** `on-booking` (V14) — zentral für alle Integrationen
+- [x] **Supabase Edge Function** `on-booking` (V14), zentral für alle Integrationen
 - [x] **E-Mail** via SMTP (mail.infomaniak.com:587, info@hyponova.ch)
   - Buchungsbestätigung mit ICS-Anhang
   - Terminverschiebung mit neuem ICS
@@ -548,7 +548,7 @@ Pre-Launch-Liste — komplett abgehakt:
 
 ### Backend (Supabase)
 - **Datenbank**: leads, appointments, contact_requests, availability, blocked_dates
-- **Edge Function**: `on-booking` — E-Mail (SMTP), CalDAV, CardDAV, Reply
+- **Edge Function**: `on-booking`, E-Mail (SMTP), CalDAV, CardDAV, Reply
 - **Secrets**: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, CALDAV_USER, CALDAV_PASS, CALDAV_CALENDAR_URL, CARDDAV_ADDRESSBOOK_URL
 - **Storage**: logos Bucket (public)
 - **MCP**: `mcp__supabase-hyponova__*` (Simons Account, für Edge Functions + SQL)

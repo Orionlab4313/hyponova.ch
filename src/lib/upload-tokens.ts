@@ -59,7 +59,7 @@ export async function verifyUploadToken(token: string): Promise<UploadTokenRow |
   return data as UploadTokenRow;
 }
 
-/** Loescht abgelaufene Tokens — kann via Cron-Job aufgerufen werden. */
+/** Loescht abgelaufene Tokens, kann via Cron-Job aufgerufen werden. */
 export async function pruneExpiredTokens(): Promise<number> {
   const sb = createServiceClient();
   const { data, error } = await sb

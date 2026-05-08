@@ -92,12 +92,12 @@ const COPY = {
     successSubmittedDesc:
       "Wir haben Ihre Anfrage erhalten. In Kürze erhalten Sie eine E-Mail mit Ihrer persönlichen Unterlagen-Checkliste und einem sicheren Link, über den Sie Ihre Dokumente hochladen können.",
     successTerminDesc:
-      "Buchen Sie jetzt Ihren persönlichen Beratungstermin – bequem von zu Hause aus.",
+      "Buchen Sie jetzt Ihren persönlichen Beratungstermin - bequem von zu Hause aus.",
     successCheckEmail: "Bitte prüfen Sie auch den Spam-Ordner, falls keine E-Mail eintrifft.",
     successCalendarBtn: "Termin jetzt buchen →",
     successHomeBtn: "← Zur Startseite",
     nextStepTitle: "Nächster Schritt: Vorsorgliche Kündigung",
-    nextStepBody: "Sobald wir die besten Konditionen für Sie haben, müssen Sie Ihre aktuelle Hypothek vorsorglich kündigen. Erstellen Sie das Kündigungsschreiben in 2 Minuten als PDF — bereit zum Versand per Einschreiben.",
+    nextStepBody: "Sobald wir die besten Konditionen für Sie haben, müssen Sie Ihre aktuelle Hypothek vorsorglich kündigen. Erstellen Sie das Kündigungsschreiben in 2 Minuten als PDF, bereit zum Versand per Einschreiben.",
     nextStepCta: "Kündigungsvorlage erstellen →",
     fieldRequired: "Pflichtfeld",
     invalidEmail: "Bitte gültige E-Mail-Adresse eingeben",
@@ -188,12 +188,12 @@ const COPY = {
     successSubmittedDesc:
       "We have received your request. Shortly, you will receive an email with your personal document checklist and a secure link to upload your documents.",
     successTerminDesc:
-      "Book your personal consultation appointment now — conveniently from home.",
+      "Book your personal consultation appointment now, conveniently from home.",
     successCheckEmail: "Please also check your spam folder if no email arrives.",
     successCalendarBtn: "Book appointment now →",
     successHomeBtn: "← Back to homepage",
     nextStepTitle: "Next step: Precautionary cancellation",
-    nextStepBody: "Once we have the best conditions for you, you'll need to give precautionary notice on your current mortgage. Generate the cancellation letter in 2 minutes as a PDF — ready to send by registered mail.",
+    nextStepBody: "Once we have the best conditions for you, you'll need to give precautionary notice on your current mortgage. Generate the cancellation letter in 2 minutes as a PDF, ready to send by registered mail.",
     nextStepCta: "Create cancellation template →",
     fieldRequired: "Required",
     invalidEmail: "Please enter a valid email address",
@@ -298,7 +298,7 @@ export default function AbloesungForm({ initialLang }: { initialLang: Lang }) {
   const flow = useMemo<StepKey[]>(() => {
     const list: StepKey[] = ["tranchen"];
     if (!isAbloesbarLocal(answers.tranchen)) {
-      // Sackgasse als virtueller Endpunkt — nur reachable nach explizitem Submit
+      // Sackgasse als virtueller Endpunkt, nur reachable nach explizitem Submit
     }
     list.push("kanton", "objektart", "bewohnt", "baurecht", "taetigkeit", "weiss_modell");
     if (answers.weiss_modell === true) {
@@ -517,7 +517,7 @@ function TranchenStep({ t, answers, setAnswers }: { t: any; answers: Answers; se
               <div>
                 <label style={lbl}>{t.fieldModell}</label>
                 <select value={tr.modell} onChange={(e) => update(i, "modell", e.target.value)} style={inp}>
-                  <option value="">—</option>
+                  <option value="">,</option>
                   <option value="festzins">{t.festzins}</option>
                   <option value="saron">{t.saron}</option>
                   <option value="variable">{t.variable}</option>
@@ -674,10 +674,10 @@ function SuccessStep({ t, endPath, lang }: { t: any; endPath: string; lang: Lang
         </div>
       </div>
 
-      {/* Vorlagen zum Download — Vollmacht etc., dynamisch aus DB */}
+      {/* Vorlagen zum Download, Vollmacht etc., dynamisch aus DB */}
       <VorlagenDownloadBlock kategorie="abloesung" lang={lang} variant="card" />
 
-      {/* Naechster-Schritt Card: Kuendigungsvorlage — gehoert logisch in den Abloesungs-Workflow */}
+      {/* Naechster-Schritt Card: Kuendigungsvorlage, gehoert logisch in den Abloesungs-Workflow */}
       <div style={{ marginTop: 24, padding: 20, background: "#fafafa", border: `1px solid ${ACCENT}33`, borderRadius: 0 }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14, flexWrap: "wrap" }}>
           <div style={{ width: 40, height: 40, borderRadius: 0, background: `${ACCENT}1a`, color: ACCENT, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 700, flexShrink: 0 }}>2</div>

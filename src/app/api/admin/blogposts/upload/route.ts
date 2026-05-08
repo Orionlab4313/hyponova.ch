@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/admin-guard";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-// SVG bewusst ausgeschlossen — kann inline-Script enthalten und ist als
+// SVG bewusst ausgeschlossen, kann inline-Script enthalten und ist als
 // Hero-Bild eh unueblich. PNG/JPG/WebP/GIF reichen fuer alle Use-Cases.
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Extension aus MIME-Type ableiten, nicht aus dem User-Filename — der koennte
+    // Extension aus MIME-Type ableiten, nicht aus dem User-Filename, der koennte
     // ".jpg.svg" o.ae. heissen.
     const extByMime: Record<string, string> = {
       "image/png": "png",

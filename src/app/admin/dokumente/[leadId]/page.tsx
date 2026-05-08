@@ -242,7 +242,7 @@ export default function LeadDocumentsPage({ params }: { params: Promise<{ leadId
                       disabled={savingId === d.id}
                       style={{ marginBottom: 6, padding: "5px 8px", fontSize: 13, fontWeight: 700, color: "#1a1a1a", background: hasPending ? `${ACCENT}10` : "#f5f5f5", border: hasPending ? `1px solid ${ACCENT}` : "1px solid transparent", cursor: "pointer", fontFamily: "inherit", maxWidth: "100%" }}
                     >
-                      <option value="">— Sonstige Unterlage —</option>
+                      <option value="">, Sonstige Unterlage ,</option>
                       {Object.entries(DOCUMENT_CATEGORY_LABELS).map(([k, v]) => (
                         <option key={k} value={k}>{v.de}</option>
                       ))}
@@ -370,7 +370,7 @@ function NotesPanel({ leadId, initialNotes }: { leadId: string; initialNotes: st
       <textarea
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
-        placeholder="Notizen zum Kontakt — z.B. Telefonate, Hinweise, Vereinbarungen..."
+        placeholder="Notizen zum Kontakt, z.B. Telefonate, Hinweise, Vereinbarungen..."
         style={{ width: "100%", minHeight: 120, padding: "10px 12px", fontSize: 13, fontFamily: "inherit", border: "1px solid #ddd", boxSizing: "border-box", resize: "vertical", lineHeight: 1.5, background: "#fafafa" }}
       />
       {dirty && (
@@ -625,28 +625,28 @@ function SubmissionEditor({ submission, onCancel, onSaved }: { submission: Submi
 
       <Section title="Allgemein">
         <Grid2>
-          <Select label="Kanton" value={a.kanton || ""} onChange={(v) => up("kanton", v)} options={[["", "—"], ...KANTONE]} />
-          <Select label="Objektart" value={a.objektart || ""} onChange={(v) => up("objektart", v)} options={[["", "—"], ["efh", "Einfamilienhaus"], ["stwe", "Eigentumswohnung (STWE)"], ["2fh", "Zweifamilienhaus"]]} />
+          <Select label="Kanton" value={a.kanton || ""} onChange={(v) => up("kanton", v)} options={[["", ","], ...KANTONE]} />
+          <Select label="Objektart" value={a.objektart || ""} onChange={(v) => up("objektart", v)} options={[["", ","], ["efh", "Einfamilienhaus"], ["stwe", "Eigentumswohnung (STWE)"], ["2fh", "Zweifamilienhaus"]]} />
         </Grid2>
 
         {isAbl && (
           <Grid2>
-            <Select label="Selbstbewohnt" value={a.bewohnt || ""} onChange={(v) => up("bewohnt", v)} options={[["", "—"], ["100", "100% selbstbewohnt"], ["teilvermietet", "Teilweise vermietet"]]} />
-            <Select label="Baurecht" value={a.baurecht === true ? "ja" : a.baurecht === false ? "nein" : ""} onChange={(v) => up("baurecht", v === "ja" ? true : v === "nein" ? false : null)} options={[["", "—"], ["ja", "Ja"], ["nein", "Nein"]]} />
+            <Select label="Selbstbewohnt" value={a.bewohnt || ""} onChange={(v) => up("bewohnt", v)} options={[["", ","], ["100", "100% selbstbewohnt"], ["teilvermietet", "Teilweise vermietet"]]} />
+            <Select label="Baurecht" value={a.baurecht === true ? "ja" : a.baurecht === false ? "nein" : ""} onChange={(v) => up("baurecht", v === "ja" ? true : v === "nein" ? false : null)} options={[["", ","], ["ja", "Ja"], ["nein", "Nein"]]} />
           </Grid2>
         )}
 
         {!isAbl && (
-          <Select label="Status" value={a.status || ""} onChange={(v) => up("status", v)} options={[["", "—"], ["bestehend", "Bestehende Liegenschaft"], ["neubau", "Neubau"]]} />
+          <Select label="Status" value={a.status || ""} onChange={(v) => up("status", v)} options={[["", ","], ["bestehend", "Bestehende Liegenschaft"], ["neubau", "Neubau"]]} />
         )}
 
-        <Select label="Tätigkeit" value={a.taetigkeit || ""} onChange={(v) => up("taetigkeit", v)} options={[["", "—"], ["angestellt", "Angestellt"], ["selbstaendig", "Selbständig"], ["pensioniert", "Pensioniert"]]} />
+        <Select label="Tätigkeit" value={a.taetigkeit || ""} onChange={(v) => up("taetigkeit", v)} options={[["", ","], ["angestellt", "Angestellt"], ["selbstaendig", "Selbständig"], ["pensioniert", "Pensioniert"]]} />
 
         {isAbl && (
           <>
-            <Select label="Weiss schon Modell + Laufzeit" value={a.weiss_modell === true ? "ja" : a.weiss_modell === false ? "nein" : ""} onChange={(v) => up("weiss_modell", v === "ja" ? true : v === "nein" ? false : null)} options={[["", "—"], ["ja", "Ja"], ["nein", "Nein"]]} />
+            <Select label="Weiss schon Modell + Laufzeit" value={a.weiss_modell === true ? "ja" : a.weiss_modell === false ? "nein" : ""} onChange={(v) => up("weiss_modell", v === "ja" ? true : v === "nein" ? false : null)} options={[["", ","], ["ja", "Ja"], ["nein", "Nein"]]} />
             <Grid2>
-              <Select label="Gewünschtes Modell" value={a.modell || ""} onChange={(v) => up("modell", v)} options={[["", "—"], ["festzins", "Festzinshypothek"], ["saron-rahmen", "SARON mit Rahmenlaufzeit"], ["saron-frei", "SARON ohne Rahmenlaufzeit"]]} />
+              <Select label="Gewünschtes Modell" value={a.modell || ""} onChange={(v) => up("modell", v)} options={[["", ","], ["festzins", "Festzinshypothek"], ["saron-rahmen", "SARON mit Rahmenlaufzeit"], ["saron-frei", "SARON ohne Rahmenlaufzeit"]]} />
               <Input label="Laufzeit (Jahre)" type="number" value={a.laufzeit_jahre ?? ""} onChange={(v) => up("laufzeit_jahre", v ? Number(v) : null)} />
             </Grid2>
           </>
@@ -728,7 +728,7 @@ function AdminUploadButton({ leadId, submissionId, onUploaded }: { leadId: strin
     <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
       {showCategoryPicker && (
         <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ padding: "6px 10px", fontSize: 12, border: "1px solid #ddd", fontFamily: "inherit" }}>
-          <option value="">— Sonstige Unterlage —</option>
+          <option value="">, Sonstige Unterlage ,</option>
           {Object.entries(DOCUMENT_CATEGORY_LABELS).map(([k, v]) => (<option key={k} value={k}>{v.de}</option>))}
         </select>
       )}

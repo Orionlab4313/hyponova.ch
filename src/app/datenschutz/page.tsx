@@ -15,14 +15,14 @@ async function readLang(): Promise<"de" | "en"> {
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getLegalPage("datenschutz");
   const lang = await readLang();
-  if (!page) return { title: "Datenschutz – HYPONOVA" };
+  if (!page) return { title: "Datenschutz - HYPONOVA" };
   const picked = pickLegalContent(page, lang);
   const fallbackTitle =
-    lang === "en" ? "Privacy Policy – HYPONOVA" : "Datenschutz – HYPONOVA";
+    lang === "en" ? "Privacy Policy - HYPONOVA" : "Datenschutz - HYPONOVA";
   return {
     title:
       [picked.title, picked.title_highlight].filter(Boolean).join(" ").trim() +
-        " – HYPONOVA" || fallbackTitle,
+        " - HYPONOVA" || fallbackTitle,
     description:
       picked.meta_description ||
       "Datenschutzerklärung der HYPONOVA GmbH gemäss dem Schweizer Datenschutzgesetz (nDSG).",

@@ -32,7 +32,7 @@ const PAGES: { id: "impressum" | "agb" | "datenschutz"; label: string; descripti
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
-  if (isNaN(d.getTime())) return "—";
+  if (isNaN(d.getTime())) return ",";
   return d.toLocaleString("de-CH", {
     day: "2-digit",
     month: "2-digit",

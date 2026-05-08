@@ -13,7 +13,7 @@ import { decryptSecret, encryptSecret } from "./crypto-helper";
  * isOnlineMeeting=true. Das gibt uns einen Teams Join-Link UND legt das
  * Meeting in Simons Outlook-Kalender ab.
  *
- * Alternative: POST /me/onlineMeetings — erstellt nur den Join-Link, ohne
+ * Alternative: POST /me/onlineMeetings, erstellt nur den Join-Link, ohne
  * Calendar-Event. Wir nehmen Calendar-Events damit Simon den Termin
  * automatisch in Outlook sieht.
  */
@@ -34,7 +34,7 @@ interface CachedToken {
 }
 
 // In-Memory-Cache fuer Access-Token waehrend der Edge-Function-Lifetime.
-// Wenn die Function recyclet wird ist der Cache weg — dann holen wir neu via Refresh.
+// Wenn die Function recyclet wird ist der Cache weg, dann holen wir neu via Refresh.
 let tokenCache: CachedToken | null = null;
 
 /**
@@ -102,7 +102,7 @@ export async function getAccessToken(config: MicrosoftConfig): Promise<string> {
 
   if (!r.ok) {
     const errText = await r.text().catch(() => "");
-    throw new Error(`Microsoft token refresh failed: HTTP ${r.status} — ${errText.slice(0, 200)}`);
+    throw new Error(`Microsoft token refresh failed: HTTP ${r.status}, ${errText.slice(0, 200)}`);
   }
 
   const data = (await r.json()) as {
@@ -188,7 +188,7 @@ export async function createOnlineMeeting(input: CreateMeetingInput): Promise<Cr
 
   const tz = input.timeZone || "Europe/Zurich";
 
-  // ISO mit Timezone-Suffix berechnen — Online Meetings API braucht ISO 8601
+  // ISO mit Timezone-Suffix berechnen, Online Meetings API braucht ISO 8601
   // mit Timezone-Offset (nicht das events-Format mit separater timeZone-Property).
   const offset = computeIsoOffset(tz, input.startIso);
   const startIsoTz = `${input.startIso}${offset}`;
@@ -225,7 +225,7 @@ export async function createOnlineMeeting(input: CreateMeetingInput): Promise<Cr
   }
 
   // ---------- Step 2: Calendar Event mit Join-Link im Body ----------
-  // URL nicht als Plain-Text — nur als klickbarer Button. Wer den Link kopieren
+  // URL nicht als Plain-Text, nur als klickbarer Button. Wer den Link kopieren
   // will, macht Rechtsklick auf den Button -> "Link kopieren".
   const eventHtmlBody = `${input.bodyText ? `<p>${escapeHtml(input.bodyText).replace(/\n/g, "<br>")}</p><br>` : ""}<p><strong>Microsoft Teams Meeting</strong></p><p><a href="${joinUrl}" style="display:inline-block;background:#5059c9;color:#fff;text-decoration:none;padding:10px 18px;font-size:14px;font-weight:600;border-radius:4px;">Teams Meeting beitreten</a></p>`;
 
@@ -249,7 +249,7 @@ export async function createOnlineMeeting(input: CreateMeetingInput): Promise<Cr
   if (!eventRes.ok) {
     const errText = await eventRes.text().catch(() => "");
     console.error("createOnlineMeeting Step 2 (/me/events) failed:", eventRes.status, errText.slice(0, 500));
-    // Online Meeting wieder loeschen — wir haben es ja schon erstellt
+    // Online Meeting wieder loeschen, wir haben es ja schon erstellt
     await fetch(`${GRAPH_BASE}/me/onlineMeetings/${meeting.id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${await getAccessToken(config)}` },
@@ -273,7 +273,7 @@ function escapeHtml(s: string): string {
 
 /**
  * Berechnet den ISO 8601 Timezone-Offset (z.B. "+02:00") fuer eine Zone
- * zu einem bestimmten Zeitpunkt — wichtig wegen Sommer-/Winterzeit.
+ * zu einem bestimmten Zeitpunkt, wichtig wegen Sommer-/Winterzeit.
  */
 function computeIsoOffset(tz: string, isoLocal: string): string {
   try {
@@ -328,7 +328,7 @@ export async function updateOnlineMeeting(input: UpdateMeetingInput): Promise<bo
 
 /**
  * Loescht das Calendar Event UND das zugehoerige OnlineMeeting (idempotent).
- * Beide IDs muss man uebergeben — wir speichern sie in appointments.
+ * Beide IDs muss man uebergeben, wir speichern sie in appointments.
  */
 export async function deleteOnlineMeeting(eventId: string, onlineMeetingId?: string | null): Promise<boolean> {
   const config = await getMicrosoftConfig();
@@ -346,7 +346,7 @@ export async function deleteOnlineMeeting(eventId: string, onlineMeetingId?: str
     }
   }
 
-  // Online Meeting (separat — falls wir's beim Cancel auch loeschen wollen)
+  // Online Meeting (separat, falls wir's beim Cancel auch loeschen wollen)
   if (onlineMeetingId) {
     const r = await graphFetch(config, `/me/onlineMeetings/${onlineMeetingId}`, { method: "DELETE" });
     if (!r.ok && r.status !== 404) {

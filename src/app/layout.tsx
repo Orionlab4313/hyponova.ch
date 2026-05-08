@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "HYPONOVA – Digitaler Hypothekenvergleich Schweiz",
+  title: "HYPONOVA - Digitaler Hypothekenvergleich Schweiz",
   description:
     "Ihr unabhängiger Hypothekenpartner in der Schweiz. Vergleichen Sie Hypotheken von Banken, Versicherungen und Pensionskassen. Digital, transparent und kostenlos.",
   keywords: [

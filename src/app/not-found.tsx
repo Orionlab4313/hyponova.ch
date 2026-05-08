@@ -4,7 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
-  title: "Seite nicht gefunden – HYPONOVA",
+  title: "Seite nicht gefunden - HYPONOVA",
   robots: { index: false, follow: false },
 };
 

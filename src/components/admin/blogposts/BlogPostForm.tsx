@@ -112,7 +112,7 @@ export default function BlogPostForm({ initial }: Props) {
     setData((prev) => ({ ...prev, [key]: value }));
   }
 
-  // Slug wird nur aus DE-Titel automatisch abgeleitet — EN-Titel-Aenderungen
+  // Slug wird nur aus DE-Titel automatisch abgeleitet, EN-Titel-Aenderungen
   // beruehren den Slug nicht, sonst wuerde er beim Sprachwechsel kippen.
   function onTitleDeChange(v: string) {
     update("title_de", v);
@@ -307,7 +307,7 @@ export default function BlogPostForm({ initial }: Props) {
                 {l === "de" ? "Deutsch" : "English"}
                 {enWarn && (
                   <span
-                    title="EN-Version ist leer — auf der Website wird DE angezeigt"
+                    title="EN-Version ist leer, auf der Website wird DE angezeigt"
                     style={{
                       fontSize: 10,
                       padding: "2px 6px",
@@ -373,8 +373,8 @@ export default function BlogPostForm({ initial }: Props) {
           }
           placeholder={
             lang === "de"
-              ? "1–2 Sätze für die Blog-Übersicht"
-              : "1–2 sentences for the blog overview"
+              ? "1-2 Sätze für die Blog-Übersicht"
+              : "1-2 sentences for the blog overview"
           }
           style={{ ...inputStyle, minHeight: 70, resize: "vertical" }}
         />
@@ -455,7 +455,7 @@ export default function BlogPostForm({ initial }: Props) {
             style={compactInputStyle}
           />
           <div style={{ fontSize: 12, color: "#888", marginTop: 4 }}>
-            URL: /blog/{data.slug || "…"} — wird automatisch aus dem deutschen Titel
+            URL: /blog/{data.slug || "…"}, wird automatisch aus dem deutschen Titel
             erzeugt, kann aber überschrieben werden.
           </div>
 

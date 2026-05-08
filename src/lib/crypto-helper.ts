@@ -29,7 +29,7 @@ export function encryptSecret(plain: string): string {
 export function decryptSecret(stored: string): string | null {
   try {
     if (!stored.startsWith(`${VERSION}:`)) {
-      // Legacy plain string (vor Migration) — toleranter Fallback,
+      // Legacy plain string (vor Migration), toleranter Fallback,
       // damit bestehende TOTP-Secrets nicht broken sind. Beim naechsten
       // setTotpSecret werden sie automatisch verschluesselt.
       return stored;

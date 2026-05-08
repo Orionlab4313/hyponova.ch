@@ -1,6 +1,6 @@
 -- Migration: Fragebogen-Antworten + tokenized Customer-Upload-System
 -- Datum: 2026-05-01
--- Bereits via MCP angewandt — Datei dient nur der Repo-History.
+-- Bereits via MCP angewandt, Datei dient nur der Repo-History.
 
 -- 1. Submissions
 CREATE TABLE IF NOT EXISTS questionnaire_submissions (

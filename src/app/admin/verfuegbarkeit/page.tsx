@@ -134,7 +134,7 @@ export default function VerfuegbarkeitPage() {
                   <div key={day} style={{ padding: "8px 10px", borderRadius: 6, background: anyActive ? "#f0fdf4" : "#f9f9f9", border: `1px solid ${anyActive ? "#bbf7d0" : "#e5e5e5"}` }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <button onClick={() => {
-                        // Toggle main slot — if deactivating, also deactivate pause
+                        // Toggle main slot, if deactivating, also deactivate pause
                         if (mainSlot.active) {
                           setSlots(slots.map((s) => s.day === day ? { ...s, active: false } : s));
                         } else {
@@ -147,7 +147,7 @@ export default function VerfuegbarkeitPage() {
                       {mainSlot.active ? (
                         <div className="admin-stack-mobile" style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: "auto" }}>
                           <input type="time" value={mainSlot.start} onChange={(e) => updateSlot(day, 0, "start", e.target.value)} style={{ ...inputStyle, width: 90 }} />
-                          <span style={{ color: "#999", fontSize: 11 }}>–</span>
+                          <span style={{ color: "#999", fontSize: 11 }}>-</span>
                           <input type="time" value={mainSlot.end} onChange={(e) => updateSlot(day, 0, "end", e.target.value)} style={{ ...inputStyle, width: 90 }} />
                         </div>
                       ) : (
@@ -163,7 +163,7 @@ export default function VerfuegbarkeitPage() {
                             <span style={{ fontSize: 11, color: "#888", width: 80, flexShrink: 0 }}>+ Nachmittag</span>
                             <div className="admin-stack-mobile" style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: "auto" }}>
                               <input type="time" value={pauseSlot.start} onChange={(e) => updateSlot(day, 1, "start", e.target.value)} style={{ ...inputStyle, width: 90 }} />
-                              <span style={{ color: "#999", fontSize: 11 }}>–</span>
+                              <span style={{ color: "#999", fontSize: 11 }}>-</span>
                               <input type="time" value={pauseSlot.end} onChange={(e) => updateSlot(day, 1, "end", e.target.value)} style={{ ...inputStyle, width: 90 }} />
                               <button onClick={() => toggleDay(day, 1)} style={{ fontSize: 14, color: "#999", background: "none", border: "none", cursor: "pointer", padding: 0, lineHeight: 1 }}>×</button>
                             </div>
@@ -192,9 +192,9 @@ export default function VerfuegbarkeitPage() {
                       <span style={{ fontWeight: 500, color: "#ef4444" }}>
                         {new Date(b.date + "T00:00:00").toLocaleDateString("de-CH", { weekday: "short", day: "numeric", month: "long" })}
                       </span>
-                      {b.type === "hours" && <span style={{ color: "#888", marginLeft: 4 }}>{b.start_time} – {b.end_time}</span>}
+                      {b.type === "hours" && <span style={{ color: "#888", marginLeft: 4 }}>{b.start_time} - {b.end_time}</span>}
                       {b.type === "day" && <span style={{ fontSize: 10, color: "#999", marginLeft: 4 }}>(ganztägig)</span>}
-                      {b.reason && <span style={{ color: "#999", marginLeft: 6 }}>— {b.reason}</span>}
+                      {b.reason && <span style={{ color: "#999", marginLeft: 6 }}>, {b.reason}</span>}
                     </div>
                     <button onClick={() => removeBlocked(b.id)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 14, padding: 0, lineHeight: 1 }}>×</button>
                   </div>
@@ -268,7 +268,7 @@ export default function VerfuegbarkeitPage() {
                     )}
                     {blockedHrs.map((bh) => (
                       <div key={bh.id} style={{ fontSize: 8, padding: "1px 3px", background: "#fed7aa", color: "#ea580c", borderRadius: 2, fontWeight: 500, marginTop: 1 }}>
-                        {bh.start_time}–{bh.end_time}
+                        {bh.start_time}-{bh.end_time}
                       </div>
                     ))}
                     {isInactive && !blocked && (

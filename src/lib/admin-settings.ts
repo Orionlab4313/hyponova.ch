@@ -6,7 +6,7 @@ import { createServiceClient } from "./supabase";
  * --------------------
  * Liest Hashes und 2FA-Konfiguration aus der DB.
  *
- * KEIN Fallback auf hartkodierte Defaults — das war ein Sicherheitsrisiko.
+ * KEIN Fallback auf hartkodierte Defaults, das war ein Sicherheitsrisiko.
  * Das initiale Passwort muss via Migration oder einmaligem Setup gesetzt werden.
  *
  * Dieses Modul ist NUR für Server-Code gedacht (API-Routes).
@@ -23,7 +23,7 @@ export type AdminSettings = {
   backup_codes: string[];
   notification_email: string;
   site_protection_enabled: boolean;
-  // Microsoft Teams Personal/Standing Meeting URL — wird in
+  // Microsoft Teams Personal/Standing Meeting URL, wird in
   // Termin-Bestaetigungs-Emails inkludiert wenn gesetzt.
   teams_meeting_url: string | null;
   updated_at: string;
@@ -35,7 +35,7 @@ export async function getAdminSettings(): Promise<AdminSettings> {
   const sb = createServiceClient();
   const { data, error } = await sb.from("admin_settings").select("*").eq("id", 1).single();
   if (error || !data) {
-    throw new Error("Admin-Settings nicht gefunden – Migration angewandt?");
+    throw new Error("Admin-Settings nicht gefunden - Migration angewandt?");
   }
   return data as AdminSettings;
 }

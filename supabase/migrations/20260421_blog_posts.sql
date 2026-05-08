@@ -62,7 +62,7 @@ CREATE POLICY "blog_assets_public_read"
 
 -- Service-Role darf alles (wird von unseren Admin-API-Routes verwendet,
 -- daher streng genommen nicht nötig, aber hilft falls jemand direkt
--- mit dem Anon-Key uploaden will — wir blocken das bewusst).
+-- mit dem Anon-Key uploaden will, wir blocken das bewusst).
 DROP POLICY IF EXISTS "blog_assets_service_role_all" ON storage.objects;
 CREATE POLICY "blog_assets_service_role_all"
   ON storage.objects

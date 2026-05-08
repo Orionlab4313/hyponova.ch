@@ -18,7 +18,7 @@ export default function HypothekAbloesenPage() {
       back: "← Alle Dienstleistungen",
       kategorie: "Hypothekenablösung",
       title: "Hypothek ablösen",
-      intro: "Lassen Sie uns Ihre bestehende Hypothek prüfen. Wir holen die besten Angebote von zahlreichen Schweizer Anbietern ein und zeigen Ihnen Ihr konkretes Einsparpotenzial — kostenlos und unverbindlich.",
+      intro: "Lassen Sie uns Ihre bestehende Hypothek prüfen. Wir holen die besten Angebote von zahlreichen Schweizer Anbietern ein und zeigen Ihnen Ihr konkretes Einsparpotenzial, kostenlos und unverbindlich.",
       forwhomTitle: "Für wen",
       forwhom: [
         "Ihre Hypothek läuft in den nächsten zwei Jahren aus.",
@@ -31,7 +31,7 @@ export default function HypothekAbloesenPage() {
         { num: "2", t: "Unterlagen hochladen", d: "Über einen sicheren, personalisierten Link senden Sie uns die nötigen Dokumente." },
         { num: "3", t: "Marktvergleich", d: "Wir holen Angebote ein und vergleichen sie für Sie transparent." },
         { num: "4", t: "Vorsorgliche Kündigung", d: "Sobald die besten Konditionen feststehen, kündigen Sie Ihre aktuelle Hypothek mit unserer Vorlage." },
-        { num: "5", t: "Ihre Entscheidung", d: "Sie wählen die für Sie passende Variante — ohne Druck." },
+        { num: "5", t: "Ihre Entscheidung", d: "Sie wählen die für Sie passende Variante, ohne Druck." },
       ],
       includesTitle: "Was im Service enthalten ist",
       includes: [
@@ -42,7 +42,7 @@ export default function HypothekAbloesenPage() {
         "Persönliche Beratung in Deutsch oder Englisch",
       ],
       costsTitle: "Was es kostet",
-      costsBody: "Für Sie kostenlos. Wir werden bei einem erfolgreichen Abschluss direkt vom neuen Kreditgeber entschädigt — ohne Auswirkung auf Ihre Konditionen.",
+      costsBody: "Für Sie kostenlos. Wir werden bei einem erfolgreichen Abschluss direkt vom neuen Kreditgeber entschädigt, ohne Auswirkung auf Ihre Konditionen.",
       ctaTitle: "Bereit für den Vergleich?",
       ctaBody: "Starten Sie jetzt unseren Fragebogen. In wenigen Minuten wissen Sie, ob eine Ablösung für Sie möglich ist.",
       ctaBtn: "Fragebogen starten →",
@@ -53,7 +53,7 @@ export default function HypothekAbloesenPage() {
       back: "← All services",
       kategorie: "Mortgage refinancing",
       title: "Refinance mortgage",
-      intro: "Let us review your existing mortgage. We obtain the best offers from numerous Swiss providers and show you your concrete savings potential — free and without obligation.",
+      intro: "Let us review your existing mortgage. We obtain the best offers from numerous Swiss providers and show you your concrete savings potential, free and without obligation.",
       forwhomTitle: "Who it's for",
       forwhom: [
         "Your mortgage expires within the next two years.",
@@ -66,7 +66,7 @@ export default function HypothekAbloesenPage() {
         { num: "2", t: "Upload documents", d: "Use the secure personalised link to send us the required documents." },
         { num: "3", t: "Market comparison", d: "We obtain offers and compare them for you transparently." },
         { num: "4", t: "Precautionary cancellation", d: "Once the best conditions are clear, cancel your current mortgage using our template." },
-        { num: "5", t: "Your decision", d: "Choose the option that suits you best — no pressure." },
+        { num: "5", t: "Your decision", d: "Choose the option that suits you best, no pressure." },
       ],
       includesTitle: "What's included",
       includes: [
@@ -77,7 +77,7 @@ export default function HypothekAbloesenPage() {
         "Personal consultation in German or English",
       ],
       costsTitle: "What it costs",
-      costsBody: "Free for you. On successful completion, we're compensated directly by the new lender — with no impact on your conditions.",
+      costsBody: "Free for you. On successful completion, we're compensated directly by the new lender, with no impact on your conditions.",
       ctaTitle: "Ready to compare?",
       ctaBody: "Start our questionnaire now. In a few minutes you'll know whether refinancing is possible for you.",
       ctaBtn: "Start questionnaire →",
@@ -121,7 +121,7 @@ export default function HypothekAbloesenPage() {
             {t.forwhom.map((line, i) => (
               <SlideUp key={i} delay={i * 0.05}>
                 <li className="flex items-start gap-4 text-lg" style={{ color: "#444", lineHeight: 1.6 }}>
-                  <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0 }}>—</span>
+                  <span style={{ color: ACCENT, fontWeight: 700, flexShrink: 0 }}>,</span>
                   <span>{line}</span>
                 </li>
               </SlideUp>

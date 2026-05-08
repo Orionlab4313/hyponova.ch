@@ -5,7 +5,7 @@ const ALLOWED_KATEGORIEN = new Set(["abloesung", "neukauf"]);
 
 /**
  * Liefert aktive Dokument-Vorlagen fuer den Kunden-Workflow.
- * ?kategorie=abloesung|neukauf — gibt Vorlagen zurueck die fuer diesen Workflow
+ * ?kategorie=abloesung|neukauf, gibt Vorlagen zurueck die fuer diesen Workflow
  * gelten ("beide" matched immer).
  */
 export async function GET(request: NextRequest) {

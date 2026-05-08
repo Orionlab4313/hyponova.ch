@@ -48,7 +48,7 @@ const COPY = {
     submitting: "Wird gesendet…",
     successTitle: "Vielen Dank!",
     successDesc:
-      "Da ein Neukauf viele Themen umfasst, ist ein Termin der nächste Schritt. Buchen Sie jetzt Ihr kostenloses Erstgespräch — bequem von zu Hause aus.",
+      "Da ein Neukauf viele Themen umfasst, ist ein Termin der nächste Schritt. Buchen Sie jetzt Ihr kostenloses Erstgespräch, bequem von zu Hause aus.",
     successCheckEmail: "In Kürze erhalten Sie eine E-Mail mit Ihrer persönlichen Unterlagen-Checkliste.",
     successCalendarBtn: "Termin jetzt buchen →",
     successHomeBtn: "← Zur Startseite",
@@ -96,7 +96,7 @@ const COPY = {
     submitting: "Sending…",
     successTitle: "Thank you!",
     successDesc:
-      "Since a purchase involves many topics, a meeting is the next step. Book your free initial consultation — conveniently from home.",
+      "Since a purchase involves many topics, a meeting is the next step. Book your free initial consultation, conveniently from home.",
     successCheckEmail: "Shortly, you will receive an email with your personal document checklist.",
     successCalendarBtn: "Book appointment now →",
     successHomeBtn: "← Back to homepage",
@@ -142,7 +142,7 @@ export default function NeukaufForm({ initialLang }: { initialLang: Lang }) {
 
   function up<K extends keyof Answers>(k: K, v: Answers[K]) { setA((p) => ({ ...p, [k]: v })); setError(null); }
 
-  // Baurecht-Frage nur bei Hausobjekten (EFH/2FH) — bei Stockwerkeigentum
+  // Baurecht-Frage nur bei Hausobjekten (EFH/2FH), bei Stockwerkeigentum
   // ist Baurecht unueblich, daher Step uebersprungen.
   const flow = useMemo<StepKey[]>(() => {
     const list: StepKey[] = ["kanton", "objektart", "status"];
@@ -293,7 +293,7 @@ function SuccessStep({ t, lang }: { t: any; lang: Lang }) {
         </div>
       </div>
 
-      {/* Vorlagen zum Download — Vollmacht etc., dynamisch aus DB */}
+      {/* Vorlagen zum Download, Vollmacht etc., dynamisch aus DB */}
       <VorlagenDownloadBlock kategorie="neukauf" lang={lang} variant="card" />
     </div>
   );

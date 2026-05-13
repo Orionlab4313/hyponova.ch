@@ -1,4 +1,12 @@
-# HYPONOVA – Projekt-Anweisungen
+# HYPONOVA Projekt-Anweisungen
+
+## ABSOLUTE TOP-PRIORITÄT (vor allem anderen, immer)
+
+1. **NIE Em-Dashes oder En-Dashes** verwenden. Nicht in Code, nicht in Markdown, nicht in Chat-Antworten an Davide, nirgends. Stattdessen: Komma, normaler Bindestrich, Doppelpunkt, Klammern, oder Satz umformulieren.
+2. **IMMER ä ö ü ß** in deutschen Texten. Niemals ae oe ue ss als Ersatz. Gilt für Code-Strings, UI-Labels, Email-Templates, Chat-Antworten.
+3. **NIE pushen** ohne explizite Freigabe von Davide.
+
+Diese drei Regeln gelten überall, vor allem anderen. Verifizieren vor jedem Output.
 
 ## Projekt
 - **Kunde**: Simon Topalli, HYPONOVA GmbH, Dahlienweg 22, 4313 Möhlin

@@ -36,7 +36,7 @@ export default function UeberUnsPage() {
   };
 
   const whoP1 = {
-    de: "HYPONOVA ist ein unabhängiger Hypothekenvermittler mit Sitz in Möhlin (AG). Wir vergleichen die Angebote zahlreicher Banken, Versicherungen und Pensionskassen, und finden für Sie die attraktivste Finanzierungslösung.",
+    de: "HYPONOVA ist ein unabhängiger Hypothekenbroker mit Sitz in Möhlin (AG). Wir vergleichen die Angebote zahlreicher Banken, Versicherungen und Pensionskassen, und finden für Sie die attraktivste Finanzierungslösung.",
     en: "HYPONOVA is an independent mortgage broker based in Möhlin (AG). We compare offers from numerous banks, insurance companies and pension funds, and find the most attractive financing solution for you.",
   };
 
@@ -74,23 +74,23 @@ export default function UeberUnsPage() {
   };
 
   const founderLabel = {
-    de: "Gründer & Geschäftsführer",
-    en: "Founder & CEO",
-  };
-
-  const founderPlaceholder = {
-    de: "Foto wird ergänzt",
-    en: "Photo coming soon",
+    de: "Die Geschichte",
+    en: "The story",
   };
 
   const founderP1 = {
-    de: "Simon Topalli gründete HYPONOVA mit der Vision, die Hypothekenberatung in der Schweiz grundlegend zu verändern. Als unabhängiger Berater verbindet er fundiertes Fachwissen mit einem digitalen, kundenorientierten Ansatz.",
-    en: "Simon Topalli founded HYPONOVA with the vision of fundamentally transforming mortgage consulting in Switzerland. As an independent advisor, he combines deep expertise with a digital, client-oriented approach.",
+    de: "Die HYPONOVA GmbH wurde von Simon Topalli gegründet. Während seiner knapp dreijährigen Tätigkeit in der Kundenberatung beim VZ VermögensZentrum eignete er sich fundiertes Fachwissen in den Bereichen Finanzierung, Vorsorge und Vermögensplanung an. Dabei erkannte er früh, wie komplex und intransparent der Hypothekenmarkt für viele Menschen wirkt. Doch Hypotheken sind nicht so kompliziert, wie sie oft dargestellt werden. Genau aus diesem Grund wurde HYPONOVA gegründet: mit dem Ziel, heutige und zukünftige Eigenheimbesitzer persönlich, transparent und unabhängig bei ihrer Finanzierung zu begleiten.",
+    en: "HYPONOVA GmbH was founded by Simon Topalli. During his nearly three years in client advisory at VZ VermögensZentrum, he built deep expertise in financing, retirement planning and wealth management. He recognized early on how complex and opaque the mortgage market feels to many people. Yet mortgages are not as complicated as they are often portrayed. That is exactly why HYPONOVA was founded: to guide current and future homeowners personally, transparently and independently through their financing.",
   };
 
   const founderP2 = {
-    de: "Sein Ziel: Jeder Eigenheimbesitzer und jede Eigenheimbesitzerin soll Zugang zu einer transparenten, unabhängigen Beratung haben, ohne an eine einzelne Bank gebunden zu sein.",
-    en: "His goal: every homeowner should have access to transparent, independent advice, without being tied to a single bank.",
+    de: "Simon Topalli entschied sich bewusst dagegen, an ein einzelnes Finanzinstitut gebunden zu sein. Stattdessen vergleicht HYPONOVA die Angebote von Banken, Versicherungen und Pensionskassen objektiv und unabhängig, um für jede Kundin und jeden Kunden die bestmögliche Finanzierungslösung zu finden.",
+    en: "Simon Topalli deliberately chose not to be tied to a single financial institution. Instead, HYPONOVA compares offers from banks, insurance companies and pension funds objectively and independently to find the best possible financing solution for every client.",
+  };
+
+  const founderP3 = {
+    de: "HYPONOVA. Ihre neue Hypothek.",
+    en: "HYPONOVA. Your new mortgage.",
   };
 
   const founderCta = {
@@ -132,24 +132,21 @@ export default function UeberUnsPage() {
         </section>
 
         {/* -- MISSION -- */}
-        <section className="relative h-[50vh] min-h-[350px] overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1400&q=80"
-            alt="Schweizer Finanzplatz"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0" style={{ backgroundColor: "rgba(0,0,0,0.55)" }} />
-          <div className="absolute inset-0 flex items-center">
-            <div className="max-w-[1400px] mx-auto px-6 lg:px-10 w-full">
-              <ScrollReveal>
-                <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "rgba(255,255,255,0.6)" }}>
-                  {missionLabel[lang]}
-                </p>
-                <h2 className="text-3xl md:text-4xl lg:text-5xl text-white leading-[1.15] max-w-2xl" style={{ fontWeight: 300 }}>
-                  {missionHeading[lang].before}<span style={{ fontWeight: 600 }}>{missionHeading[lang].bold}</span>
-                </h2>
-              </ScrollReveal>
-            </div>
+        <section className="bg-white py-16 lg:py-24">
+          <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+            <ScrollReveal>
+              <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
+                {missionLabel[lang]}
+              </p>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl leading-[1.15] max-w-3xl mb-10" style={{ fontWeight: 300, color: "#1a1a1a" }}>
+                {missionHeading[lang].before}<span style={{ fontWeight: 600 }}>{missionHeading[lang].bold}</span>
+              </h2>
+              <img
+                src="/images/unsere-mission.png"
+                alt={missionLabel[lang]}
+                className="w-full h-auto"
+              />
+            </ScrollReveal>
           </div>
         </section>
 
@@ -208,45 +205,36 @@ export default function UeberUnsPage() {
           </div>
         </section>
 
-        {/* -- GRÜNDER -- */}
+        {/* -- DIE GESCHICHTE -- */}
         <section className="py-24 lg:py-32">
-          <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-            <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <ScrollReveal direction="left">
-                <div className="aspect-[4/5] overflow-hidden bg-[#f0f0f0] flex items-center justify-center">
-                  <div className="text-center" style={{ color: "#999" }}>
-                    <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    <p className="text-sm">{founderPlaceholder[lang]}</p>
-                  </div>
-                </div>
-              </ScrollReveal>
-              <ScrollReveal direction="right" delay={0.15}>
-                <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
-                  {founderLabel[lang]}
-                </p>
-                <h2 className="text-3xl md:text-4xl leading-[1.2] mb-6" style={{ fontWeight: 300 }}>
-                  <span style={{ fontWeight: 600 }}>Simon Topalli</span>
-                </h2>
-                <p className="text-base leading-relaxed mb-6" style={{ color: "#6b6b6b" }}>
-                  {founderP1[lang]}
-                </p>
-                <p className="text-base leading-relaxed mb-8" style={{ color: "#6b6b6b" }}>
-                  {founderP2[lang]}
-                </p>
-                <Link
-                  href="/termin"
-                  className="inline-flex items-center gap-1 text-sm font-medium hover:gap-2 transition-all"
-                  style={{ color: "#c8553d" }}
-                >
-                  {founderCta[lang]}
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </Link>
-              </ScrollReveal>
-            </div>
+          <div className="max-w-3xl mx-auto px-6 lg:px-10">
+            <ScrollReveal>
+              <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
+                {founderLabel[lang]}
+              </p>
+              <h2 className="text-3xl md:text-4xl leading-[1.2] mb-10" style={{ fontWeight: 300, color: "#1a1a1a" }}>
+                <span style={{ fontWeight: 600 }}>HYPONOVA.</span> {lang === "de" ? "Ihre neue Hypothek." : "Your new mortgage."}
+              </h2>
+              <p className="text-base leading-relaxed mb-6" style={{ color: "#3a3a3a" }}>
+                {founderP1[lang]}
+              </p>
+              <p className="text-base leading-relaxed mb-10" style={{ color: "#3a3a3a" }}>
+                {founderP2[lang]}
+              </p>
+              <p className="text-xl md:text-2xl leading-[1.3] mb-10" style={{ fontWeight: 500, color: "#1a1a1a" }}>
+                {founderP3[lang]}
+              </p>
+              <Link
+                href="/termin"
+                className="inline-flex items-center gap-1 text-sm font-medium hover:gap-2 transition-all"
+                style={{ color: "#c8553d" }}
+              >
+                {founderCta[lang]}
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </ScrollReveal>
           </div>
         </section>
 

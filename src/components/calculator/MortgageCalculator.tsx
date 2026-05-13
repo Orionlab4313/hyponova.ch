@@ -13,12 +13,12 @@ import {
   calculateLTV,
   calculateSecondMortgage,
   calculateAffordability,
-  calculateIndicativeInterest,
-  calculateAmortization,
-  calculateMaintenance,
   calculateMinEquity,
   calculateMinIncome,
   formatCHF,
+  IMPUTED_RATE,
+  MAINTENANCE_RATE,
+  AMORTIZATION_YEARS,
 } from "./mortgage-utils";
 
 export default function MortgageCalculator() {
@@ -35,11 +35,11 @@ export default function MortgageCalculator() {
   const secondMortgage = calculateSecondMortgage(kaufpreis, mortgage);
   const affordability = calculateAffordability(kaufpreis, mortgage, einkommen);
 
-  // Monthly costs (indicative rate)
-  const monthlyInterest = calculateIndicativeInterest(mortgage);
-  const monthlyAmortization = calculateAmortization(secondMortgage);
-  const monthlyMaintenance = calculateMaintenance(kaufpreis);
-  const totalMonthly = monthlyInterest + monthlyAmortization + monthlyMaintenance;
+  // Yearly costs (imputed rate, 5%)
+  const yearlyInterest = mortgage * IMPUTED_RATE;
+  const yearlyAmortization = secondMortgage > 0 ? secondMortgage / AMORTIZATION_YEARS : 0;
+  const yearlyMaintenance = kaufpreis * MAINTENANCE_RATE;
+  const totalYearly = yearlyInterest + yearlyAmortization + yearlyMaintenance;
 
   // Dynamic hints
   const minEquity = calculateMinEquity(kaufpreis);
@@ -49,8 +49,8 @@ export default function MortgageCalculator() {
   const ltvColor = ltv <= 80 ? "#4ade80" : "#ef4444";
   const ltvStatus = ltv <= 80 ? c.ltvOk : c.ltvHigh;
 
-  const affordColor = affordability <= 33 ? "#4ade80" : affordability <= 38 ? "#f59e0b" : "#ef4444";
-  const affordStatus = affordability <= 33 ? c.statusGood : affordability <= 38 ? c.statusWarning : c.statusBad;
+  const affordColor = affordability <= 33.3 ? "#4ade80" : affordability <= 38 ? "#f59e0b" : "#ef4444";
+  const affordStatus = affordability <= 33.3 ? c.statusGood : affordability <= 38 ? c.statusWarning : c.statusBad;
 
   // Info items
   const infoItems = [
@@ -146,10 +146,10 @@ export default function MortgageCalculator() {
 
                 {/* Cost Breakdown */}
                 <CostBreakdown
-                  interestCost={monthlyInterest}
-                  amortization={monthlyAmortization}
-                  maintenance={monthlyMaintenance}
-                  total={totalMonthly}
+                  interestCost={yearlyInterest}
+                  amortization={yearlyAmortization}
+                  maintenance={yearlyMaintenance}
+                  total={totalYearly}
                   hypothek={mortgage}
                   labels={{
                     monthlyCosts: c.monthlyCosts,

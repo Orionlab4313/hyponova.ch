@@ -1,4 +1,4 @@
-import { formatCHF, INDICATIVE_RATE } from "./mortgage-utils";
+import { formatCHF, IMPUTED_RATE } from "./mortgage-utils";
 import Link from "next/link";
 
 interface CostBreakdownLabels {
@@ -28,7 +28,7 @@ export default function CostBreakdown({
   hypothek,
   labels,
 }: CostBreakdownProps) {
-  const rateDisplay = (INDICATIVE_RATE * 100).toFixed(2);
+  const rateDisplay = (IMPUTED_RATE * 100).toFixed(2);
 
   return (
     <div>

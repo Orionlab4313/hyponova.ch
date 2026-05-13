@@ -15,8 +15,8 @@ export default function Home() {
   const { t, lang } = useI18n();
 
   const heroLabels = {
-    de: "Die neue Art der Hypothekenberatung.",
-    en: "The new way of mortgage consulting.",
+    de: "Ihr Partner für die bestmögliche Hypothekenfinanzierung.",
+    en: "Your partner for the best possible mortgage financing.",
   };
 
   const heroPartnerBadge = {
@@ -106,20 +106,20 @@ export default function Home() {
 
   const advantages = {
     de: [
-      { num: "01", title: "Umfassender Vergleich", desc: "Wir vergleichen die Angebote verschiedener Partnerbanken, Versicherungen und Pensionskassen, und finden die attraktivste Offerte für Sie." },
-      { num: "02", title: "Enorme Zeitersparnis", desc: "Sie sparen sich das Einreichen des Dossiers bei mehreren Banken und die gesamte Korrespondenz. Diese Zeit können Sie besser nutzen." },
-      { num: "03", title: "Vollständig kostenlos", desc: "Die Beratung und der Abschlussprozess sind für Sie kostenlos. Wir werden direkt von den Kreditgebern entschädigt." },
-      { num: "04", title: "Kein Risiko", desc: "Bei keinem Abschluss fallen für Sie keine Kosten an. Sie gehen keine Verpflichtung ein und können sich jederzeit anders entscheiden." },
-      { num: "05", title: "Gezielte Marktanalyse", desc: "Wir analysieren den Markt systematisch nach den attraktivsten Konditionen und prüfen Struktur, Laufzeit und Flexibilität." },
-      { num: "06", title: "Persönliche Beratung", desc: "Jede Finanzierungssituation ist einzigartig. Wir entwickeln eine Lösung, die exakt zu Ihrer Lebenssituation passt." },
+      { num: "01", title: "Bestes Zinsangebot", desc: "Wir fragen mehrere Anbieter gleichzeitig an und vergleichen die Angebote direkt miteinander. So sichern Sie sich die besten Konditionen am Markt." },
+      { num: "02", title: "Unabhängigkeit", desc: "Wir sind nicht an eine einzelne Bank gebunden. Stattdessen vergleichen wir Banken, Versicherungen und Pensionskassen und empfehlen die Lösung, die zu Ihrer Situation passt." },
+      { num: "03", title: "Objektbewertung", desc: "Immobilien werden je nach Anbieter unterschiedlich bewertet. Wir finden Finanzierungspartner, die den Objektwert realistisch einschätzen und optimale Bedingungen ermöglichen." },
+      { num: "04", title: "Zeitersparnis", desc: "Sie vermeiden mehrere Banktermine und doppelten Aufwand. Wir bereiten alle Unterlagen auf und übernehmen Vergleich sowie Verhandlung für Sie." },
+      { num: "05", title: "Finanzierungsstrategie", desc: "Wir entwickeln eine durchdachte Struktur für Ihre Finanzierung, abgestimmt auf Laufzeiten, Eigenmittel, Amortisation und Vorsorgelösungen." },
+      { num: "06", title: "Schnelle Erreichbarkeit", desc: "Während des gesamten Prozesses steht Ihnen ein persönlicher Ansprechpartner zur Seite und sorgt für eine reibungslose Koordination." },
     ],
     en: [
-      { num: "01", title: "Comprehensive comparison", desc: "We compare offers from various partner banks, insurance companies and pension funds, and find the most attractive offer for you." },
-      { num: "02", title: "Enormous time savings", desc: "You save yourself submitting dossiers to multiple banks and all the correspondence. Use that time better." },
-      { num: "03", title: "Completely free", desc: "The consultation and closing process are free for you. We are compensated directly by the lenders." },
-      { num: "04", title: "No risk", desc: "If no deal is closed, you incur no costs. You have no obligation and can change your mind at any time." },
-      { num: "05", title: "Targeted market analysis", desc: "We systematically analyze the market for the most attractive conditions and review structure, term and flexibility." },
-      { num: "06", title: "Personal consultation", desc: "Every financing situation is unique. We develop a solution that perfectly fits your life situation." },
+      { num: "01", title: "Best interest rate", desc: "We request quotes from multiple providers simultaneously and compare the offers side by side. This way you secure the best conditions on the market." },
+      { num: "02", title: "Independence", desc: "We are not tied to a single bank. Instead, we compare banks, insurance companies and pension funds and recommend the solution that fits your situation." },
+      { num: "03", title: "Property valuation", desc: "Properties are valued differently by each provider. We find financing partners who realistically assess the property value and enable optimal conditions." },
+      { num: "04", title: "Time savings", desc: "You avoid multiple bank appointments and duplicated effort. We prepare all documents and handle comparison and negotiation for you." },
+      { num: "05", title: "Financing strategy", desc: "We develop a thoughtful structure for your financing, tailored to terms, equity, amortization and pension solutions." },
+      { num: "06", title: "Quick availability", desc: "Throughout the entire process, a personal contact is by your side and ensures smooth coordination." },
     ],
   };
 
@@ -135,13 +135,13 @@ export default function Home() {
 
   const steps = {
     de: [
-      { step: "1", title: "Situation erfassen", desc: "Nutzen Sie unseren kostenlosen Hypothekenrechner oder teilen Sie uns Ihre Eckdaten mit, wir erstellen eine erste Einschätzung." },
-      { step: "2", title: "Kostenlose Beratung", desc: "Buchen Sie ein unverbindliches Onlinegespräch. Gemeinsam definieren wir die optimale Strategie für Ihre Finanzierung." },
+      { step: "1", title: "Situation erfassen", desc: "Wählen Sie die passende Dienstleistung und erfassen Sie Ihre Angaben im Fragebogen." },
+      { step: "2", title: "Kostenlose Beratung", desc: "Buchen Sie bei Bedarf eine Beratung. Gemeinsam entwickeln wir Ihre optimale Finanzierungsstrategie." },
       { step: "3", title: "Beste Offerte wählen", desc: "Wir präsentieren Ihnen die attraktivsten Angebote unserer Partner. Sie entscheiden, ohne Druck, ohne Kosten." },
     ],
     en: [
-      { step: "1", title: "Assess your situation", desc: "Use our free mortgage calculator or share your key data, we create an initial assessment." },
-      { step: "2", title: "Free consultation", desc: "Book a non-binding online meeting. Together we define the optimal strategy for your financing." },
+      { step: "1", title: "Assess your situation", desc: "Choose the right service and enter your details in the questionnaire." },
+      { step: "2", title: "Free consultation", desc: "Book a consultation if needed. Together we develop your optimal financing strategy." },
       { step: "3", title: "Choose the best offer", desc: "We present you the most attractive offers from our partners. You decide, no pressure, no costs." },
     ],
   };
@@ -177,8 +177,13 @@ export default function Home() {
   };
 
   const ctaDesc = {
-    de: "Berechnen Sie jetzt Ihre Tragbarkeit oder buchen Sie direkt ein kostenloses Beratungsgespräch mit unseren Experten.",
-    en: "Calculate your affordability now or book a free consultation with our experts directly.",
+    de: "Holen Sie sich jetzt Ihr passendes Angebot ein oder buchen Sie direkt ein kostenloses Beratungsgespräch.",
+    en: "Get your matching offer now or book a free consultation directly.",
+  };
+
+  const ctaPrimary = {
+    de: "Angebote einholen",
+    en: "Get quotes",
   };
 
   return (
@@ -230,22 +235,15 @@ export default function Home() {
                 <p className="text-lg lg:text-xl font-medium text-white leading-snug mb-4">
                   {heroOverlayDesc[lang]}
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex">
                   <Link
-                    href="/rechner"
+                    href="/dienstleistungen"
                     className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium transition-colors bg-white text-black hover:bg-gray-100"
                   >
                     {t.hero.ctaCalculator}
                     <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
-                  </Link>
-                  <Link
-                    href="/termin"
-                    className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
-                    style={{ border: "1px solid rgba(255,255,255,0.3)" }}
-                  >
-                    {t.hero.ctaBooking}
                   </Link>
                 </div>
               </div>
@@ -273,7 +271,7 @@ export default function Home() {
                 <Link href="/dienstleistungen/eigenheim-kaufen" className="group block">
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
                     <img
-                      src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=700&q=80"
+                      src="/images/eigenheim-kaufen.png"
                       alt={t.services.newPurchase}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
@@ -298,7 +296,7 @@ export default function Home() {
                 <Link href="/dienstleistungen/hypothek-abloesen" className="group block">
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
                     <img
-                      src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=700&q=80"
+                      src="/images/beratung-paar.png"
                       alt={t.services.refinance}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
@@ -421,8 +419,8 @@ export default function Home() {
         {/* -- FULL-WIDTH IMAGE SECTION -- */}
         <section className="relative h-[60vh] min-h-[400px] overflow-hidden">
           <img
-            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1400&q=80"
-            alt="Schweizer Finanzplatz"
+            src="/images/eigenheim-modern.png"
+            alt="Modernes Eigenheim"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} />
@@ -516,7 +514,7 @@ export default function Home() {
                   className="inline-flex items-center justify-center px-8 py-4 text-sm font-medium transition-colors"
                   style={{ backgroundColor: "#fff", color: "#000" }}
                 >
-                  {t.calculator.title}
+                  {ctaPrimary[lang]}
                 </Link>
                 <Link
                   href="/termin"

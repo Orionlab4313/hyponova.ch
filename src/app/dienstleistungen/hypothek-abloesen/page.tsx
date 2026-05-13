@@ -110,7 +110,7 @@ export default function HypothekAbloesenPage() {
         <section className="px-6 lg:px-10 mb-24 lg:mb-32">
           <div className="max-w-[1400px] mx-auto">
             <div className="aspect-[16/7] overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1600&q=80" alt={t.title} className="w-full h-full object-cover" style={{ borderRadius: 0 }} />
+              <img src="/images/beratung-paar.png" alt={t.title} className="w-full h-full object-cover" style={{ borderRadius: 0 }} />
             </div>
           </div>
         </section>

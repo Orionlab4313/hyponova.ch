@@ -108,7 +108,7 @@ export default function EigenheimKaufenPage() {
         <section className="px-6 lg:px-10 mb-24 lg:mb-32">
           <div className="max-w-[1400px] mx-auto">
             <div className="aspect-[16/7] overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80" alt={t.title} className="w-full h-full object-cover" style={{ borderRadius: 0 }} />
+              <img src="/images/eigenheim-kaufen.png" alt={t.title} className="w-full h-full object-cover" style={{ borderRadius: 0 }} />
             </div>
           </div>
         </section>

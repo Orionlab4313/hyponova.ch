@@ -45,12 +45,14 @@ export default function MortgageCalculator() {
   const minEquity = calculateMinEquity(kaufpreis);
   const minIncome = calculateMinIncome(kaufpreis, mortgage);
 
-  // Status colors
+  // Status colors (Vergleich auf der ANGEZEIGTEN, auf 1 Dezimalstelle gerundeten Tragbarkeit,
+  // damit 33.3% exakt gruen ist und erst ab 33.4% prueftbar wird)
   const ltvColor = ltv <= 80 ? "#4ade80" : "#ef4444";
   const ltvStatus = ltv <= 80 ? c.ltvOk : c.ltvHigh;
 
-  const affordColor = affordability <= 33.3 ? "#4ade80" : affordability <= 38 ? "#f59e0b" : "#ef4444";
-  const affordStatus = affordability <= 33.3 ? c.statusGood : affordability <= 38 ? c.statusWarning : c.statusBad;
+  const displayedAffordability = Math.round(affordability * 10) / 10;
+  const affordColor = displayedAffordability <= 33.3 ? "#4ade80" : displayedAffordability <= 38 ? "#f59e0b" : "#ef4444";
+  const affordStatus = displayedAffordability <= 33.3 ? c.statusGood : displayedAffordability <= 38 ? c.statusWarning : c.statusBad;
 
   // Info items
   const infoItems = [

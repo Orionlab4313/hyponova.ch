@@ -23,7 +23,7 @@ const faqItemsDe = [
   },
   {
     question: "Was bedeutet Belehnung?",
-    answer: "Die Belehnung beschreibt das Verhältnis zwischen der Hypothek und dem Verkehrswert der Liegenschaft. In der Schweiz beträgt die maximale Belehnung in der Regel 80% des Immobilienwerts. Eine höhere Belehnung ist nur möglich, wenn zusätzliche Sicherheiten gestellt werden, beispielsweise durch die Verpfändung von Pensionskassenguthaben, vorausgesetzt, die höhere Hypothek ist tragbar.",
+    answer: "In der Schweiz beträgt die maximale Belehnung in der Regel 80 % des Immobilienwerts. Eine höhere Belehnung ist nur möglich, wenn zusätzliche Sicherheiten gestellt werden, beispielsweise durch die Verpfändung von Pensionskassenguthaben, vorausgesetzt, die höhere Hypothek ist tragbar.",
   },
   {
     question: "Welche Eigenmittel benötige ich für den Kauf eines Eigenheims?",
@@ -46,12 +46,8 @@ const faqItemsDe = [
     answer: "Für eine erste Einschätzung genügen Angaben zu Ihrem Einkommen, Ihren Eigenmitteln und der gewünschten Liegenschaft. Für die formelle Offerte benötigen wir in der Regel: Lohnausweise, Steuererklärung, Auszüge der Eigenmittel, Pensionskassenausweis sowie Unterlagen zur Liegenschaft (Grundbuchauszug, Schätzung, Pläne). Sobald Sie die gewünschte Dienstleistung ausgewählt und den Fragebogen ausgefüllt haben, erhalten Sie von uns eine persönliche E-Mail mit Ihrer individuellen Unterlagen-Checkliste sowie einem persönlichen Upload-Link. Über diesen Link können Sie uns Ihre Unterlagen sicher, schnell und unkompliziert übermitteln. Ein vollständiges Hypothekardossier bildet die Grundlage, damit wir für Sie die besten Angebote und Konditionen bei verschiedenen Finanzinstituten einholen können.",
   },
   {
-    question: "Bietet HYPONOVA auch Beratungen ausserhalb des Kantons Aargau an?",
-    answer: "Ja, wir beraten Kundinnen und Kunden in der gesamten Schweiz. Unsere Beratungen finden bequem per Videocall statt, sodass Sie unabhängig von Ihrem Standort von unserem Service profitieren können.",
-  },
-  {
     question: "Gibt es eine Mindestsumme, um vom Hypothekenvergleich profitieren zu können?",
-    answer: "Nein. Im Gegensatz zu vielen anderen Hypothekenbrokern bietet HYPONOVA seine Dienstleistungen unabhängig von der Höhe der Hypothek an. Unser Ziel ist es, die Eigenheimfinanzierung für Kundinnen und Kunden in der ganzen Schweiz transparent, unabhängig und bestmöglich zu optimieren, unabhängig davon, ob es sich um kleinere oder grössere Finanzierungssummen handelt.",
+    answer: "Nein. Im Gegensatz zu vielen anderen Hypothekenbrokern bietet HYPONOVA seine Dienstleistungen unabhängig von der Höhe der Hypothek an.\n\nUnser Ziel ist es, die Eigenheimfinanzierung für Kundinnen und Kunden in der ganzen Schweiz transparent, unabhängig und bestmöglich zu optimieren, unabhängig davon, ob es sich um kleinere oder grössere Finanzierungssummen handelt.",
   },
   {
     question: "Übernimmt HYPONOVA auch den Hypothekenvergleich für Renditeobjekte?",
@@ -74,7 +70,7 @@ const faqItemsEn = [
   },
   {
     question: "What does loan-to-value mean?",
-    answer: "Loan-to-value describes the ratio between the mortgage and the market value of the property. In Switzerland, the maximum loan-to-value is generally 80% of the property value. A higher ratio is only possible when additional collateral is provided, for example by pledging pension fund assets, provided the higher mortgage remains affordable.",
+    answer: "In Switzerland, the maximum loan-to-value is generally 80 % of the property value. A higher ratio is only possible when additional collateral is provided, for example by pledging pension fund assets, provided the higher mortgage remains affordable.",
   },
   {
     question: "How much equity do I need to buy a property?",
@@ -97,12 +93,8 @@ const faqItemsEn = [
     answer: "For an initial assessment, information about your income, equity and desired property is sufficient. For the formal offer, we typically need: salary statements, tax returns, statements of your equity, pension fund certificate, and property documents (land registry extract, valuation, plans). Once you have selected the desired service and filled out the questionnaire, you will receive a personal email from us with your individual document checklist and a personal upload link. Via this link, you can send us your documents securely, quickly and conveniently. A complete mortgage dossier is the basis for us to obtain the best offers and conditions from various financial institutions for you.",
   },
   {
-    question: "Does HYPONOVA also offer consultations outside the Canton of Aargau?",
-    answer: "Yes, we advise clients throughout Switzerland. Our consultations take place conveniently via video call, so you can benefit from our service regardless of your location.",
-  },
-  {
     question: "Is there a minimum amount to benefit from a mortgage comparison?",
-    answer: "No. Unlike many other mortgage brokers, HYPONOVA offers its services regardless of the mortgage amount. Our goal is to optimize home financing for clients throughout Switzerland transparently, independently and to the best possible extent, regardless of whether smaller or larger financing amounts are involved.",
+    answer: "No. Unlike many other mortgage brokers, HYPONOVA offers its services regardless of the mortgage amount.\n\nOur goal is to optimize home financing for clients throughout Switzerland transparently, independently and to the best possible extent, regardless of whether smaller or larger financing amounts are involved.",
   },
   {
     question: "Does HYPONOVA also handle mortgage comparisons for investment properties?",

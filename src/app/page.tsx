@@ -167,8 +167,8 @@ export default function Home() {
   };
 
   const trustCta = {
-    de: "Über HYPONOVA erfahren",
-    en: "Learn about HYPONOVA",
+    de: "Mehr über HYPONOVA",
+    en: "More about HYPONOVA",
   };
 
   const ctaHeading = {

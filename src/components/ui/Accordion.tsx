@@ -50,7 +50,7 @@ export default function Accordion({ items }: AccordionProps) {
                   transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
                   className="overflow-hidden"
                 >
-                  <p className="pb-6 text-sm sm:text-base leading-relaxed max-w-3xl" style={{ color: "#6b6b6b" }}>
+                  <p className="pb-6 text-sm sm:text-base leading-relaxed max-w-3xl whitespace-pre-line" style={{ color: "#6b6b6b" }}>
                     {item.answer}
                   </p>
                 </motion.div>

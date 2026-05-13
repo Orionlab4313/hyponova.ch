@@ -21,8 +21,8 @@ export default function UeberUnsPage() {
   };
 
   const missionHeading = {
-    de: { before: "Wir machen die ", bold: "Hypothekenberatung transparent, digital und fair." },
-    en: { before: "We make ", bold: "mortgage consulting transparent, digital and fair." },
+    de: { before: "Wir finden die ", bold: "passende Hypothek zu den besten Konditionen." },
+    en: { before: "We find the ", bold: "right mortgage at the best conditions." },
   };
 
   const whoLabel = {

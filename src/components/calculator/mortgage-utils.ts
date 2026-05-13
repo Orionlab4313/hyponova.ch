@@ -8,7 +8,7 @@ export const AMORTIZATION_YEARS = 15;     // 2. Hypothek innert 15 Jahren amorti
 export const MAX_LTV = 0.80;             // 80% max. Belehnung
 export const FIRST_MORTGAGE_LIMIT = 0.65; // 65% 1. Hypothek
 export const SECOND_MORTGAGE_LIMIT = 0.15;// 15% 2. Hypothek
-export const AFFORDABILITY_LIMIT = 0.33;  // 33% Tragbarkeitsgrenze
+export const AFFORDABILITY_LIMIT = 0.333; // 33.3% Tragbarkeitsgrenze (Schwelle, ab 33.4% prueftbar)
 
 // Hypothek
 export function calculateMortgage(kaufpreis: number, eigenmittel: number): number {

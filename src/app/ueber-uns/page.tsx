@@ -119,7 +119,7 @@ export default function UeberUnsPage() {
       <main>
         {/* -- HERO -- */}
         <section className="bg-white">
-          <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-12 lg:pt-20 pb-16 lg:pb-24">
+          <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-12 lg:pt-20 pb-2 lg:pb-4">
             <ScrollReveal>
               <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
                 {lang === "de" ? "Über HYPONOVA" : "About HYPONOVA"}
@@ -132,20 +132,20 @@ export default function UeberUnsPage() {
         </section>
 
         {/* -- MISSION -- */}
-        <section className="bg-white py-16 lg:py-24">
+        <section className="bg-white pb-8 lg:pb-12">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
             <ScrollReveal>
-              <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
-                {missionLabel[lang]}
-              </p>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl leading-[1.15] max-w-3xl mb-10" style={{ fontWeight: 300, color: "#1a1a1a" }}>
-                {missionHeading[lang].before}<span style={{ fontWeight: 600 }}>{missionHeading[lang].bold}</span>
-              </h2>
               <img
                 src="/images/unsere-mission.png"
                 alt={missionLabel[lang]}
-                className="w-full h-auto"
+                className="w-full h-auto mb-4 lg:mb-6"
               />
+              <p className="text-sm uppercase tracking-[0.15em] font-medium mb-3" style={{ color: "#6b6b6b" }}>
+                {missionLabel[lang]}
+              </p>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl leading-[1.15] max-w-3xl" style={{ fontWeight: 300, color: "#1a1a1a" }}>
+                {missionHeading[lang].before}<span style={{ fontWeight: 600 }}>{missionHeading[lang].bold}</span>
+              </h2>
             </ScrollReveal>
           </div>
         </section>

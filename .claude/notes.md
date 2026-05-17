@@ -2,6 +2,19 @@
 
 ## Status: Pre-Launch-fertig, Stand 08.05.2026
 
+## Phase 23: Partner-Logos vorübergehend ausgeblendet ✅ FERTIG (2026-05-18)
+
+**Auslöser**: Simon hat Termine mit den Banken (Raiffeisen, BKB, AKB, TKB, Vaudoise, Mobiliar, Migros Bank, UBS) und will dort die Logo-Nutzungsrechte abklären, bevor sie öffentlich auf hyponova.ch erscheinen.
+
+**Änderung**:
+- `src/app/page.tsx` Zeile 10: Import von `LogoMarquee` auskommentiert
+- `src/app/page.tsx` Zeile 254 ff: JSX `<LogoMarquee />` auskommentiert mit Reaktivierungs-Anleitung im Kommentar
+- Komponente `src/components/ui/LogoMarquee.tsx` bleibt unverändert (kein Löschen, nur Aufruf entfernt)
+
+**Reaktivierung**: Sobald Simon schriftliche Bewilligung der Banken hat, einfach die beiden auskommentierten Zeilen wieder aktivieren. Kommentar mit Datum im Code zeigt den Stand.
+
+**Status**: Lokal angewendet, TypeScript-Check sauber, NICHT gepusht (Davide gibt frei).
+
 ## Phase 22: Admin-Kontakte Batch-Delete + Duplikat-Schutz ✅ FERTIG (08.05.2026)
 
 **Auslöser**: David testet Admin → Kontakte. Liste hat 18 Test-Einträge, viele davon Duplikate (gleicher Vorname/Nachname/Email/Telefon). Wunsch: Mehrere Kontakte aufs Mal löschen können (mit Bestätigungs-Modal vor Delete) und Duplikate verhindern bzw. bereinigen.

@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import ScrollReveal, { SlideUp, StaggerContainer, StaggerItem, FadeIn } from "@/components/ui/ScrollReveal";
-import LogoMarquee from "@/components/ui/LogoMarquee";
+// import LogoMarquee from "@/components/ui/LogoMarquee"; // 2026-05-18: temporaer ausgeblendet, siehe Hero-Section
 import CountUp from "@/components/ui/CountUp";
 import { useI18n } from "@/i18n/context";
 
@@ -252,7 +252,9 @@ export default function Home() {
         </section>
 
         {/* -- PARTNER LOGOS (Auto-Scroll Marquee) -- */}
-        <LogoMarquee />
+        {/* Ausgeblendet 2026-05-18: Simon klaert Logo-Nutzungsrechte direkt mit den Banken (Termine ausstehend). */}
+        {/* Reaktivierung: dieses Kommentar entfernen und naechste Zeile einkommentieren, sobald schriftliche Bewilligung vorliegt. */}
+        {/* <LogoMarquee /> */}
 
         {/* -- SERVICES -- */}
         <section className="py-24 lg:py-32">

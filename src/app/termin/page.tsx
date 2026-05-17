@@ -121,23 +121,42 @@ export default function TerminPage() {
   const l = labels[lang];
 
   useEffect(() => {
-    fetch("/api/admin/availability")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.availability) {
-          setActiveDays([...new Set(data.availability.filter((a: any) => a.active).map((a: any) => a.day as number))] as number[]);
-        }
-        if (data.blocked) {
-          setBlockedDates(data.blocked.filter((b: any) => b.type === "day").map((b: any) => b.date));
-        }
-      })
-      .catch(() => {});
+    let cancelled = false;
+
+    function loadAvailability() {
+      fetch("/api/public/availability", { cache: "no-store" })
+        .then((r) => r.json())
+        .then((data) => {
+          if (cancelled) return;
+          if (Array.isArray(data.activeDays)) setActiveDays(data.activeDays);
+          if (Array.isArray(data.blockedDays)) setBlockedDates(data.blockedDays);
+        })
+        .catch(() => {});
+    }
+
+    loadAvailability();
+
+    // Realtime-Refresh: bei Tab-Focus neu laden und alle 30s pollen, solange Tab aktiv ist
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") loadAvailability();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    const poll = setInterval(() => {
+      if (document.visibilityState === "visible") loadAvailability();
+    }, 30000);
+
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", onVisibility);
+      clearInterval(poll);
+    };
   }, []);
 
   useEffect(() => {
     if (selectedDate) {
       setLoadingSlots(true);
-      fetch(`/api/booking?date=${selectedDate}`)
+      fetch(`/api/booking?date=${selectedDate}`, { cache: "no-store" })
         .then((r) => r.json())
         .then((data) => {
           setSlots(data.slots || []);

@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useI18n } from "@/i18n/context";
 import VorlagenDownloadBlock from "@/components/VorlagenDownloadBlock";
+import { suggestEmail, type EmailSuggestion } from "@/lib/email-suggest";
 
 type Lang = "de" | "en";
 
@@ -139,6 +140,7 @@ export default function NeukaufForm({ initialLang }: { initialLang: Lang }) {
   const [a, setA] = useState<Answers>(init);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [emailSuggestion, setEmailSuggestion] = useState<EmailSuggestion | null>(null);
 
   function up<K extends keyof Answers>(k: K, v: Answers[K]) { setA((p) => ({ ...p, [k]: v })); setError(null); }
 
@@ -174,13 +176,34 @@ export default function NeukaufForm({ initialLang }: { initialLang: Lang }) {
   async function submit() {
     if (!a.first_name || !a.last_name || !a.email) { setError(t.fieldRequired); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.email)) { setError(t.invalidEmail); return; }
+
+    // Mailcheck: bei Tippfehler erst Suggestion zeigen, nicht direkt submitten
+    const sug = suggestEmail(a.email);
+    if (sug && !emailSuggestion) {
+      setEmailSuggestion(sug);
+      return;
+    }
+
     setSubmitting(true); setError(null);
     try {
       const res = await fetch("/api/public/neukauf", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...a, lang }),
       });
-      if (!res.ok) { const j = await res.json().catch(() => ({})); throw new Error(j.error || t.serverError); }
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        // Server-Email-Validation-Fehler (Format/Disposable/no_mx) klar anzeigen
+        if (j.emailIssue) {
+          setError(
+            lang === "de"
+              ? `Email-Problem: ${j.error}. Bitte prüfen Sie Ihre Email-Adresse.`
+              : `Email problem: ${j.error}. Please check your email address.`
+          );
+          setSubmitting(false);
+          return;
+        }
+        throw new Error(j.error || t.serverError);
+      }
       setStep("success");
     } catch (e: any) { setError(e.message || t.serverError); } finally { setSubmitting(false); }
   }
@@ -226,7 +249,16 @@ export default function NeukaufForm({ initialLang }: { initialLang: Lang }) {
             { val: "selbstaendig", label: t.optSelbstaendig },
             { val: "pensioniert", label: t.optPensioniert },
           ]} />}
-          {step === "contact" && <ContactStep t={t} a={a} setA={setA} />}
+          {step === "contact" && (
+            <ContactStep
+              t={t}
+              a={a}
+              setA={setA}
+              lang={lang}
+              emailSuggestion={emailSuggestion}
+              setEmailSuggestion={setEmailSuggestion}
+            />
+          )}
           {step === "success" && <SuccessStep t={t} lang={lang} />}
 
           {error && <div style={{ marginTop: 16, padding: "10px 14px", background: "rgba(239,68,68,0.08)", color: "#c00", borderRadius: 0, fontSize: 13 }}>{error}</div>}
@@ -269,13 +301,95 @@ function RadioStep({ title, desc, value, setValue, options }: { title: string; d
     </button>
   );})}</div></>);
 }
-function ContactStep({ t, a, setA }: { t: any; a: Answers; setA: (a: Answers) => void }) {
+function ContactStep({
+  t,
+  a,
+  setA,
+  lang,
+  emailSuggestion,
+  setEmailSuggestion,
+}: {
+  t: any;
+  a: Answers;
+  setA: (a: Answers) => void;
+  lang: Lang;
+  emailSuggestion: EmailSuggestion | null;
+  setEmailSuggestion: (s: EmailSuggestion | null) => void;
+}) {
   return (<><StepHeader title={t.qContact} desc={t.qContactDesc} />
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
       <div><label style={lbl}>{t.firstName}</label><input value={a.first_name} onChange={(e) => setA({ ...a, first_name: e.target.value })} style={inp} /></div>
       <div><label style={lbl}>{t.lastName}</label><input value={a.last_name} onChange={(e) => setA({ ...a, last_name: e.target.value })} style={inp} /></div>
     </div>
-    <div style={{ marginBottom: 10 }}><label style={lbl}>{t.email}</label><input type="email" value={a.email} onChange={(e) => setA({ ...a, email: e.target.value })} style={inp} /></div>
+    <div style={{ marginBottom: 10 }}>
+      <label style={lbl}>{t.email}</label>
+      <input
+        type="email"
+        value={a.email}
+        onChange={(e) => {
+          setA({ ...a, email: e.target.value });
+          setEmailSuggestion(null);
+        }}
+        onBlur={(e) => {
+          const s = suggestEmail(e.target.value);
+          setEmailSuggestion(s);
+        }}
+        style={inp}
+      />
+      {emailSuggestion && (
+        <div
+          style={{
+            marginTop: 8,
+            padding: "10px 12px",
+            background: "#fef3c7",
+            border: "1px solid #fde68a",
+            fontSize: 13,
+            color: "#92400e",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            flexWrap: "wrap",
+          }}
+        >
+          <span>
+            {lang === "de" ? "Meinten Sie" : "Did you mean"}{" "}
+            <strong>{emailSuggestion.full}</strong>?
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setA({ ...a, email: emailSuggestion.full });
+              setEmailSuggestion(null);
+            }}
+            style={{
+              background: ACCENT,
+              color: "#fff",
+              border: "none",
+              padding: "4px 10px",
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            {lang === "de" ? "Übernehmen" : "Apply"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setEmailSuggestion(null)}
+            style={{
+              background: "transparent",
+              color: "#92400e",
+              border: "none",
+              fontSize: 12,
+              cursor: "pointer",
+              textDecoration: "underline",
+            }}
+          >
+            {lang === "de" ? "Ignorieren" : "Dismiss"}
+          </button>
+        </div>
+      )}
+    </div>
     <div><label style={lbl}>{t.phone}</label><input type="tel" value={a.phone} onChange={(e) => setA({ ...a, phone: e.target.value })} style={inp} /></div>
     <p style={{ fontSize: 12, color: "#888", marginTop: 14, lineHeight: 1.5 }}>{t.privacy}</p></>);
 }

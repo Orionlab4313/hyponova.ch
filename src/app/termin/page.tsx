@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import Link from "next/link";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "@/components/ui/ScrollReveal";
 import { useI18n } from "@/i18n/context";
+import { suggestEmail, type EmailSuggestion } from "@/lib/email-suggest";
 
 const WEEKDAYS_DE = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 const WEEKDAYS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -24,6 +26,7 @@ function getCalendarDays(year: number, month: number) {
 
 export default function TerminPage() {
   const { t, lang } = useI18n();
+  const searchParams = useSearchParams();
 
   const [step, setStep] = useState<"date" | "time" | "form" | "success">("date");
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
@@ -37,6 +40,29 @@ export default function TerminPage() {
   const [blockedDates, setBlockedDates] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailSuggestion, setEmailSuggestion] = useState<EmailSuggestion | null>(null);
+  const [prefilled, setPrefilled] = useState(false);
+
+  // Auto-Fill via Prefill-Token (?prefill=<32-hex>)
+  useEffect(() => {
+    const token = searchParams?.get("prefill");
+    if (!token) return;
+    fetch(`/api/public/prefill?token=${encodeURIComponent(token)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data && data.email) {
+          setFormData((prev) => ({
+            ...prev,
+            first_name: data.first_name || "",
+            last_name: data.last_name || "",
+            email: data.email || "",
+            phone: data.phone || "",
+          }));
+          setPrefilled(true);
+        }
+      })
+      .catch(() => {});
+  }, [searchParams]);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -187,7 +213,16 @@ export default function TerminPage() {
     setSubmitting(true);
     setError(null);
 
+    // Client-side Mailcheck als letzter Schutz vor Submit
+    const sug = suggestEmail(formData.email);
+    if (sug && !emailSuggestion) {
+      setEmailSuggestion(sug);
+      setSubmitting(false);
+      return;
+    }
+
     try {
+      const prefillToken = searchParams?.get("prefill") || null;
       const res = await fetch("/api/booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -196,12 +231,23 @@ export default function TerminPage() {
           time: selectedTime,
           ...formData,
           lang,
+          prefillToken,
         }),
       });
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || (lang === "de" ? "Fehler bei der Buchung" : "Booking error"));
+        if (data.emailIssue) {
+          // Server hat Email als ungueltig identifiziert (Format/Disposable/no_mx)
+          setError(
+            lang === "de"
+              ? `Email-Problem: ${data.error}. Bitte prüfen Sie Ihre Email-Adresse.`
+              : `Email problem: ${data.error}. Please check your email address.`
+          );
+        } else {
+          throw new Error(data.error || (lang === "de" ? "Fehler bei der Buchung" : "Booking error"));
+        }
+        return;
       }
 
       setStep("success");
@@ -451,6 +497,16 @@ export default function TerminPage() {
                           <span style={{ fontSize: 14, fontWeight: 500 }}>{formattedDate}, {selectedTime} {lang === "de" ? "Uhr" : ""}</span>
                         </div>
 
+                        {prefilled && (
+                          <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 8, padding: 12, marginBottom: 20 }}>
+                            <p style={{ fontSize: 13, color: "#166534", margin: 0 }}>
+                              {lang === "de"
+                                ? "Ihre Daten aus dem Fragebogen wurden übernommen. Sie können sie unten anpassen."
+                                : "Your data from the questionnaire has been applied. You can adjust it below."}
+                            </p>
+                          </div>
+                        )}
+
                         {error && (
                           <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, padding: 12, marginBottom: 20 }}>
                             <p style={{ fontSize: 13, color: "#ef4444", margin: 0 }}>{error}</p>
@@ -489,10 +545,71 @@ export default function TerminPage() {
                                 type="email"
                                 required
                                 value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                onChange={(e) => {
+                                  const v = e.target.value;
+                                  setFormData({ ...formData, email: v });
+                                  setEmailSuggestion(null);
+                                }}
+                                onBlur={(e) => {
+                                  const s = suggestEmail(e.target.value);
+                                  setEmailSuggestion(s);
+                                }}
                                 className="w-full px-4 py-3 text-sm outline-none focus:border-[#1a1a1a]"
                                 style={inputStyle}
                               />
+                              {emailSuggestion && (
+                                <div
+                                  style={{
+                                    marginTop: 8,
+                                    padding: "10px 12px",
+                                    background: "#fef3c7",
+                                    border: "1px solid #fde68a",
+                                    fontSize: 13,
+                                    color: "#92400e",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 8,
+                                    flexWrap: "wrap",
+                                  }}
+                                >
+                                  <span>
+                                    {lang === "de" ? "Meinten Sie" : "Did you mean"}{" "}
+                                    <strong>{emailSuggestion.full}</strong>?
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setFormData((prev) => ({ ...prev, email: emailSuggestion.full }));
+                                      setEmailSuggestion(null);
+                                    }}
+                                    style={{
+                                      background: "#c8553d",
+                                      color: "#fff",
+                                      border: "none",
+                                      padding: "4px 10px",
+                                      fontSize: 12,
+                                      fontWeight: 600,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    {lang === "de" ? "Übernehmen" : "Apply"}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setEmailSuggestion(null)}
+                                    style={{
+                                      background: "transparent",
+                                      color: "#92400e",
+                                      border: "none",
+                                      fontSize: 12,
+                                      cursor: "pointer",
+                                      textDecoration: "underline",
+                                    }}
+                                  >
+                                    {lang === "de" ? "Ignorieren" : "Dismiss"}
+                                  </button>
+                                </div>
+                              )}
                             </div>
                             <div>
                               <label className="block text-xs uppercase tracking-widest font-medium mb-2" style={{ color: "#6b6b6b" }}>{l.phone}</label>

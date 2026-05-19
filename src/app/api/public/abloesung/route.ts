@@ -3,6 +3,8 @@ import { createServiceClient } from "@/lib/supabase";
 import { createSubmission, isAbloesbar, requiredDocumentCategories, type AbloesungAnswers } from "@/lib/submissions";
 import { createUploadToken, buildUploadUrl } from "@/lib/upload-tokens";
 import { checkRateLimit, clientIp } from "@/lib/rate-limit";
+import { validateEmail } from "@/lib/email-validation";
+import { createPrefillToken } from "@/lib/prefill-tokens";
 
 const RL_BUCKET = "public-abloesung";
 const RL_MAX = 5;
@@ -22,11 +24,20 @@ export async function POST(request: NextRequest) {
   const lang: "de" | "en" = body.lang === "en" ? "en" : "de";
   const first = String(body.first_name || "").trim().slice(0, 80);
   const last = String(body.last_name || "").trim().slice(0, 80);
-  const email = String(body.email || "").trim().slice(0, 200);
+  const rawEmail = String(body.email || "").trim().slice(0, 200);
   const phone = String(body.phone || "").trim().slice(0, 50);
 
-  if (!first || !last || !email) return NextResponse.json({ error: "Pflichtfelder fehlen" }, { status: 400 });
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ error: "Ungültige E-Mail" }, { status: 400 });
+  if (!first || !last || !rawEmail) return NextResponse.json({ error: "Pflichtfelder fehlen" }, { status: 400 });
+
+  // Email-Validation: Format + Disposable + DNS MX
+  const emailCheck = await validateEmail(rawEmail);
+  if (!emailCheck.valid) {
+    return NextResponse.json(
+      { error: emailCheck.message, emailIssue: emailCheck.reason },
+      { status: 400 }
+    );
+  }
+  const email = emailCheck.normalized;
 
   // Tranchen-Validation
   const tranchen = Array.isArray(body.tranchen) ? body.tranchen : [];
@@ -58,11 +69,11 @@ export async function POST(request: NextRequest) {
 
   const sb = createServiceClient();
 
-  // 1. Lead anlegen (oder reaktivieren)
+  // 1. Lead anlegen (oder reaktivieren) - case-insensitive Lookup
   const { data: existingLead } = await sb
     .from("leads")
     .select("id")
-    .eq("email", email)
+    .ilike("email", email)
     .maybeSingle();
 
   let leadId: string;
@@ -109,6 +120,16 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // 3b. Prefill-Token nur bei Termin-Pfad (bei Offerten brauchen wir keinen Termin-Auto-Fill)
+  let prefillToken: string | null = null;
+  if (endPath === "termin") {
+    try {
+      prefillToken = await createPrefillToken(leadId, "abloesung");
+    } catch (e) {
+      console.error("prefill-token creation failed:", e);
+    }
+  }
+
   // 4. Email triggern via Edge Function
   try {
     const requiredDocs = requiredDocumentCategories("abloesung", answers);
@@ -127,6 +148,7 @@ export async function POST(request: NextRequest) {
         lead: { first_name: first, last_name: last, email, phone },
         uploadUrl,
         requiredDocs,
+        prefillToken,
       }),
     });
   } catch (e) {

@@ -3,6 +3,8 @@ import { createServiceClient } from "@/lib/supabase";
 import { getAvailability, getBlockedEntries } from "@/lib/availability-store";
 import { triggerIntegration } from "@/lib/integrations";
 import { createOnlineMeeting } from "@/lib/microsoft-graph";
+import { validateEmail } from "@/lib/email-validation";
+import { invalidatePrefillToken } from "@/lib/prefill-tokens";
 
 const SLOT_DURATION = 60;
 
@@ -78,11 +80,24 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const supabase = createServiceClient();
   const body = await request.json();
-  const { date, time, first_name, last_name, email, phone, notes, lang } = body;
+  const { date, time, first_name, last_name, email: rawEmail, phone, notes, lang, prefillToken } = body;
 
-  if (!date || !time || !first_name || !last_name || !email) {
+  if (!date || !time || !first_name || !last_name || !rawEmail) {
     return NextResponse.json({ error: "Bitte füllen Sie alle Pflichtfelder aus." }, { status: 400 });
   }
+
+  // Email-Validation: Format + Disposable + DNS MX
+  const emailCheck = await validateEmail(rawEmail);
+  if (!emailCheck.valid) {
+    return NextResponse.json(
+      {
+        error: emailCheck.message,
+        emailIssue: emailCheck.reason,
+      },
+      { status: 400 }
+    );
+  }
+  const email = emailCheck.normalized;
 
   const { data: existing } = await supabase
     .from("appointments").select("id").eq("date", date).eq("time_start", time + ":00").neq("status", "abgesagt").limit(1);
@@ -91,10 +106,44 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Dieser Termin ist leider nicht mehr verfügbar." }, { status: 409 });
   }
 
-  const { data: lead } = await supabase
+  // Lead-Deduplication: case-insensitive Lookup, dann Update statt Insert wenn existing
+  const { data: existingLead } = await supabase
     .from("leads")
-    .insert({ first_name, last_name, email, phone: phone || "", status: "neu", source: "website", notes: notes || "" })
-    .select().single();
+    .select("id, notes")
+    .ilike("email", email)
+    .maybeSingle();
+
+  let lead: { id: string; first_name: string; last_name: string; email: string; phone: string } | null;
+  if (existingLead) {
+    const { data: updated } = await supabase
+      .from("leads")
+      .update({
+        first_name,
+        last_name,
+        phone: phone || "",
+        notes: notes ? (existingLead.notes ? `${existingLead.notes}\n---\n${notes}` : notes) : existingLead.notes,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existingLead.id)
+      .select()
+      .single();
+    lead = updated;
+  } else {
+    const { data: inserted } = await supabase
+      .from("leads")
+      .insert({
+        first_name,
+        last_name,
+        email,
+        phone: phone || "",
+        status: "neu",
+        source: "website",
+        notes: notes || "",
+      })
+      .select()
+      .single();
+    lead = inserted;
+  }
 
   const [h, m] = time.split(":").map(Number);
   const endMin = h * 60 + m + SLOT_DURATION;
@@ -154,6 +203,13 @@ export async function POST(request: NextRequest) {
     lead,
     lang: lang || "de",
   });
+
+  // Prefill-Token nach Buchung invalidieren (one-shot)
+  if (prefillToken && typeof prefillToken === "string") {
+    invalidatePrefillToken(prefillToken).catch((e) => {
+      console.warn("[booking] prefill-token invalidation failed:", e);
+    });
+  }
 
   return NextResponse.json({ ...appointment, teams_join_url: teamsJoinUrl });
 }

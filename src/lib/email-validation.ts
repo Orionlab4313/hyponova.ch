@@ -1,10 +1,12 @@
 /**
- * Email-Validation Helper (server-side, free).
+ * Email-Validation Helper (server-side).
  *
  * Layer 1: Format-Check (Regex, RFC-relaxed)
- * Layer 2: TLD-Allowlist (faengt Tippfehler wie .con, .cm, .cmo, .om sofort)
+ * Layer 2: TLD-Allowlist (faengt Tippfehler wie .con, .cm, .cmo, .om sofort offline)
  * Layer 3: Disposable-Domain Blocklist (tempmail.com etc.)
- * Layer 4: DNS-Lookup mit Fail-CLOSED bei strikten TLDs (.com, .ch usw.)
+ * Layer 4: Reoon Email Verifier API (echte SMTP-Pruefung beim Mailserver)
+ *          1000 Verifications/Monat free, dann $5/mo fuer 10k
+ *          Falls REOON_API_KEY nicht gesetzt: Fallback auf DNS MX-Lookup
  *
  * Layer 5 (mailcheck Did-You-Mean) laeuft client-side.
  */
@@ -14,60 +16,79 @@ import disposableDomainsList from "disposable-email-domains";
 const disposableSet = new Set(disposableDomainsList);
 
 // ICANN gTLDs + gaengige ccTLDs + neue gTLDs.
-// Strenge Liste: was hier nicht drin ist, wird als ungueltig zurueckgewiesen.
-// Quelle: Top 200 most-used TLDs aus DNS-Statistiken.
-// Aktualisierung: bei Bedarf erweitern.
+// Strenge Liste: was hier nicht drin ist, wird zurueckgewiesen.
 const ALLOWED_TLDS = new Set([
-  // Top global
   "com", "org", "net", "info", "biz", "name", "pro", "aero", "museum",
-  // DACH und Schweiz-relevant
   "ch", "li", "de", "at", "fr", "it", "es", "pt", "nl", "be", "lu",
-  // Nordeuropa
   "uk", "co.uk", "ie", "dk", "se", "no", "fi", "is",
-  // Osteuropa
   "pl", "cz", "sk", "hu", "ro", "bg", "ru", "ua", "rs", "hr", "si",
-  // Suedeuropa
   "gr", "tr", "cy", "mt",
-  // Americas
   "us", "ca", "mx", "br", "ar", "cl", "co", "pe", "ve",
-  // Asia-Pacific
   "jp", "cn", "kr", "tw", "hk", "sg", "my", "th", "vn", "id", "ph", "in", "pk", "bd",
   "au", "nz",
-  // Middle East / Africa
   "ae", "sa", "il", "eg", "za", "ng", "ke", "ma",
-  // Neue gTLDs (haeufig)
   "app", "dev", "io", "ai", "tech", "shop", "online", "store", "cloud", "design",
   "blog", "news", "media", "agency", "studio", "digital", "global", "world", "today",
   "academy", "expert", "guru", "company", "business", "solutions", "services",
   "consulting", "international", "group", "center", "network", "systems",
   "email", "site", "website", "page", "wiki", "xyz", "top", "live", "life",
   "fyi", "rocks", "ninja", "cool", "fun", "club", "tv", "fm", "me", "cc", "ws",
-  // EU/IGOs
-  "eu", "int",
-  // Spezial Schweiz
-  "swiss",
+  "eu", "int", "swiss",
 ]);
 
 export type EmailValidationResult =
   | { valid: true; normalized: string }
-  | { valid: false; reason: "format" | "tld" | "disposable" | "no_mx" | "dns_error"; message: string };
+  | { valid: false; reason: "format" | "tld" | "disposable" | "no_mx" | "smtp_invalid" | "smtp_unknown"; message: string };
 
 const FORMAT_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/**
- * Extract TLD aus einer Domain.
- * Beispiel: "mail.example.co.uk" -> "co.uk" (wenn in Allowlist) sonst "uk".
- * Gibt den laengsten Match aus ALLOWED_TLDS zurueck.
- */
 function extractTld(domain: string): string {
   const parts = domain.toLowerCase().split(".");
   if (parts.length < 2) return "";
-  // Versuche 2-stufige TLD (co.uk, com.au), dann einstufige
   if (parts.length >= 3) {
     const twoLevel = parts.slice(-2).join(".");
     if (ALLOWED_TLDS.has(twoLevel)) return twoLevel;
   }
   return parts[parts.length - 1];
+}
+
+type ReoonResponse = {
+  email?: string;
+  status?: "valid" | "invalid" | "disposable" | "role_account" | "unknown" | "safe_to_send";
+  is_deliverable?: boolean;
+  is_disposable?: boolean;
+  is_role_account?: boolean;
+  is_safe_to_send?: boolean;
+  mx_accepts_mail?: boolean;
+  syntax_valid?: boolean;
+  can_connect_smtp?: boolean;
+  error?: string;
+};
+
+/**
+ * Reoon Email Verifier API call.
+ * https://emailverifier.reoon.com/
+ * Returns null if API-Key not set or request fails (fallback to DNS).
+ */
+async function reoonVerify(email: string): Promise<ReoonResponse | null> {
+  const apiKey = process.env.REOON_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const url = `https://emailverifier.reoon.com/api/v1/verify?email=${encodeURIComponent(email)}&key=${encodeURIComponent(apiKey)}&mode=power`;
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 8000); // 8s Timeout
+    const res = await fetch(url, { signal: ctrl.signal });
+    clearTimeout(timeout);
+    if (!res.ok) {
+      console.warn("[reoon] API status:", res.status);
+      return null;
+    }
+    return (await res.json()) as ReoonResponse;
+  } catch (err) {
+    console.warn("[reoon] verify failed:", err);
+    return null;
+  }
 }
 
 /**
@@ -87,8 +108,7 @@ export async function validateEmail(rawEmail: string): Promise<EmailValidationRe
     return { valid: false, reason: "format", message: "Domain fehlt" };
   }
 
-  // Layer 2: TLD-Allowlist (haupt-Tippfehler-Filter)
-  // Faengt .con, .cm, .cmo, .om, .nett etc. weil sie nicht in der Allowlist sind.
+  // Layer 2: TLD-Allowlist (offline, faengt .con, .cm, .cmo etc.)
   const tld = extractTld(domain);
   if (!tld || !ALLOWED_TLDS.has(tld)) {
     return {
@@ -107,8 +127,39 @@ export async function validateEmail(rawEmail: string): Promise<EmailValidationRe
     };
   }
 
-  // Layer 4: DNS MX-Lookup mit Fallback auf A-Records
-  // Manche Domains haben kein MX aber A-Record, dann ist Domain-MX = Domain-A (RFC 5321).
+  // Layer 4: Reoon API (echte SMTP-Pruefung)
+  const reoon = await reoonVerify(email);
+  if (reoon) {
+    // Reoon meldet die Adresse als ungueltig
+    if (reoon.status === "invalid" || reoon.is_deliverable === false) {
+      return {
+        valid: false,
+        reason: "smtp_invalid",
+        message: "Diese Email-Adresse existiert nicht. Bitte prüfen Sie auf Tippfehler.",
+      };
+    }
+    // Reoon meldet disposable (zweite Schicht falls Liste unvollstaendig)
+    if (reoon.is_disposable === true || reoon.status === "disposable") {
+      return {
+        valid: false,
+        reason: "disposable",
+        message: "Wegwerf-Email-Adressen werden nicht akzeptiert",
+      };
+    }
+    // Reoon "valid" oder "safe_to_send": durchwinken
+    if (reoon.status === "valid" || reoon.status === "safe_to_send" || reoon.is_safe_to_send === true) {
+      return { valid: true, normalized: email };
+    }
+    // Reoon "unknown": MX-Server hat keine eindeutige Antwort gegeben
+    // (passiert bei Gmail/Outlook absichtlich, bei catch-all Domains, etc.)
+    // -> Pragmatisch akzeptieren statt blocken (besser false-positive als false-negative)
+    if (reoon.status === "unknown") {
+      console.log("[email-validation] Reoon unknown for", email, "- accepting");
+      return { valid: true, normalized: email };
+    }
+  }
+
+  // Layer 4-fallback: Wenn Reoon nicht verfuegbar, DNS MX + A-Record Check
   let hasMailHost = false;
   let dnsErrorCode: string | undefined;
 
@@ -121,7 +172,6 @@ export async function validateEmail(rawEmail: string): Promise<EmailValidationRe
     dnsErrorCode = (err as NodeJS.ErrnoException)?.code;
   }
 
-  // Fallback: wenn kein MX, versuche A-Record (RFC 5321 implicit MX)
   if (!hasMailHost) {
     try {
       const aRecords = await dns.resolve4(domain);
@@ -130,7 +180,6 @@ export async function validateEmail(rawEmail: string): Promise<EmailValidationRe
       }
     } catch (err) {
       const aErrCode = (err as NodeJS.ErrnoException)?.code;
-      // Wenn auch A-Record nicht existiert, ist die Domain definitiv tot
       if (aErrCode === "ENOTFOUND" || aErrCode === "ENODATA") {
         return {
           valid: false,
@@ -143,7 +192,6 @@ export async function validateEmail(rawEmail: string): Promise<EmailValidationRe
   }
 
   if (!hasMailHost) {
-    // ENOTFOUND oder ENODATA -> Domain hat weder MX noch A
     if (dnsErrorCode === "ENOTFOUND" || dnsErrorCode === "ENODATA") {
       return {
         valid: false,
@@ -151,8 +199,6 @@ export async function validateEmail(rawEmail: string): Promise<EmailValidationRe
         message: "Diese Email-Domain existiert nicht oder hat keinen Mailserver",
       };
     }
-    // Andere DNS-Fehler (Timeout, Server-Down): log + akzeptieren
-    // Strikte Block-Policy wuerde hier auch valide Emails blocken
     console.warn("[email-validation] DNS lookup failed for", domain, dnsErrorCode);
     return { valid: true, normalized: email };
   }

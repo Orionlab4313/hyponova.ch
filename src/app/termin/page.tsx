@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
@@ -26,9 +25,9 @@ function getCalendarDays(year: number, month: number) {
 
 export default function TerminPage() {
   const { t, lang } = useI18n();
-  const searchParams = useSearchParams();
 
   const [step, setStep] = useState<"date" | "time" | "form" | "success">("date");
+  const [prefillTokenFromUrl, setPrefillTokenFromUrl] = useState<string | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -44,9 +43,13 @@ export default function TerminPage() {
   const [prefilled, setPrefilled] = useState(false);
 
   // Auto-Fill via Prefill-Token (?prefill=<32-hex>)
+  // Verwendet window.location statt useSearchParams um Suspense-Boundary zu vermeiden
   useEffect(() => {
-    const token = searchParams?.get("prefill");
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("prefill");
     if (!token) return;
+    setPrefillTokenFromUrl(token);
     fetch(`/api/public/prefill?token=${encodeURIComponent(token)}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
@@ -62,7 +65,7 @@ export default function TerminPage() {
         }
       })
       .catch(() => {});
-  }, [searchParams]);
+  }, []);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -222,7 +225,6 @@ export default function TerminPage() {
     }
 
     try {
-      const prefillToken = searchParams?.get("prefill") || null;
       const res = await fetch("/api/booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -231,7 +233,7 @@ export default function TerminPage() {
           time: selectedTime,
           ...formData,
           lang,
-          prefillToken,
+          prefillToken: prefillTokenFromUrl,
         }),
       });
 

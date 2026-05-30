@@ -4,6 +4,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import Link from "next/link";
+import Image from "next/image";
 import ScrollReveal, { StaggerContainer, StaggerItem } from "@/components/ui/ScrollReveal";
 import { useI18n } from "@/i18n/context";
 
@@ -135,9 +136,12 @@ export default function UeberUnsPage() {
         <section className="bg-white pb-8 lg:pb-12">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
             <ScrollReveal>
-              <img
+              <Image
                 src="/images/unsere-mission.png"
                 alt={missionLabel[lang]}
+                width={1280}
+                height={853}
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="w-full h-auto mb-4 lg:mb-6"
               />
               <p className="text-sm uppercase tracking-[0.15em] font-medium mb-3" style={{ color: "#6b6b6b" }}>

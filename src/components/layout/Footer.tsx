@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useI18n } from "@/i18n/context";
 import BrandText from "@/components/BrandText";
 
@@ -86,26 +87,29 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="mb-5">
-              <img
+              <Image
                 src="https://dqryxcdwvuborlayjain.supabase.co/storage/v1/object/public/logos/hyponova-logo-white.png"
                 alt="HYPONOVA"
+                width={308}
+                height={84}
+                loading="lazy"
                 className="h-12 lg:h-14 w-auto"
               />
             </div>
-            <p className="text-[14px] leading-relaxed" style={{ color: "#888" }}>
+            <p className="text-[14px] leading-relaxed" style={{ color: "#b8b8b8" }}>
               {tagline[lang]}
             </p>
           </div>
 
           {/* Services */}
           <div>
-            <h4 className="text-[12px] font-semibold uppercase tracking-[0.1em] mb-5" style={{ color: "#666" }}>
+            <h3 className="text-[12px] font-semibold uppercase tracking-[0.1em] mb-5" style={{ color: "#b8b8b8" }}>
               {servicesHeading[lang]}
-            </h4>
+            </h3>
             <ul className="space-y-3">
               {serviceLinks[lang].map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-[14px] transition-colors duration-200 hover:text-white" style={{ color: "#aaa" }}>
+                  <Link href={link.href} className="text-[14px] transition-colors duration-200 hover:text-white" style={{ color: "#c5c5c5" }}>
                     {link.label}
                   </Link>
                 </li>
@@ -115,13 +119,13 @@ export default function Footer() {
 
           {/* Information */}
           <div>
-            <h4 className="text-[12px] font-semibold uppercase tracking-[0.1em] mb-5" style={{ color: "#666" }}>
+            <h3 className="text-[12px] font-semibold uppercase tracking-[0.1em] mb-5" style={{ color: "#b8b8b8" }}>
               {infoHeading[lang]}
-            </h4>
+            </h3>
             <ul className="space-y-3">
               {infoLinks[lang].map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-[14px] transition-colors duration-200 hover:text-white" style={{ color: "#aaa" }}>
+                  <Link href={link.href} className="text-[14px] transition-colors duration-200 hover:text-white" style={{ color: "#c5c5c5" }}>
                     {link.label}
                   </Link>
                 </li>
@@ -131,24 +135,24 @@ export default function Footer() {
 
           {/* Legal + Address */}
           <div>
-            <h4 className="text-[12px] font-semibold uppercase tracking-[0.1em] mb-5" style={{ color: "#666" }}>
+            <h3 className="text-[12px] font-semibold uppercase tracking-[0.1em] mb-5" style={{ color: "#b8b8b8" }}>
               {legalHeading[lang]}
-            </h4>
+            </h3>
             <ul className="space-y-3">
               {legalLinks[lang].map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="text-[14px] transition-colors duration-200 hover:text-white" style={{ color: "#aaa" }}>
+                  <Link href={link.href} className="text-[14px] transition-colors duration-200 hover:text-white" style={{ color: "#c5c5c5" }}>
                     {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
-            <div className="mt-6 text-[13px] leading-relaxed" style={{ color: "#666" }}>
+            <div className="mt-6 text-[13px] leading-relaxed" style={{ color: "#b8b8b8" }}>
               <p><BrandText>{t.footer.company}</BrandText></p>
               <p>Dahlienweg 22</p>
               <p>4313 Möhlin, {country[lang]}</p>
               <p className="mt-3">
-                <a href="tel:+41792497090" className="transition-colors duration-200 hover:text-white" style={{ color: "#aaa" }}>
+                <a href="tel:+41792497090" className="transition-colors duration-200 hover:text-white" style={{ color: "#c5c5c5" }}>
                   +41 79 249 70 90
                 </a>
               </p>
@@ -160,14 +164,14 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div style={{ borderTop: "1px solid #222" }}>
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-[12px]" style={{ color: "#555" }}>
+          <p className="text-[12px]" style={{ color: "#a3a3a3" }}>
             <BrandText>{copyright}</BrandText>
           </p>
           <div className="flex items-center gap-4">
-            <Link href="/datenschutz" className="text-[12px] transition-colors duration-200 hover:text-white" style={{ color: "#555" }}>
+            <Link href="/datenschutz" className="text-[12px] transition-colors duration-200 hover:text-white" style={{ color: "#a3a3a3" }}>
               {t.footer.privacy}
             </Link>
-            <Link href="/impressum" className="text-[12px] transition-colors duration-200 hover:text-white" style={{ color: "#555" }}>
+            <Link href="/impressum" className="text-[12px] transition-colors duration-200 hover:text-white" style={{ color: "#a3a3a3" }}>
               {t.footer.imprint}
             </Link>
           </div>

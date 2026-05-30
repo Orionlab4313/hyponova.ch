@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
@@ -61,10 +62,12 @@ export default function DienstleistungenPage() {
               <SlideUp delay={0.05}>
                 <Link href="/dienstleistungen/eigenheim-kaufen" className="group block" style={{ color: "inherit", textDecoration: "none" }}>
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
-                    <img
+                    <Image
                       src="/images/eigenheim-kaufen.png"
                       alt={l.kaufTitel}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                       style={{ borderRadius: 0 }}
                     />
                   </div>
@@ -87,10 +90,12 @@ export default function DienstleistungenPage() {
               <SlideUp delay={0.1}>
                 <Link href="/dienstleistungen/hypothek-abloesen" className="group block" style={{ color: "inherit", textDecoration: "none" }}>
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
-                    <img
+                    <Image
                       src="/images/beratung-paar.png"
                       alt={l.abloesungTitel}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                       style={{ borderRadius: 0 }}
                     />
                   </div>

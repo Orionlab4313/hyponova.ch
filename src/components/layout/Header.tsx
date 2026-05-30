@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
@@ -91,9 +92,13 @@ export default function Header() {
           <div className="flex items-center justify-between h-20">
             {/* Logo - BIGGER */}
             <Link href="/" className="flex items-center">
-              <img
+              <Image
                 src="https://dqryxcdwvuborlayjain.supabase.co/storage/v1/object/public/logos/hyponova-logo.png"
                 alt="HYPONOVA"
+                width={205}
+                height={56}
+                fetchPriority="high"
+                loading="eager"
                 className="h-8 lg:h-10 w-auto"
               />
             </Link>

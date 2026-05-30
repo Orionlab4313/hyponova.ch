@@ -272,10 +272,12 @@ export default function Home() {
               <SlideUp delay={0.05}>
                 <Link href="/dienstleistungen/eigenheim-kaufen" className="group block">
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
-                    <img
+                    <Image
                       src="/images/eigenheim-kaufen.png"
                       alt={t.services.newPurchase}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
                   <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "#999" }}>{purchaseCategory[lang]}</p>
@@ -297,10 +299,12 @@ export default function Home() {
               <SlideUp delay={0.1}>
                 <Link href="/dienstleistungen/hypothek-abloesen" className="group block">
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
-                    <img
+                    <Image
                       src="/images/beratung-paar.png"
                       alt={t.services.refinance}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
                   <p className="text-xs uppercase tracking-widest mb-2" style={{ color: "#999" }}>{refinanceCategory[lang]}</p>
@@ -420,10 +424,12 @@ export default function Home() {
 
         {/* -- FULL-WIDTH IMAGE SECTION -- */}
         <section className="relative h-[60vh] min-h-[400px] overflow-hidden">
-          <img
+          <Image
             src="/images/eigenheim-modern.png"
             alt="Modernes Eigenheim"
-            className="w-full h-full object-cover"
+            fill
+            sizes="100vw"
+            className="object-cover"
           />
           <div className="absolute inset-0" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} />
           <div className="absolute inset-0 flex items-center">

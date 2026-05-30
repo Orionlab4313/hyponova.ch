@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
@@ -107,8 +108,17 @@ export default function EigenheimKaufenPage() {
         {/* Hero-Image */}
         <section className="px-6 lg:px-10 mb-24 lg:mb-32">
           <div className="max-w-[1400px] mx-auto">
-            <div className="aspect-[16/7] overflow-hidden">
-              <img src="/images/eigenheim-kaufen.png" alt={t.title} className="w-full h-full object-cover" style={{ borderRadius: 0 }} />
+            <div className="aspect-[16/7] overflow-hidden relative">
+              <Image
+                src="/images/eigenheim-kaufen.png"
+                alt={t.title}
+                fill
+                sizes="(max-width: 1400px) 100vw, 1400px"
+                fetchPriority="high"
+                loading="eager"
+                className="object-cover"
+                style={{ borderRadius: 0 }}
+              />
             </div>
           </div>
         </section>

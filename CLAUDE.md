@@ -5,8 +5,29 @@
 1. **NIE Em-Dashes oder En-Dashes** verwenden. Nicht in Code, nicht in Markdown, nicht in Chat-Antworten an Davide, nirgends. Stattdessen: Komma, normaler Bindestrich, Doppelpunkt, Klammern, oder Satz umformulieren.
 2. **IMMER ä ö ü ß** in deutschen Texten. Niemals ae oe ue ss als Ersatz. Gilt für Code-Strings, UI-Labels, Email-Templates, Chat-Antworten.
 3. **NIE pushen** ohne explizite Freigabe von Davide.
+4. **IMMER Datum-Format TT.MM.JJJJ** (z.B. `30.05.2026`) in jedem User-sichtbaren Output: UI, Emails, PDFs, Chat-Antworten, Blog-Posts, rechtliche Seiten, Upload-Portal, Termin-Buchung. Code: `toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })`. Nie Locale `en-US`/`en-GB` oder `month: "long"`/`weekday: "long"` für User-sichtbare Daten. Plus: Finanzbranche, hier ist Schweizer Standard-Format kritisch für Vertrauen.
 
-Diese drei Regeln gelten überall, vor allem anderen. Verifizieren vor jedem Output.
+Diese vier Regeln gelten überall, vor allem anderen. Verifizieren vor jedem Output.
+
+## OBSIDIAN-FIRST: Dein geteiltes Gehirn (Pflicht vor jeder Antwort)
+
+Du hast Zugriff auf Davides Obsidian Vault "Dave's Brain" via MCP (`mcp.orionlab-cloud.ch`) oder Filesystem (`C:\Users\david\Documents\Dave's Brain`). Obsidian ist NICHT optionale Dokumentation. Es ist die primäre Wissensquelle, dein persistentes Langzeitgedächtnis und das geteilte zweite Gehirn aller KI-Agenten.
+
+**Regel:** Bevor du antwortest, prüfe Obsidian auf relevante Informationen. Verlasse dich nicht primär auf den Chat-Context. Sobald eine Anfrage Personen, Projekte, Kunden, Firmen, APIs, Systeme, Workflows, technische Probleme, frühere Gespräche, Entscheidungen, Strategien, Ideen, Aufgaben oder Automationen betrifft: zuerst Obsidian durchsuchen. Nicht raten, nicht spekulieren, nicht unnötig nachfragen. Erst wenn Obsidian nichts hergibt, Rückfragen stellen oder neues Wissen erzeugen.
+
+**Ablauf:** 1. Obsidian durchsuchen, 2. bestehendes Wissen wiederverwenden, 3. antworten, 4. bei Bedarf Wissen aktualisieren oder ergänzen.
+
+**Beim Schreiben in den Vault (echte Struktur, keine neuen Top-Level-Ordner erfinden):**
+- Struktur ist PARA plus Johnny Decimal: `00_Inbox`, `00_Sources` (immutable Originale), `10_Companies`, `40_Knowledge` (Concepts, Entities, Questions, Sources, Comparisons), `60_Templates`, `99_System`.
+- Frontmatter-Standard aus `60_Templates/_Frontmatter-Standard.md` befolgen (23 type-Werte, 6 status, 4 priority). Passendes Template aus `60_Templates/` nutzen.
+- Bestehende Notizen erweitern statt Duplikate anlegen. Vorher prüfen ob schon etwas Passendes existiert.
+- Entscheidungen mit Begründung dokumentieren (Decision-Log gemäss `99_System/Vault-Rules.md`): Entscheidung, Grund, Alternativen, Konsequenzen.
+- Nicht nur Ergebnisse speichern, sondern auch: warum etwas entschieden wurde, welche Ansätze scheiterten, welche Lösungen funktionierten, bekannte Probleme, Learnings.
+- Unsicheres als Hypothese markieren, nicht als bestätigten Fakt. Themen über interne Links `[[...]]` verknüpfen. Kompakt und langfristig nutzbar halten. Keine irrelevanten Logs oder ungeprüften Behauptungen.
+
+**Golden Source bei Widersprüchen:** neueste aktive Notiz und Decision-Logs priorisieren, Index-Notizen als Referenz.
+
+**Transparenz:** Wenn du den Vault nutzt, sag kurz welche Notiz du gelesen und welche du erstellt oder geändert hast und warum.
 
 ## Projekt
 - **Kunde**: Simon Topalli, HYPONOVA GmbH, Dahlienweg 22, 4313 Möhlin

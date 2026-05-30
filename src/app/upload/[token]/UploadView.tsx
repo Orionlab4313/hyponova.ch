@@ -134,7 +134,7 @@ function formatBytes(n: number | null) {
 
 function formatDate(iso: string, lang: Lang) {
   const d = new Date(iso);
-  return d.toLocaleDateString(lang === "de" ? "de-CH" : "en-GB", { day: "numeric", month: "long", year: "numeric" });
+  return d.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
 export default function UploadView({ token, lang, leadName, categories, existingDocuments, expiresAt, submissionType }: Props) {

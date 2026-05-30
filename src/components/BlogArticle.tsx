@@ -36,11 +36,11 @@ const COPY = {
   },
 } as const;
 
-function formatDate(dateStr: string, lang: "de" | "en") {
+function formatDate(dateStr: string, _lang: "de" | "en") {
   const date = new Date(dateStr);
-  return date.toLocaleDateString(lang === "de" ? "de-CH" : "en-GB", {
-    day: "numeric",
-    month: "long",
+  return date.toLocaleDateString("de-CH", {
+    day: "2-digit",
+    month: "2-digit",
     year: "numeric",
   });
 }

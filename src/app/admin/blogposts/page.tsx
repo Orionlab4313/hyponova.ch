@@ -23,8 +23,8 @@ const statusConfig: Record<
 function formatDate(dateStr: string) {
   const d = new Date(dateStr);
   return d.toLocaleDateString("de-CH", {
-    day: "numeric",
-    month: "short",
+    day: "2-digit",
+    month: "2-digit",
     year: "numeric",
   });
 }
@@ -32,8 +32,8 @@ function formatDate(dateStr: string) {
 function formatDateTime(dateStr: string) {
   const d = new Date(dateStr);
   return d.toLocaleString("de-CH", {
-    day: "numeric",
-    month: "short",
+    day: "2-digit",
+    month: "2-digit",
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",

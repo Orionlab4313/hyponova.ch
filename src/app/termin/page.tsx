@@ -280,7 +280,7 @@ export default function TerminPage() {
 
   const selectedDateObj = selectedDate ? new Date(selectedDate + "T00:00:00") : null;
   const formattedDate = selectedDateObj
-    ? selectedDateObj.toLocaleDateString(lang === "de" ? "de-CH" : "en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+    ? selectedDateObj.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })
     : "";
 
   const inputStyle = {

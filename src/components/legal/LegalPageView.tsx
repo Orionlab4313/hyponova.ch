@@ -13,12 +13,12 @@ interface Props {
 const STAND_LABEL = { de: "Stand", en: "Last updated" } as const;
 const RECHTLICHES_LABEL = { de: "Rechtliches", en: "Legal" } as const;
 
-function formatDate(iso: string, lang: "de" | "en"): string {
+function formatDate(iso: string, _lang: "de" | "en"): string {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return "";
-  return d.toLocaleDateString(lang === "de" ? "de-CH" : "en-GB", {
-    day: "numeric",
-    month: "long",
+  return d.toLocaleDateString("de-CH", {
+    day: "2-digit",
+    month: "2-digit",
     year: "numeric",
   });
 }

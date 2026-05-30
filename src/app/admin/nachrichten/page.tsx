@@ -227,7 +227,7 @@ export default function NachrichtenPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span style={{ fontSize: 12, color: "#666" }}>
-                  {new Date(selected.created_at).toLocaleDateString("de-CH", { weekday: "long", day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  {new Date(selected.created_at).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
             </div>
@@ -347,7 +347,7 @@ export default function NachrichtenPage() {
               <button onClick={() => setShowReplyPopup(null)} style={{ background: "none", border: "none", fontSize: 18, color: "#999", cursor: "pointer" }}>×</button>
             </div>
             <p style={{ fontSize: 11, color: "#888", margin: "0 0 8px" }}>
-              Gesendet am {new Date(showReplyPopup.sent_at).toLocaleDateString("de-CH", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+              Gesendet am {new Date(showReplyPopup.sent_at).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
             </p>
             <div style={{ background: "#f9f9f9", borderRadius: 6, padding: 12 }}>
               <p style={{ fontSize: 13, lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap", color: "#333" }}>

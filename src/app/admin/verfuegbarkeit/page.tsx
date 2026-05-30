@@ -190,7 +190,7 @@ export default function VerfuegbarkeitPage() {
                   <div key={b.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#fef2f2", borderRadius: 5, border: "1px solid #fecaca" }}>
                     <div style={{ fontSize: 12 }}>
                       <span style={{ fontWeight: 500, color: "#ef4444" }}>
-                        {new Date(b.date + "T00:00:00").toLocaleDateString("de-CH", { weekday: "short", day: "numeric", month: "long" })}
+                        {new Date(b.date + "T00:00:00").toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })}
                       </span>
                       {b.type === "hours" && <span style={{ color: "#888", marginLeft: 4 }}>{b.start_time} - {b.end_time}</span>}
                       {b.type === "day" && <span style={{ fontSize: 10, color: "#999", marginLeft: 4 }}>(ganztägig)</span>}
@@ -297,7 +297,7 @@ export default function VerfuegbarkeitPage() {
               <>
                 <h3 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 10px" }}>Tag entsperren</h3>
                 <p style={{ fontSize: 12, color: "#888", margin: "0 0 12px" }}>
-                  {new Date(showBlockModal + "T00:00:00").toLocaleDateString("de-CH", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                  {new Date(showBlockModal + "T00:00:00").toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })}
                 </p>
                 <div style={{ display: "flex", gap: 8 }}>
                   <button onClick={() => { const b = isDateBlocked(showBlockModal); if (b) removeBlocked(b.id); setShowBlockModal(null); }} style={{ flex: 1, padding: 9, fontSize: 13, fontWeight: 500, background: "#22c55e", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Entsperren</button>
@@ -308,7 +308,7 @@ export default function VerfuegbarkeitPage() {
               <>
                 <h3 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 6px" }}>Tag blockieren</h3>
                 <p style={{ fontSize: 12, color: "#888", margin: "0 0 12px" }}>
-                  {new Date(showBlockModal + "T00:00:00").toLocaleDateString("de-CH", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                  {new Date(showBlockModal + "T00:00:00").toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })}
                 </p>
 
                 <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>

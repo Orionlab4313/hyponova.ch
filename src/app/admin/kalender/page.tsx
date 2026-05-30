@@ -65,7 +65,7 @@ export default function KalenderPage() {
   }
 
   function formatDateDE(dateStr: string) {
-    return new Date(dateStr + "T00:00:00").toLocaleDateString("de-CH", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    return new Date(dateStr + "T00:00:00").toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" });
   }
 
   async function triggerIntegration(data: any) {

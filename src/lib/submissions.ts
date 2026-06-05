@@ -270,7 +270,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const END_PATH_LABELS: Record<string, string> = {
-  offerten: "Offerten-Vergleich von Hyponova",
+  offerten: "Offerten-Vergleich von HYPONOVA",
   termin: "Beratungstermin",
 };
 

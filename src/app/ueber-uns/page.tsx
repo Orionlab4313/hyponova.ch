@@ -26,6 +26,19 @@ export default function UeberUnsPage() {
     en: { before: "We find the ", bold: "right mortgage at the best conditions." },
   };
 
+  const usps = {
+    de: [
+      { key: "vergleich", title: "Vergleichen", desc: "Wir vergleichen für Sie die besten Angebote." },
+      { key: "konditionen", title: "Beste Konditionen", desc: "Sie profitieren von den besten Zinsen." },
+      { key: "unabhaengig", title: "Unabhängig", desc: "Neutral, transparent und in Ihrem Interesse." },
+    ],
+    en: [
+      { key: "vergleich", title: "Compare", desc: "We compare the best offers for you." },
+      { key: "konditionen", title: "Best conditions", desc: "You benefit from the best rates." },
+      { key: "unabhaengig", title: "Independent", desc: "Neutral, transparent and in your interest." },
+    ],
+  };
+
   const whoLabel = {
     de: "Wer wir sind",
     en: "Who we are",
@@ -80,8 +93,8 @@ export default function UeberUnsPage() {
   };
 
   const founderP1 = {
-    de: "Die HYPONOVA GmbH wurde von Simon Topalli gegründet. Während seiner knapp dreijährigen Tätigkeit in der Kundenberatung beim VZ VermögensZentrum eignete er sich fundiertes Fachwissen in den Bereichen Finanzierung, Vorsorge und Vermögensplanung an. Dabei erkannte er früh, wie komplex und intransparent der Hypothekenmarkt für viele Menschen wirkt. Doch Hypotheken sind nicht so kompliziert, wie sie oft dargestellt werden. Genau aus diesem Grund wurde HYPONOVA gegründet: mit dem Ziel, heutige und zukünftige Eigenheimbesitzer persönlich, transparent und unabhängig bei ihrer Finanzierung zu begleiten.",
-    en: "HYPONOVA GmbH was founded by Simon Topalli. During his nearly three years in client advisory at VZ VermögensZentrum, he built deep expertise in financing, retirement planning and wealth management. He recognized early on how complex and opaque the mortgage market feels to many people. Yet mortgages are not as complicated as they are often portrayed. That is exactly why HYPONOVA was founded: to guide current and future homeowners personally, transparently and independently through their financing.",
+    de: "Die HYPONOVA GmbH wurde von Simon Topalli gegründet. Während seiner Tätigkeit als Kundenberater beim VZ VermögensZentrum eignete er sich fundiertes Fachwissen in den Bereichen Finanzierung, Vorsorge und Vermögensplanung an. Dabei erkannte er früh, wie komplex und intransparent der Hypothekenmarkt für viele Menschen wirkt. Doch Hypotheken sind nicht so kompliziert, wie sie oft dargestellt werden. Genau aus diesem Grund wurde HYPONOVA gegründet: mit dem Ziel, heutige und zukünftige Eigenheimbesitzer persönlich, transparent und unabhängig bei ihrer Finanzierung zu begleiten.",
+    en: "HYPONOVA GmbH was founded by Simon Topalli. During his time as a client advisor at VZ VermögensZentrum, he built deep expertise in financing, retirement planning and wealth management. He recognized early on how complex and opaque the mortgage market feels to many people. Yet mortgages are not as complicated as they are often portrayed. That is exactly why HYPONOVA was founded: to guide current and future homeowners personally, transparently and independently through their financing.",
   };
 
   const founderP2 = {
@@ -137,13 +150,44 @@ export default function UeberUnsPage() {
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
             <ScrollReveal>
               <Image
-                src="/images/unsere-mission.png"
+                src="/images/mission-eigenheim.png"
                 alt={missionLabel[lang]}
                 width={1280}
                 height={853}
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="w-full h-auto mb-4 lg:mb-6"
+                className="w-full h-auto mb-10 lg:mb-14"
+                priority
               />
+
+              {/* USPs */}
+              <div className="grid sm:grid-cols-3 gap-8 sm:gap-10 lg:gap-14 mb-12 lg:mb-16">
+                {usps[lang].map((item) => (
+                  <div key={item.key} className="flex flex-col items-start">
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: "#efe3cf" }}>
+                      {item.key === "vergleich" && (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <circle cx="11" cy="11" r="7" />
+                          <path d="m20 20-3.5-3.5" />
+                        </svg>
+                      )}
+                      {item.key === "konditionen" && (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="9" r="6" />
+                          <path d="M8.5 13.5 7 21l5-3 5 3-1.5-7.5" />
+                        </svg>
+                      )}
+                      {item.key === "unabhaengig" && (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1a1a1a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M12 2 4 5v7c0 4.5 3.4 8.5 8 10 4.6-1.5 8-5.5 8-10V5z" />
+                        </svg>
+                      )}
+                    </div>
+                    <h3 className="text-base lg:text-lg font-semibold mb-2" style={{ color: "#1a1a1a" }}>{item.title}</h3>
+                    <p className="text-sm leading-relaxed" style={{ color: "#6b6b6b" }}>{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+
               <p className="text-sm uppercase tracking-[0.15em] font-medium mb-3" style={{ color: "#6b6b6b" }}>
                 {missionLabel[lang]}
               </p>

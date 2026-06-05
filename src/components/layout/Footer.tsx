@@ -152,8 +152,8 @@ export default function Footer() {
               <p>Dahlienweg 22</p>
               <p>4313 Möhlin, {country[lang]}</p>
               <p className="mt-3">
-                <a href="tel:+41792497090" className="transition-colors duration-200 hover:text-white" style={{ color: "#c5c5c5" }}>
-                  +41 79 249 70 90
+                <a href="tel:+41791307000" className="transition-colors duration-200 hover:text-white" style={{ color: "#c5c5c5" }}>
+                  +41 79 130 70 00
                 </a>
               </p>
             </div>

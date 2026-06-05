@@ -17,12 +17,12 @@ export async function generateMetadata(): Promise<Metadata> {
   if (lang === "en") {
     return {
       title: "Buy a property | HYPONOVA",
-      description: "Plan your property purchase with Hyponova. Free initial consultation, independent comparison.",
+      description: "Plan your property purchase with HYPONOVA. Free initial consultation, independent comparison.",
     };
   }
   return {
     title: "Eigenheim kaufen | HYPONOVA",
-    description: "Planen Sie Ihren Liegenschaftskauf mit Hyponova. Kostenloses Erstgespräch, unabhängiger Vergleich.",
+    description: "Planen Sie Ihren Liegenschaftskauf mit HYPONOVA. Kostenloses Erstgespräch, unabhängiger Vergleich.",
   };
 }
 

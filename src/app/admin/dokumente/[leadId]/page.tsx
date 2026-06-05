@@ -652,7 +652,7 @@ function SubmissionEditor({ submission, onCancel, onSaved }: { submission: Submi
           </>
         )}
 
-        <Select label="Gewünschter Ausgang" value={endPath} onChange={(v) => setEndPath(v)} options={[["offerten", "Offerten-Vergleich von Hyponova"], ["termin", "Beratungstermin"]]} />
+        <Select label="Gewünschter Ausgang" value={endPath} onChange={(v) => setEndPath(v)} options={[["offerten", "Offerten-Vergleich von HYPONOVA"], ["termin", "Beratungstermin"]]} />
       </Section>
 
       <div style={{ display: "flex", gap: 8, marginTop: 14 }}>

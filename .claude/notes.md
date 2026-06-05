@@ -36,7 +36,7 @@
 **Design-Entscheidungen**:
 - Ältesten Eintrag behalten (nicht neuesten) → erstes Kontaktdatum bleibt erhalten für Analytics/Historie
 - Notes zählen NICHT für Dedup-Erkennung, sonst wäre die "neuer Eintrag erlaubt"-Logik trivial umgehbar durch leeren Notes-Vergleich
-- Telefon-Normalisierung strippt alle Nicht-Ziffern → "079 249 70 90", "+41792497090", "0792497090" zählen alle als gleich
+- Telefon-Normalisierung strippt alle Nicht-Ziffern → "079 130 70 00", "+41791307000", "0791307000" zählen alle als gleich
 - Confirm-Modal (eigenes ConfirmDialog) für die "bist du sicher?"-Frage, Toast für Result-Feedback
 - Modal mit `danger: true` zeigt rote Bestätigungs-Variante
 
@@ -404,7 +404,7 @@ Pre-Launch-Liste, komplett abgehakt:
 ## Phase 14: Fragebögen + Customer-Upload + Kündigungsvorlage ✅ FERTIG (01.05.2026)
 
 **Public Funnel-Pfade**
-- `/abloesung`, Multi-Step-Fragebogen (13 Steps, Conditional Logic, Sackgasse wenn nicht ablösbar). End-Path: Offerten-Vergleich von Hyponova ODER Beratungstermin. DE+EN.
+- `/abloesung`, Multi-Step-Fragebogen (13 Steps, Conditional Logic, Sackgasse wenn nicht ablösbar). End-Path: Offerten-Vergleich von HYPONOVA ODER Beratungstermin. DE+EN.
 - `/neukauf`, Multi-Step-Fragebogen (4 Steps), endet immer in Termin-Buchung. DE+EN.
 - `/kuendigung`, Formular für vorsorgliches Kündigungsschreiben → PDF-Download via pdf-lib. DE+EN.
 - `/upload/[token]`, Tokenized Customer-Upload-Portal mit Drag&Drop, kategorisiert nach Doc-Typ, Progress-Bar, 30 Tage gültig. DE+EN.

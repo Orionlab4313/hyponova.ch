@@ -15,7 +15,7 @@ export default function Home() {
   const { t, lang } = useI18n();
 
   const heroLabels = {
-    de: "Ihr Partner für die bestmögliche Hypothekenfinanzierung.",
+    de: "Ihr Partner für die bestmögliche Hypotheken­finanzierung.",
     en: "Your partner for the best possible mortgage financing.",
   };
 
@@ -198,8 +198,9 @@ export default function Home() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.05 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05]"
-              style={{ fontWeight: 300, color: "#1a1a1a" }}
+              className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05]"
+              style={{ fontWeight: 300, color: "#1a1a1a", hyphens: "auto", WebkitHyphens: "auto" }}
+              lang={lang}
             >
               {heroLabels[lang]}
             </motion.h1>

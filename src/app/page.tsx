@@ -193,7 +193,7 @@ export default function Home() {
         {/* -- HERO (BKB-Style: Title + Full-width image with overlay) -- */}
         <section className="bg-white">
           {/* Title area */}
-          <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-12 lg:pt-20 pb-8">
+          <div className="max-w-[1400px] mx-auto px-6 lg:px-10 pt-4 lg:pt-8 pb-8">
             <motion.h1
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}

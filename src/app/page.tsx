@@ -198,9 +198,8 @@ export default function Home() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.05 }}
-              className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05]"
-              style={{ fontWeight: 300, color: "#1a1a1a", hyphens: "auto", WebkitHyphens: "auto" }}
-              lang={lang}
+              className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05] text-balance"
+              style={{ fontWeight: 300, color: "#1a1a1a" }}
             >
               {heroLabels[lang]}
             </motion.h1>

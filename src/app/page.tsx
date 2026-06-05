@@ -219,7 +219,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.2 }}
-            className="relative mx-4 lg:mx-10 mb-52 sm:mb-0"
+            className="relative mx-4 lg:mx-10 mb-40 sm:mb-0"
           >
             <div className="relative w-full overflow-visible" style={{ height: "clamp(350px, 55vh, 600px)" }}>
               <img
@@ -257,7 +257,7 @@ export default function Home() {
         {/* <LogoMarquee /> */}
 
         {/* -- SERVICES -- */}
-        <section className="py-24 lg:py-32">
+        <section className="pt-8 pb-24 lg:py-32">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
             <ScrollReveal>
               <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>

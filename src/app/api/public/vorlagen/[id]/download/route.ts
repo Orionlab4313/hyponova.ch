@@ -14,16 +14,20 @@ import { createServiceClient } from "@/lib/supabase";
  * - Spaeter koennen wir Download-Tracking ergaenzen ohne API-Bruch
  */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await context.params;
+    const url = new URL(request.url);
+    const langParam = url.searchParams.get("lang");
+    const wantEn = langParam === "en";
+
     const supabase = createServiceClient();
 
     const { data: vorlage, error } = await supabase
       .from("dokument_vorlagen")
-      .select("file_url, file_name, active")
+      .select("file_url, file_name, file_url_en, file_name_en, active")
       .eq("id", id)
       .maybeSingle();
 
@@ -34,13 +38,18 @@ export async function GET(
       return NextResponse.json({ error: "Vorlage nicht verfügbar" }, { status: 404 });
     }
 
+    // Wenn EN angefragt und EN-File vorhanden, EN ausliefern, sonst DE-Fallback.
+    const useEn = wantEn && Boolean(vorlage.file_url_en);
+    const targetUrl = useEn ? vorlage.file_url_en! : vorlage.file_url;
+    const targetName = useEn ? (vorlage.file_name_en || "template.pdf") : (vorlage.file_name || "vorlage.pdf");
+
     // Datei aus Supabase Storage laden und als Stream weiterleiten
-    const fileRes = await fetch(vorlage.file_url);
+    const fileRes = await fetch(targetUrl);
     if (!fileRes.ok || !fileRes.body) {
       return NextResponse.json({ error: "Datei konnte nicht geladen werden" }, { status: 502 });
     }
 
-    const safeFilename = (vorlage.file_name || "vorlage.pdf").replace(/["\\]/g, "");
+    const safeFilename = targetName.replace(/["\\]/g, "");
 
     return new NextResponse(fileRes.body, {
       status: 200,

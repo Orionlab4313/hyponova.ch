@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const supabase = createServiceClient();
     const { data, error } = await supabase
       .from("dokument_vorlagen")
-      .select("id, name_de, name_en, description_de, description_en, kategorie, file_url, file_name, file_size, sort_order")
+      .select("id, name_de, name_en, description_de, description_en, kategorie, file_url, file_name, file_size, file_url_en, file_name_en, file_size_en, sort_order")
       .eq("active", true)
       .in("kategorie", [kategorie, "beide"])
       .order("sort_order", { ascending: true })

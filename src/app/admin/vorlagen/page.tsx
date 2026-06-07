@@ -17,6 +17,9 @@ interface Vorlage {
   file_url: string;
   file_name: string;
   file_size: number | null;
+  file_url_en: string | null;
+  file_name_en: string | null;
+  file_size_en: number | null;
   sort_order: number;
   active: boolean;
   created_at: string;
@@ -52,6 +55,9 @@ interface FormData {
   file_url: string;
   file_name: string;
   file_size: number | null;
+  file_url_en: string;
+  file_name_en: string;
+  file_size_en: number | null;
   sort_order: number;
   active: boolean;
 }
@@ -65,6 +71,9 @@ const emptyForm: FormData = {
   file_url: "",
   file_name: "",
   file_size: null,
+  file_url_en: "",
+  file_name_en: "",
+  file_size_en: null,
   sort_order: 0,
   active: true,
 };
@@ -105,6 +114,9 @@ export default function VorlagenPage() {
       file_url: v.file_url,
       file_name: v.file_name,
       file_size: v.file_size,
+      file_url_en: v.file_url_en || "",
+      file_name_en: v.file_name_en || "",
+      file_size_en: v.file_size_en,
       sort_order: v.sort_order,
       active: v.active,
     });
@@ -257,10 +269,12 @@ export default function VorlagenPage() {
                   {v.description_de && (
                     <div style={{ fontSize: 12, color: "#666", marginTop: 4, lineHeight: 1.5 }}>{v.description_de}</div>
                   )}
-                  <div style={{ fontSize: 11, color: "#888", marginTop: 6, display: "flex", gap: 12, flexWrap: "wrap" }}>
-                    <span>{v.file_name}</span>
-                    <span>· {formatBytes(v.file_size)}</span>
-                    <span>· Reihenfolge: {v.sort_order}</span>
+                  <div style={{ fontSize: 11, color: "#888", marginTop: 6, display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+                    <span style={{ padding: "2px 6px", background: "#e8f5e9", color: "#1b5e20", fontWeight: 600 }}>DE</span>
+                    <span>{v.file_name} · {formatBytes(v.file_size)}</span>
+                    <span style={{ marginLeft: 8, padding: "2px 6px", background: v.file_url_en ? "#e8f5e9" : "#fff3e0", color: v.file_url_en ? "#1b5e20" : "#7c4a03", fontWeight: 600 }}>EN</span>
+                    <span>{v.file_url_en ? `${v.file_name_en} · ${formatBytes(v.file_size_en)}` : "fehlt"}</span>
+                    <span style={{ marginLeft: 8 }}>· Reihenfolge: {v.sort_order}</span>
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0, flexWrap: "wrap" }}>
@@ -329,25 +343,25 @@ function EditModal({
   onSave: () => void;
   saving: boolean;
 }) {
-  const fileId = useId();
-  const [uploading, setUploading] = useState(false);
+  const fileIdDe = useId();
+  const fileIdEn = useId();
+  const [uploadingLang, setUploadingLang] = useState<"de" | "en" | null>(null);
   const toast = useToast();
 
-  async function uploadFile(file: File) {
-    setUploading(true);
+  async function uploadFile(file: File, lang: "de" | "en") {
+    setUploadingLang(lang);
     try {
       const fd = new FormData();
       fd.append("file", file);
       const res = await fetch("/api/admin/vorlagen/upload", { method: "POST", body: fd });
       if (res.ok) {
         const j = await res.json();
-        onChange({
-          ...data,
-          file_url: j.url,
-          file_name: j.file_name,
-          file_size: j.file_size,
-        });
-        toast({ type: "success", message: "PDF hochgeladen." });
+        if (lang === "de") {
+          onChange({ ...data, file_url: j.url, file_name: j.file_name, file_size: j.file_size });
+        } else {
+          onChange({ ...data, file_url_en: j.url, file_name_en: j.file_name, file_size_en: j.file_size });
+        }
+        toast({ type: "success", message: `PDF (${lang.toUpperCase()}) hochgeladen.` });
       } else {
         const j = await res.json().catch(() => ({}));
         toast({ type: "error", message: j.error || "Upload fehlgeschlagen." });
@@ -355,7 +369,7 @@ function EditModal({
     } catch {
       toast({ type: "error", message: "Netzwerkfehler beim Upload." });
     } finally {
-      setUploading(false);
+      setUploadingLang(null);
     }
   }
 
@@ -438,7 +452,7 @@ function EditModal({
           </div>
         </Field>
 
-        <Field label="PDF-Datei *">
+        <Field label="PDF-Datei (Deutsch) *">
           {data.file_url ? (
             <div style={{ background: "#f7f5f2", padding: "10px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flex: 1 }}>
@@ -458,7 +472,7 @@ function EditModal({
             </div>
           ) : null}
           <label
-            htmlFor={fileId}
+            htmlFor={fileIdDe}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -469,25 +483,89 @@ function EditModal({
               border: "1px dashed #c8553d66",
               fontSize: 13,
               fontWeight: 500,
-              cursor: uploading ? "wait" : "pointer",
+              cursor: uploadingLang === "de" ? "wait" : "pointer",
               fontFamily: "inherit",
             }}
           >
             <IconUpload size={14} />
-            {uploading ? "Lade hoch…" : data.file_url ? "PDF ersetzen" : "PDF hochladen"}
+            {uploadingLang === "de" ? "Lade hoch…" : data.file_url ? "PDF ersetzen" : "PDF hochladen"}
           </label>
           <input
-            id={fileId}
+            id={fileIdDe}
             type="file"
             accept="application/pdf"
             onChange={(e) => {
               const f = e.target.files?.[0];
-              if (f) uploadFile(f);
+              if (f) uploadFile(f, "de");
               e.target.value = "";
             }}
             style={{ display: "none" }}
           />
           <div style={{ fontSize: 11, color: "#888", marginTop: 4 }}>Max. 10 MB · nur PDF</div>
+        </Field>
+
+        <Field label="PDF-Datei (Englisch)">
+          {data.file_url_en ? (
+            <div style={{ background: "#f7f5f2", padding: "10px 14px", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flex: 1 }}>
+                <IconDownload size={16} />
+                <span style={{ fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {data.file_name_en} <span style={{ color: "#888" }}>· {formatBytes(data.file_size_en)}</span>
+                </span>
+              </div>
+              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <a
+                  href={data.file_url_en}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ fontSize: 12, color: "#c8553d", textDecoration: "none", fontWeight: 600 }}
+                >
+                  Öffnen ↗
+                </a>
+                <button
+                  type="button"
+                  onClick={() => onChange({ ...data, file_url_en: "", file_name_en: "", file_size_en: null })}
+                  style={{ fontSize: 12, color: "#c00", background: "transparent", border: "none", cursor: "pointer", fontFamily: "inherit", padding: 0 }}
+                  title="EN-PDF entfernen"
+                >
+                  Entfernen
+                </button>
+              </div>
+            </div>
+          ) : null}
+          <label
+            htmlFor={fileIdEn}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "10px 14px",
+              background: "#fff",
+              color: "#444",
+              border: "1px dashed #c8553d66",
+              fontSize: 13,
+              fontWeight: 500,
+              cursor: uploadingLang === "en" ? "wait" : "pointer",
+              fontFamily: "inherit",
+            }}
+          >
+            <IconUpload size={14} />
+            {uploadingLang === "en" ? "Lade hoch…" : data.file_url_en ? "PDF ersetzen" : "PDF hochladen"}
+          </label>
+          <input
+            id={fileIdEn}
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) uploadFile(f, "en");
+              e.target.value = "";
+            }}
+            style={{ display: "none" }}
+          />
+          <div style={{ fontSize: 11, color: "#888", marginTop: 4 }}>
+            Optional. Wenn leer, sehen englischsprachige Kunden das deutsche PDF (Fallback).
+          </div>
         </Field>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>

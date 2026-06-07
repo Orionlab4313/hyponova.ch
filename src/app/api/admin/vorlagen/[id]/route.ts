@@ -55,17 +55,27 @@ export async function PATCH(
       );
     }
 
-    // Wenn die Datei ersetzt wird: alte Datei aus Storage entfernen
-    if (body.file_url) {
+    // Wenn die DE- oder EN-Datei ersetzt wird: alte Datei aus Storage entfernen
+    if (body.file_url !== undefined || body.file_url_en !== undefined) {
       const { data: previous } = await supabase
         .from("dokument_vorlagen")
-        .select("file_url")
+        .select("file_url, file_url_en")
         .eq("id", id)
         .maybeSingle();
-      const oldPath = extractStoragePath(previous?.file_url);
-      const newPath = extractStoragePath(body.file_url);
-      if (oldPath && oldPath !== newPath) {
-        await supabase.storage.from("dokument-vorlagen").remove([oldPath]);
+
+      const toRemove: string[] = [];
+      if (body.file_url !== undefined) {
+        const oldPath = extractStoragePath(previous?.file_url);
+        const newPath = extractStoragePath(body.file_url);
+        if (oldPath && oldPath !== newPath) toRemove.push(oldPath);
+      }
+      if (body.file_url_en !== undefined) {
+        const oldPath = extractStoragePath(previous?.file_url_en);
+        const newPath = extractStoragePath(body.file_url_en);
+        if (oldPath && oldPath !== newPath) toRemove.push(oldPath);
+      }
+      if (toRemove.length > 0) {
+        await supabase.storage.from("dokument-vorlagen").remove(toRemove);
       }
     }
 
@@ -78,6 +88,9 @@ export async function PATCH(
       "file_url",
       "file_name",
       "file_size",
+      "file_url_en",
+      "file_name_en",
+      "file_size_en",
       "sort_order",
       "active",
     ];
@@ -116,16 +129,20 @@ export async function DELETE(
     const { id } = await context.params;
     const supabase = createServiceClient();
 
-    // Datei aus Storage entfernen, dann DB-Eintrag
+    // Dateien aus Storage entfernen (DE + EN), dann DB-Eintrag
     const { data: existing } = await supabase
       .from("dokument_vorlagen")
-      .select("file_url")
+      .select("file_url, file_url_en")
       .eq("id", id)
       .maybeSingle();
 
-    const path = extractStoragePath(existing?.file_url);
-    if (path) {
-      await supabase.storage.from("dokument-vorlagen").remove([path]);
+    const toRemove: string[] = [];
+    const pathDe = extractStoragePath(existing?.file_url);
+    const pathEn = extractStoragePath(existing?.file_url_en);
+    if (pathDe) toRemove.push(pathDe);
+    if (pathEn) toRemove.push(pathEn);
+    if (toRemove.length > 0) {
+      await supabase.storage.from("dokument-vorlagen").remove(toRemove);
     }
 
     const { error } = await supabase

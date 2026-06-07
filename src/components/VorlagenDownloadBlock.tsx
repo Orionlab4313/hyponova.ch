@@ -15,6 +15,9 @@ interface Vorlage {
   file_url: string;
   file_name: string;
   file_size: number | null;
+  file_url_en: string | null;
+  file_name_en: string | null;
+  file_size_en: number | null;
   sort_order: number;
 }
 
@@ -112,6 +115,13 @@ function VorlagenRow({
 }) {
   const name = (lang === "en" && v.name_en) ? v.name_en : v.name_de;
   const desc = (lang === "en" && v.description_en) ? v.description_en : v.description_de;
+  // EN-Datei nur dann, wenn Sprache EN und EN-PDF auch wirklich hochgeladen.
+  const useEnFile = lang === "en" && Boolean(v.file_url_en);
+  const downloadHref = useEnFile
+    ? `/api/public/vorlagen/${v.id}/download?lang=en`
+    : `/api/public/vorlagen/${v.id}/download`;
+  const downloadName = useEnFile ? (v.file_name_en || v.file_name) : v.file_name;
+  const downloadSize = useEnFile ? v.file_size_en : v.file_size;
   return (
     <div
       style={{
@@ -136,14 +146,14 @@ function VorlagenRow({
           <div style={{ fontSize: 12, color: "#666", marginTop: 4, lineHeight: 1.5 }}>{desc}</div>
         )}
         <div style={{ fontSize: 11, color: "#888", marginTop: 4 }}>
-          PDF{v.file_size ? ` · ${formatBytes(v.file_size)}` : ""}
+          PDF{downloadSize ? ` · ${formatBytes(downloadSize)}` : ""}
         </div>
       </div>
       <a
-        href={`/api/public/vorlagen/${v.id}/download`}
+        href={downloadHref}
         target="_blank"
         rel="noopener noreferrer"
-        download={v.file_name}
+        download={downloadName}
         style={{
           display: "inline-flex",
           alignItems: "center",

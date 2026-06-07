@@ -62,6 +62,9 @@ export async function POST(request: NextRequest) {
         file_url: body.file_url,
         file_name: body.file_name,
         file_size: body.file_size ?? null,
+        file_url_en: body.file_url_en || null,
+        file_name_en: body.file_name_en || null,
+        file_size_en: body.file_size_en ?? null,
         sort_order: body.sort_order ?? 0,
         active: body.active !== false,
       })

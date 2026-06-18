@@ -223,8 +223,8 @@ export default function Home() {
           >
             <div className="relative w-full overflow-visible" style={{ height: "clamp(350px, 55vh, 600px)" }}>
               <Image
-                src="/images/eigenheim-modern.png"
-                alt="Schweizer Eigenheim"
+                src="/images/eigenheim-hypothek-schweiz.jpg"
+                alt={lang === "en" ? "Modern Swiss villa, financed via HYPONOVA mortgage broker" : "Modernes Schweizer Eigenheim, finanziert mit HYPONOVA Hypothekenvergleich"}
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 1400px"
@@ -475,8 +475,8 @@ export default function Home() {
               <ScrollReveal direction="left">
                 <div className="aspect-[4/3] overflow-hidden relative">
                   <Image
-                    src="/images/beratung-paar.png"
-                    alt="Beratungsgespräch"
+                    src="/images/hypothek-vergleichen.jpg"
+                    alt={lang === "en" ? "Comparing mortgage offers, independent advisory from HYPONOVA" : "Hypotheken vergleichen, unabhängige Hypothekarberatung von HYPONOVA"}
                     fill
                     sizes="(max-width: 1024px) 100vw, 700px"
                     className="object-cover"

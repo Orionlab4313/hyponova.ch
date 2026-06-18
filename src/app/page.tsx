@@ -222,10 +222,13 @@ export default function Home() {
             className="relative mx-4 lg:mx-10 mb-40 sm:mb-0"
           >
             <div className="relative w-full overflow-visible" style={{ height: "clamp(350px, 55vh, 600px)" }}>
-              <img
-                src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1400&q=80"
+              <Image
+                src="/images/eigenheim-modern.png"
                 alt="Schweizer Eigenheim"
-                className="w-full h-full object-cover"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 1400px"
+                className="object-cover"
               />
               {/* Overlay card */}
               <div className="absolute left-4 right-4 -bottom-[30%] sm:bottom-[35px] sm:right-[60px] sm:left-auto sm:w-[480px] p-6 sm:p-8 lg:p-10" style={{ backgroundColor: "rgba(0,0,0,0.85)", backdropFilter: "blur(10px)" }}>
@@ -470,11 +473,13 @@ export default function Home() {
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <ScrollReveal direction="left">
-                <div className="aspect-[4/3] overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?w=700&q=80"
+                <div className="aspect-[4/3] overflow-hidden relative">
+                  <Image
+                    src="/images/beratung-paar.png"
                     alt="Beratungsgespräch"
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 700px"
+                    className="object-cover"
                   />
                 </div>
               </ScrollReveal>

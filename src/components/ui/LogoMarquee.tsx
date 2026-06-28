@@ -2,18 +2,22 @@
 
 import { useI18n } from "@/i18n/context";
 
-const SUPABASE_URL = "https://dqryxcdwvuborlayjain.supabase.co/storage/v1/object/public/logos";
-
+// Lokal aus public/images/banken/ serviert (same-origin, kein Adblocker-Block).
+// 13 Partner-Banken/Versicherungen von Simon, schriftliche Logo-Bewilligung vorhanden.
 const partners = [
-  { name: "Aargauische Kantonalbank", src: `${SUPABASE_URL}/akb.jpg` },
-  { name: "Thurgauer Kantonalbank", src: `${SUPABASE_URL}/tkb.png` },
-  { name: "Vaudoise", src: `${SUPABASE_URL}/vaudoise.jpg` },
-  { name: "die Mobiliar", src: `${SUPABASE_URL}/mobiliar.jpg` },
-  { name: "Migros Bank", src: `${SUPABASE_URL}/migros-bank.png` },
-  { name: "UBS", src: `${SUPABASE_URL}/ubs.webp` },
-  { name: "Bank Cler", src: `${SUPABASE_URL}/cler.jpg` },
-  { name: "Raiffeisen", src: `${SUPABASE_URL}/raiffeisen.webp` },
-  { name: "Basler Kantonalbank", src: `${SUPABASE_URL}/bkb.png` },
+  { name: "Acrevis Bank", src: "/images/banken/acrevis.svg" },
+  { name: "AXA Versicherung", src: "/images/banken/axa.svg" },
+  { name: "Baloise Bank SoBa", src: "/images/banken/baloise.svg" },
+  { name: "Bank EKI", src: "/images/banken/bank-eki.svg" },
+  { name: "Bank SLM", src: "/images/banken/bank-slm.svg" },
+  { name: "Bank Thalwil", src: "/images/banken/bank-thalwil.svg" },
+  { name: "Banque Cantonale Neuchâteloise", src: "/images/banken/bcn.svg" },
+  { name: "Clientis Sparcassa 1816", src: "/images/banken/clientis-sparcassa.svg" },
+  { name: "Graubündner Kantonalbank", src: "/images/banken/gkb.svg" },
+  { name: "St. Galler Kantonalbank", src: "/images/banken/sgkb.svg" },
+  { name: "Thurgauer Kantonalbank", src: "/images/banken/tkb.svg" },
+  { name: "Raiffeisen", src: "/images/banken/raiffeisen.svg" },
+  { name: "Basler Kantonalbank", src: "/images/banken/bkb.svg" },
 ];
 
 export default function LogoMarquee() {
@@ -41,7 +45,7 @@ export default function LogoMarquee() {
             >
               <img
                 src={partner.src}
-                alt={partner.name}
+                alt={lang === "en" ? `${partner.name}, HYPONOVA partner` : `${partner.name}, Partner von HYPONOVA`}
                 className="h-12 lg:h-14 w-auto max-w-[180px] object-contain"
                 loading="lazy"
               />

@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useI18n } from "@/i18n/context";
-import ScrollReveal, { StaggerContainer, StaggerItem } from "@/components/ui/ScrollReveal";
-import CountUp from "@/components/ui/CountUp";
+import ScrollReveal from "@/components/ui/ScrollReveal";
 
 interface InterestRates {
   saron_marge: number | null;
@@ -42,6 +41,11 @@ const COPY = {
     standLabel: "As of",
   },
 } as const;
+
+function formatRate(n: number | null): string {
+  if (n === null || n === undefined) return "";
+  return n.toFixed(2).replace(".", ",");
+}
 
 function formatDate(iso: string | null): string {
   if (!iso) return "";
@@ -92,15 +96,33 @@ export default function InterestRatesSection() {
           </h2>
         </ScrollReveal>
 
-        <StaggerContainer
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={{
+            visible: {
+              transition: { staggerChildren: 0.1 },
+            },
+          }}
           className={`grid gap-6 ${items.length === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : items.length === 3 ? "sm:grid-cols-3" : items.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-1"}`}
-          staggerDelay={0.12}
         >
           {items.map((item) => (
-            <StaggerItem key={item.key}>
+            <motion.div
+              key={item.key}
+              variants={{
+                hidden: { opacity: 0, scaleY: 0.4 },
+                visible: {
+                  opacity: 1,
+                  scaleY: 1,
+                  transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+                },
+              }}
+              style={{ transformOrigin: "center", transformPerspective: 800 }}
+            >
               <motion.div
-                whileHover={{ y: -6, transition: { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] } }}
-                className="relative bg-white p-6 lg:p-8 flex flex-col items-start cursor-default group"
+                whileHover={{ y: -4, transition: { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] } }}
+                className="relative bg-white p-6 lg:p-8 flex flex-col items-start cursor-default group h-full"
                 style={{ border: "1px solid #e5e5e5", transition: "box-shadow 0.3s ease, border-color 0.3s ease" }}
               >
                 {/* Akzent-Strich oben in Brand-Orange (animiert per CSS beim Hover) */}
@@ -125,20 +147,18 @@ export default function InterestRatesSection() {
                 <p className="text-sm font-semibold mb-6" style={{ color: "#6b6b6b" }}>{item.label}</p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-sm" style={{ color: "#6b6b6b" }}>{t.fromLabel}</span>
-                  <CountUp
-                    end={item.value as number}
-                    decimals={2}
-                    decimalSeparator=","
-                    duration={1600}
+                  <span
                     className="text-4xl lg:text-5xl"
                     style={{ fontWeight: 600, color: "#c8553d", lineHeight: 1 }}
-                  />
+                  >
+                    {formatRate(item.value)}
+                  </span>
                   <span className="text-2xl lg:text-3xl" style={{ fontWeight: 500, color: "#c8553d" }}>%</span>
                 </div>
               </motion.div>
-            </StaggerItem>
+            </motion.div>
           ))}
-        </StaggerContainer>
+        </motion.div>
 
         <ScrollReveal delay={0.2}>
           <p className="text-xs leading-relaxed mt-10 max-w-3xl" style={{ color: "#6b6b6b" }}>

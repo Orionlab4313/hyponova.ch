@@ -32,21 +32,23 @@ export default function LogoMarquee() {
       </p>
       <div className="relative">
         <div
-          className="flex items-center gap-16 animate-marquee"
+          className="flex items-center animate-marquee"
           style={{
             width: "max-content",
+            gap: "72px",
           }}
         >
           {logos.map((partner, i) => (
             <div
               key={`${partner.name}-${i}`}
-              className="flex-shrink-0 h-16 flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 hover:scale-110 transition-all duration-300"
-              style={{ minWidth: "180px" }}
+              className="flex-shrink-0 flex items-center justify-center grayscale opacity-60 hover:grayscale-0 hover:opacity-100 hover:scale-110 transition-all duration-300"
+              style={{ width: "200px", height: "80px" }}
             >
               <img
                 src={partner.src}
                 alt={lang === "en" ? `${partner.name}, HYPONOVA partner` : `${partner.name}, Partner von HYPONOVA`}
-                className="h-12 lg:h-14 w-auto max-w-[180px] object-contain"
+                className="object-contain"
+                style={{ maxHeight: "48px", maxWidth: "170px", width: "auto", height: "auto" }}
                 loading="lazy"
               />
             </div>

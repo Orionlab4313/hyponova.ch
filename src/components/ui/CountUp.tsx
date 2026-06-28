@@ -10,6 +10,7 @@ interface CountUpProps {
   decimals?: number;
   duration?: number;
   separator?: string;
+  decimalSeparator?: string;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -21,6 +22,7 @@ export default function CountUp({
   decimals = 0,
   duration = 2000,
   separator = "'",
+  decimalSeparator = ".",
   className = "",
   style,
 }: CountUpProps) {
@@ -54,7 +56,7 @@ export default function CountUp({
     const [whole, decimal] = fixed.split(".");
     // Add thousand separator
     const formatted = whole.replace(/\B(?=(\d{3})+(?!\d))/g, separator);
-    return decimal ? `${formatted}.${decimal}` : formatted;
+    return decimal ? `${formatted}${decimalSeparator}${decimal}` : formatted;
   };
 
   return (

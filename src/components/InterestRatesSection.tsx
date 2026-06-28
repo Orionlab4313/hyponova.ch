@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useI18n } from "@/i18n/context";
+import ScrollReveal, { StaggerContainer, StaggerItem } from "@/components/ui/ScrollReveal";
+import CountUp from "@/components/ui/CountUp";
 
 interface InterestRates {
   saron_marge: number | null;
@@ -40,11 +43,6 @@ const COPY = {
   },
 } as const;
 
-function formatRate(n: number | null): string {
-  if (n === null || n === undefined) return "";
-  return n.toFixed(2).replace(".", ",");
-}
-
 function formatDate(iso: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);
@@ -72,9 +70,7 @@ export default function InterestRatesSection() {
     };
   }, []);
 
-  // Lade-Zustand: nichts rendern (Layout-Shift vermeiden)
   if (data === undefined) return null;
-  // Keine Daten oder alle Felder null: Section komplett ausblenden
   if (!data) return null;
   const items = [
     { key: "saron", label: t.items.saron, value: data.saron_marge },
@@ -85,40 +81,75 @@ export default function InterestRatesSection() {
   if (items.length === 0) return null;
 
   return (
-    <section className="py-20 lg:py-28" style={{ backgroundColor: "#f7f5f2" }}>
+    <section className="py-20 lg:py-28 overflow-hidden" style={{ backgroundColor: "#f7f5f2" }}>
       <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
-        <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
-          {t.label}
-        </p>
-        <h2 className="text-3xl md:text-4xl lg:text-5xl leading-[1.15] mb-12 max-w-3xl" style={{ fontWeight: 300, color: "#1a1a1a" }}>
-          {t.heading.before}<span style={{ fontWeight: 600 }}>{t.heading.bold}</span>
-        </h2>
+        <ScrollReveal>
+          <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
+            {t.label}
+          </p>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl leading-[1.15] mb-12 max-w-3xl" style={{ fontWeight: 300, color: "#1a1a1a" }}>
+            {t.heading.before}<span style={{ fontWeight: 600 }}>{t.heading.bold}</span>
+          </h2>
+        </ScrollReveal>
 
-        <div className={`grid gap-6 ${items.length === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : items.length === 3 ? "sm:grid-cols-3" : items.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-1"}`}>
+        <StaggerContainer
+          className={`grid gap-6 ${items.length === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : items.length === 3 ? "sm:grid-cols-3" : items.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-1"}`}
+          staggerDelay={0.12}
+        >
           {items.map((item) => (
-            <div
-              key={item.key}
-              className="bg-white p-6 lg:p-8 flex flex-col items-start transition-shadow duration-300 hover:shadow-lg"
-              style={{ border: "1px solid #e5e5e5" }}
-            >
-              <p className="text-sm font-semibold mb-6" style={{ color: "#6b6b6b" }}>{item.label}</p>
-              <div className="flex items-baseline gap-2">
-                <span className="text-sm" style={{ color: "#6b6b6b" }}>{t.fromLabel}</span>
-                <span className="text-4xl lg:text-5xl" style={{ fontWeight: 600, color: "#c8553d", lineHeight: 1 }}>{formatRate(item.value)}</span>
-                <span className="text-2xl lg:text-3xl" style={{ fontWeight: 500, color: "#c8553d" }}>%</span>
-              </div>
-            </div>
-          ))}
-        </div>
+            <StaggerItem key={item.key}>
+              <motion.div
+                whileHover={{ y: -6, transition: { duration: 0.25, ease: [0.25, 0.1, 0.25, 1] } }}
+                className="relative bg-white p-6 lg:p-8 flex flex-col items-start cursor-default group"
+                style={{ border: "1px solid #e5e5e5", transition: "box-shadow 0.3s ease, border-color 0.3s ease" }}
+              >
+                {/* Akzent-Strich oben in Brand-Orange (animiert per CSS beim Hover) */}
+                <span
+                  aria-hidden="true"
+                  className="absolute top-0 left-0 h-[3px] bg-[#c8553d] transition-all duration-500 ease-out"
+                  style={{ width: "0%" }}
+                />
+                <style jsx>{`
+                  div.group:hover > span:first-child {
+                    width: 100%;
+                  }
+                  div.group {
+                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+                  }
+                  div.group:hover {
+                    box-shadow: 0 12px 32px rgba(200, 85, 61, 0.12);
+                    border-color: rgba(200, 85, 61, 0.35) !important;
+                  }
+                `}</style>
 
-        <p className="text-xs leading-relaxed mt-10 max-w-3xl" style={{ color: "#6b6b6b" }}>
-          {t.disclaimer}
-          {data.updated_at && (
-            <>
-              {" "}<span style={{ fontWeight: 600, color: "#444" }}>{t.standLabel}: {formatDate(data.updated_at)}</span>.
-            </>
-          )}
-        </p>
+                <p className="text-sm font-semibold mb-6" style={{ color: "#6b6b6b" }}>{item.label}</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-sm" style={{ color: "#6b6b6b" }}>{t.fromLabel}</span>
+                  <CountUp
+                    end={item.value as number}
+                    decimals={2}
+                    decimalSeparator=","
+                    duration={1600}
+                    className="text-4xl lg:text-5xl"
+                    style={{ fontWeight: 600, color: "#c8553d", lineHeight: 1 }}
+                  />
+                  <span className="text-2xl lg:text-3xl" style={{ fontWeight: 500, color: "#c8553d" }}>%</span>
+                </div>
+              </motion.div>
+            </StaggerItem>
+          ))}
+        </StaggerContainer>
+
+        <ScrollReveal delay={0.2}>
+          <p className="text-xs leading-relaxed mt-10 max-w-3xl" style={{ color: "#6b6b6b" }}>
+            {t.disclaimer}
+            {data.updated_at && (
+              <>
+                {" "}<span style={{ fontWeight: 600, color: "#444" }}>{t.standLabel}: {formatDate(data.updated_at)}</span>.
+              </>
+            )}
+          </p>
+        </ScrollReveal>
       </div>
     </section>
   );

@@ -259,6 +259,9 @@ export default function Home() {
         {/* Reaktiviert 28.06.2026: 13 Partner-Banken/Versicherungen, schriftliche Logo-Bewilligung vorhanden. */}
         <LogoMarquee />
 
+        {/* -- TAGESAKTUELLE ZINSSAETZE (DB-gestuetzt, pflegt Simon im Admin) -- */}
+        <InterestRatesSection />
+
         {/* -- SERVICES -- */}
         <section className="pt-8 pb-24 lg:py-32">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
@@ -328,9 +331,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* -- TAGESAKTUELLE ZINSSAETZE (DB-gestuetzt, pflegt Simon im Admin) -- */}
-        <InterestRatesSection />
 
         {/* -- RECHNER TEASER -- */}
         <section className="py-24 lg:py-32 text-white" style={{ backgroundColor: "#0f0f0f" }}>

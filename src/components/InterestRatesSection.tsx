@@ -1,0 +1,125 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useI18n } from "@/i18n/context";
+
+interface InterestRates {
+  saron_marge: number | null;
+  fixed_5y: number | null;
+  fixed_7y: number | null;
+  fixed_10y: number | null;
+  updated_at: string | null;
+}
+
+const COPY = {
+  de: {
+    label: "Konditionen",
+    heading: { before: "Unsere ", bold: "tagesaktuellen Zinssätze." },
+    items: {
+      saron: "SARON Marge",
+      f5: "5 Jahre Festhypothek",
+      f7: "7 Jahre Festhypothek",
+      f10: "10 Jahre Festhypothek",
+    },
+    fromLabel: "ab",
+    disclaimer: "Die aufgeführten Zinssätze gelten für die beste Bonität. Sie bilden kein verbindliches Finanzierungsangebot.",
+    standLabel: "Stand",
+  },
+  en: {
+    label: "Rates",
+    heading: { before: "Our ", bold: "current interest rates." },
+    items: {
+      saron: "SARON margin",
+      f5: "5-year fixed-rate mortgage",
+      f7: "7-year fixed-rate mortgage",
+      f10: "10-year fixed-rate mortgage",
+    },
+    fromLabel: "from",
+    disclaimer: "The interest rates shown apply to the best credit rating. They do not constitute a binding financing offer.",
+    standLabel: "As of",
+  },
+} as const;
+
+function formatRate(n: number | null): string {
+  if (n === null || n === undefined) return "";
+  return n.toFixed(2).replace(".", ",");
+}
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+export default function InterestRatesSection() {
+  const { lang } = useI18n();
+  const [data, setData] = useState<InterestRates | null | undefined>(undefined);
+  const t = COPY[lang];
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/public/interest-rates")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled) setData(d);
+      })
+      .catch(() => {
+        if (!cancelled) setData(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Lade-Zustand: nichts rendern (Layout-Shift vermeiden)
+  if (data === undefined) return null;
+  // Keine Daten oder alle Felder null: Section komplett ausblenden
+  if (!data) return null;
+  const items = [
+    { key: "saron", label: t.items.saron, value: data.saron_marge },
+    { key: "f5", label: t.items.f5, value: data.fixed_5y },
+    { key: "f7", label: t.items.f7, value: data.fixed_7y },
+    { key: "f10", label: t.items.f10, value: data.fixed_10y },
+  ].filter((i) => i.value !== null && i.value !== undefined);
+  if (items.length === 0) return null;
+
+  return (
+    <section className="py-20 lg:py-28" style={{ backgroundColor: "#f7f5f2" }}>
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
+        <p className="text-sm uppercase tracking-[0.15em] font-medium mb-4" style={{ color: "#6b6b6b" }}>
+          {t.label}
+        </p>
+        <h2 className="text-3xl md:text-4xl lg:text-5xl leading-[1.15] mb-12 max-w-3xl" style={{ fontWeight: 300, color: "#1a1a1a" }}>
+          {t.heading.before}<span style={{ fontWeight: 600 }}>{t.heading.bold}</span>
+        </h2>
+
+        <div className={`grid gap-6 ${items.length === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : items.length === 3 ? "sm:grid-cols-3" : items.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-1"}`}>
+          {items.map((item) => (
+            <div
+              key={item.key}
+              className="bg-white p-6 lg:p-8 flex flex-col items-start transition-shadow duration-300 hover:shadow-lg"
+              style={{ border: "1px solid #e5e5e5" }}
+            >
+              <p className="text-sm font-semibold mb-6" style={{ color: "#6b6b6b" }}>{item.label}</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-sm" style={{ color: "#6b6b6b" }}>{t.fromLabel}</span>
+                <span className="text-4xl lg:text-5xl" style={{ fontWeight: 600, color: "#c8553d", lineHeight: 1 }}>{formatRate(item.value)}</span>
+                <span className="text-2xl lg:text-3xl" style={{ fontWeight: 500, color: "#c8553d" }}>%</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-xs leading-relaxed mt-10 max-w-3xl" style={{ color: "#6b6b6b" }}>
+          {t.disclaimer}
+          {data.updated_at && (
+            <>
+              {" "}<span style={{ fontWeight: 600, color: "#444" }}>{t.standLabel}: {formatDate(data.updated_at)}</span>.
+            </>
+          )}
+        </p>
+      </div>
+    </section>
+  );
+}

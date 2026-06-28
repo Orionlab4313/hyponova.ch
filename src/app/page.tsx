@@ -8,6 +8,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import ScrollReveal, { SlideUp, StaggerContainer, StaggerItem, FadeIn } from "@/components/ui/ScrollReveal";
 import LogoMarquee from "@/components/ui/LogoMarquee";
+import InterestRatesSection from "@/components/InterestRatesSection";
 import CountUp from "@/components/ui/CountUp";
 import { useI18n } from "@/i18n/context";
 
@@ -327,6 +328,9 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* -- TAGESAKTUELLE ZINSSAETZE (DB-gestuetzt, pflegt Simon im Admin) -- */}
+        <InterestRatesSection />
 
         {/* -- RECHNER TEASER -- */}
         <section className="py-24 lg:py-32 text-white" style={{ backgroundColor: "#0f0f0f" }}>

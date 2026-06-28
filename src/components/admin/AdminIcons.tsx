@@ -175,3 +175,12 @@ export const IconStamp = (p: IconProps) => (
     <line x1="4" y1="20" x2="20" y2="20" />
   </I>
 );
+
+// Prozentzeichen fuer "Zinssaetze"
+export const IconPercent = (p: IconProps) => (
+  <I {...p}>
+    <line x1="19" y1="5" x2="5" y2="19" />
+    <circle cx="6.5" cy="6.5" r="2.5" />
+    <circle cx="17.5" cy="17.5" r="2.5" />
+  </I>
+);

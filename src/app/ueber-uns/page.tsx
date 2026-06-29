@@ -150,8 +150,8 @@ export default function UeberUnsPage() {
           <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
             <ScrollReveal>
               <Image
-                src="/images/mission-eigenheim.png"
-                alt={missionLabel[lang]}
+                src="/images/ueber-uns-villa-seeblick.webp"
+                alt={lang === "en" ? "Modern Swiss villa with lake and mountain view, HYPONOVA" : "Moderne Schweizer Villa mit See- und Bergblick, HYPONOVA"}
                 width={1280}
                 height={853}
                 sizes="(max-width: 1024px) 100vw, 50vw"

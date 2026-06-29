@@ -63,7 +63,7 @@ export default function DienstleistungenPage() {
                 <Link href="/dienstleistungen/eigenheim-kaufen" className="group block" style={{ color: "inherit", textDecoration: "none" }}>
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
                     <Image
-                      src="/images/eigenheim-kaufen.png"
+                      src="/images/eigenheim-kaufen-modern.webp"
                       alt={l.kaufTitel}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
@@ -91,7 +91,7 @@ export default function DienstleistungenPage() {
                 <Link href="/dienstleistungen/hypothek-abloesen" className="group block" style={{ color: "inherit", textDecoration: "none" }}>
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
                     <Image
-                      src="/images/beratung-paar.png"
+                      src="/images/hypothek-abloesen-beratung.webp"
                       alt={l.abloesungTitel}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"

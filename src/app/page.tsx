@@ -279,7 +279,7 @@ export default function Home() {
                 <Link href="/dienstleistungen/eigenheim-kaufen" className="group block">
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
                     <Image
-                      src="/images/eigenheim-kaufen.png"
+                      src="/images/eigenheim-kaufen-modern.webp"
                       alt={t.services.newPurchase}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
@@ -306,7 +306,7 @@ export default function Home() {
                 <Link href="/dienstleistungen/hypothek-abloesen" className="group block">
                   <div className="aspect-[16/10] mb-6 overflow-hidden relative">
                     <Image
-                      src="/images/beratung-paar.png"
+                      src="/images/hypothek-abloesen-beratung.webp"
                       alt={t.services.refinance}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"

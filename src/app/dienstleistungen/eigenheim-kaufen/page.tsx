@@ -110,7 +110,7 @@ export default function EigenheimKaufenPage() {
           <div className="max-w-[1400px] mx-auto">
             <div className="aspect-[16/7] overflow-hidden relative">
               <Image
-                src="/images/eigenheim-kaufen.png"
+                src="/images/eigenheim-kaufen-modern.webp"
                 alt={t.title}
                 fill
                 sizes="(max-width: 1400px) 100vw, 1400px"

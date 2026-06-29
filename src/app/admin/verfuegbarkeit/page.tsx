@@ -298,6 +298,7 @@ export default function VerfuegbarkeitPage() {
                 <h3 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 10px" }}>Tag entsperren</h3>
                 <p style={{ fontSize: 12, color: "#888", margin: "0 0 12px" }}>
                   {new Date(showBlockModal + "T00:00:00").toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })}
+                  <span style={{ marginLeft: 6 }}>(ganztägig blockiert)</span>
                 </p>
                 <div style={{ display: "flex", gap: 8 }}>
                   <button onClick={() => { const b = isDateBlocked(showBlockModal); if (b) removeBlocked(b.id); setShowBlockModal(null); }} style={{ flex: 1, padding: 9, fontSize: 13, fontWeight: 500, background: "#22c55e", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Entsperren</button>
@@ -306,11 +307,30 @@ export default function VerfuegbarkeitPage() {
               </>
             ) : (
               <>
-                <h3 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 6px" }}>Tag blockieren</h3>
+                <h3 style={{ fontSize: 14, fontWeight: 600, margin: "0 0 6px" }}>Tag bearbeiten</h3>
                 <p style={{ fontSize: 12, color: "#888", margin: "0 0 12px" }}>
                   {new Date(showBlockModal + "T00:00:00").toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })}
                 </p>
 
+                {/* Bereits blockierte Stunden an diesem Tag: anzeigen + einzeln entsperren */}
+                {getBlockedHours(showBlockModal).length > 0 && (
+                  <div style={{ marginBottom: 12 }}>
+                    <p style={{ fontSize: 11, fontWeight: 600, color: "#888", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Blockierte Stunden</p>
+                    <div style={{ display: "grid", gap: 4 }}>
+                      {getBlockedHours(showBlockModal).map((bh) => (
+                        <div key={bh.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "#fff7ed", borderRadius: 5, border: "1px solid #fed7aa" }}>
+                          <span style={{ fontSize: 12, color: "#ea580c", fontWeight: 500 }}>
+                            {bh.start_time} - {bh.end_time}
+                            {bh.reason && <span style={{ color: "#999", fontWeight: 400, marginLeft: 6 }}>, {bh.reason}</span>}
+                          </span>
+                          <button onClick={() => removeBlocked(bh.id)} style={{ fontSize: 11, fontWeight: 500, color: "#22c55e", background: "none", border: "none", cursor: "pointer", padding: 0 }}>Entsperren</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <p style={{ fontSize: 11, fontWeight: 600, color: "#888", margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.05em" }}>Neue Blockierung</p>
                 <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
                   <button onClick={() => setBlockType("day")} style={{ padding: "4px 10px", fontSize: 11, fontWeight: 500, borderRadius: 14, cursor: "pointer", border: blockType === "day" ? "none" : "1px solid #ddd", background: blockType === "day" ? "#1a1a1a" : "#fff", color: blockType === "day" ? "#fff" : "#555" }}>Ganzer Tag</button>
                   <button onClick={() => setBlockType("hours")} style={{ padding: "4px 10px", fontSize: 11, fontWeight: 500, borderRadius: 14, cursor: "pointer", border: blockType === "hours" ? "none" : "1px solid #ddd", background: blockType === "hours" ? "#1a1a1a" : "#fff", color: blockType === "hours" ? "#fff" : "#555" }}>Bestimmte Stunden</button>
@@ -328,7 +348,7 @@ export default function VerfuegbarkeitPage() {
 
                 <div style={{ display: "flex", gap: 8 }}>
                   <button onClick={() => addBlockedEntry(showBlockModal)} style={{ flex: 1, padding: 9, fontSize: 13, fontWeight: 500, background: "#ef4444", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>Blockieren</button>
-                  <button onClick={() => setShowBlockModal(null)} style={{ padding: "9px 16px", fontSize: 13, background: "#f5f5f5", border: "1px solid #ddd", borderRadius: 6, cursor: "pointer" }}>Abbrechen</button>
+                  <button onClick={() => setShowBlockModal(null)} style={{ padding: "9px 16px", fontSize: 13, background: "#f5f5f5", border: "1px solid #ddd", borderRadius: 6, cursor: "pointer" }}>Schliessen</button>
                 </div>
               </>
             )}

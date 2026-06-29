@@ -24,7 +24,7 @@ const COPY = {
       f10: "10 Jahre Festhypothek",
     },
     fromLabel: "ab",
-    disclaimer: "Die aufgeführten Zinssätze gelten für die beste Bonität. Sie bilden kein verbindliches Finanzierungsangebot.",
+    disclaimer: "Es handelt sich bei den angezeigten Zinsen um Richtzinsen der Kapitalgeber. Je nach Hypothekarhöhe, Belehnungshöhe, Tragbarkeit oder Region können Zu-/Abschläge angewendet werden.",
     standLabel: "Stand",
   },
   en: {
@@ -37,7 +37,7 @@ const COPY = {
       f10: "10-year fixed-rate mortgage",
     },
     fromLabel: "from",
-    disclaimer: "The interest rates shown apply to the best credit rating. They do not constitute a binding financing offer.",
+    disclaimer: "The rates shown are reference rates from the lenders. Depending on the mortgage amount, loan-to-value, affordability or region, premiums or discounts may apply.",
     standLabel: "As of",
   },
 } as const;

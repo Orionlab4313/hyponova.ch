@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     admin_password_set: !!s.admin_password_hash,
     site_protection_enabled: s.site_protection_enabled,
     teams_meeting_url: s.teams_meeting_url || "",
+    termin_page_visible: s.termin_page_visible,
   });
 }
 
@@ -26,7 +27,7 @@ export async function PATCH(request: NextRequest) {
   }
   try {
     const body = await request.json();
-    const { teams_meeting_url } = body;
+    const { teams_meeting_url, termin_page_visible } = body;
     const sb = (await import("@/lib/supabase")).createServiceClient();
 
     const updates: Record<string, unknown> = {};
@@ -36,6 +37,9 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ error: "Teams-Link muss mit https:// beginnen" }, { status: 400 });
       }
       updates.teams_meeting_url = trimmed || null;
+    }
+    if (typeof termin_page_visible === "boolean") {
+      updates.termin_page_visible = termin_page_visible;
     }
 
     if (Object.keys(updates).length === 0) {

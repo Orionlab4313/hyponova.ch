@@ -12,6 +12,8 @@ const partners = [
   { name: "Bank SLM", src: "/images/banken/bank-slm.svg" },
   { name: "Bank Thalwil", src: "/images/banken/bank-thalwil.svg" },
   { name: "Banque Cantonale Neuchâteloise", src: "/images/banken/bcn.svg" },
+  { name: "Berner Kantonalbank", src: "/images/banken/bekb.svg" },
+  { name: "Bernerland Bank", src: "/images/banken/bernerland.svg" },
   { name: "Clientis Sparcassa 1816", src: "/images/banken/clientis-sparcassa.svg" },
   { name: "Graubündner Kantonalbank", src: "/images/banken/gkb.svg" },
   { name: "St. Galler Kantonalbank", src: "/images/banken/sgkb.svg" },

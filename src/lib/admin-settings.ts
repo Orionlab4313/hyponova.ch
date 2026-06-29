@@ -26,6 +26,8 @@ export type AdminSettings = {
   // Microsoft Teams Personal/Standing Meeting URL, wird in
   // Termin-Bestaetigungs-Emails inkludiert wenn gesetzt.
   teams_meeting_url: string | null;
+  // Steuert ob die oeffentliche Terminseite /termin direkt erreichbar ist.
+  termin_page_visible: boolean;
   updated_at: string;
 };
 

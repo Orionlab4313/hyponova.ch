@@ -49,9 +49,34 @@ export default function KalenderPage() {
   const [form, setForm] = useState({ title: "", description: "", date: "", time_start: "09:00", time_end: "10:00", lead_id: "", status: "geplant" });
 
   const [syncing, setSyncing] = useState(false);
+  const [terminVisible, setTerminVisible] = useState<boolean | null>(null);
+  const [togglingTermin, setTogglingTermin] = useState(false);
   const EDGE_FN = "https://dqryxcdwvuborlayjain.supabase.co/functions/v1/on-booking";
 
   useEffect(() => { fetchData(); }, []);
+
+  useEffect(() => {
+    fetch("/api/admin/settings")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d && typeof d.termin_page_visible === "boolean") setTerminVisible(d.termin_page_visible); })
+      .catch(() => {});
+  }, []);
+
+  async function toggleTerminVisible() {
+    if (terminVisible === null || togglingTermin) return;
+    const next = !terminVisible;
+    setTogglingTermin(true);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ termin_page_visible: next }),
+      });
+      if (res.ok) setTerminVisible(next);
+    } catch {} finally {
+      setTogglingTermin(false);
+    }
+  }
 
   async function fetchData() {
     const [apptRes, leadRes] = await Promise.all([
@@ -181,10 +206,33 @@ export default function KalenderPage() {
           <button onClick={nextMonth} style={{ background: "none", border: "1px solid #e5e5e5", borderRadius: 5, padding: "4px 8px", cursor: "pointer", fontSize: 12 }}>→</button>
           <button onClick={() => { setCurrentMonth(new Date().getMonth()); setCurrentYear(new Date().getFullYear()); setSelectedDate(today); }} style={{ fontSize: 11, color: "#c8553d", background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}>Heute</button>
         </div>
-        <button onClick={() => openCreate()} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>
-          + Termin
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          {terminVisible !== null && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 10px 5px 12px", background: "#fff", border: "1px solid #e5e5e5", borderRadius: 8 }}>
+              <span style={{ fontSize: 12, fontWeight: 500, color: terminVisible ? "#1a1a1a" : "#999" }}>
+                Terminseite {terminVisible ? "sichtbar" : "ausgeblendet"}
+              </span>
+              <button
+                onClick={toggleTerminVisible}
+                disabled={togglingTermin}
+                title={terminVisible ? "Terminseite ausblenden (Kunden buchen nur ueber Dienstleistungen)" : "Terminseite wieder sichtbar machen"}
+                aria-label="Terminseite Sichtbarkeit umschalten"
+                style={{ width: 38, height: 22, borderRadius: 11, border: "none", background: terminVisible ? "#22c55e" : "#ccc", position: "relative", cursor: togglingTermin ? "wait" : "pointer", flexShrink: 0, opacity: togglingTermin ? 0.6 : 1, transition: "background 0.2s" }}
+              >
+                <span style={{ position: "absolute", top: 2, left: terminVisible ? 18 : 2, width: 18, height: 18, borderRadius: "50%", background: "#fff", transition: "left 0.2s", boxShadow: "0 1px 2px rgba(0,0,0,0.25)" }} />
+              </button>
+            </div>
+          )}
+          <button onClick={() => openCreate()} style={{ padding: "6px 14px", fontSize: 12, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}>
+            + Termin
+          </button>
+        </div>
       </div>
+      {terminVisible === false && (
+        <div style={{ marginBottom: 12, padding: "8px 12px", background: "#fff7ed", border: "1px solid #fed7aa", borderRadius: 6, fontSize: 12, color: "#9a3412" }}>
+          Die öffentliche Terminseite ist aktuell ausgeblendet. Besucher werden auf die Dienstleistungen weitergeleitet und buchen nur über den Fragebogen-Workflow. Terminbuchungen aus dem Workflow funktionieren weiterhin.
+        </div>
+      )}
 
       {/* Calendar Grid */}
       <div style={{ background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5", overflow: "hidden", marginBottom: 12, width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>

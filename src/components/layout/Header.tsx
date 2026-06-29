@@ -38,6 +38,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hoverStyle, setHoverStyle] = useState<{ left: number; width: number } | null>(null);
+  const [terminVisible, setTerminVisible] = useState(true);
   const navRef = useRef<HTMLElement>(null);
   const pathname = usePathname();
 
@@ -46,6 +47,17 @@ export default function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Terminseite-Sichtbarkeit laden, ggf. den Nav-Eintrag ausblenden.
+  useEffect(() => {
+    fetch("/api/public/settings")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d && d.termin_page_visible === false) setTerminVisible(false); })
+      .catch(() => {});
+  }, []);
+
+  // /termin nur zeigen wenn die Seite sichtbar ist.
+  const subNav = subNavLabels[lang].filter((item) => terminVisible || item.href !== "/termin");
 
   // Set active underline position on mount and pathname change
   useEffect(() => {
@@ -162,7 +174,7 @@ export default function Header() {
       <div className="hidden lg:block" style={{ borderBottom: "1px solid #e5e5e5" }}>
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10">
           <nav ref={navRef} className="relative flex items-center gap-8 h-12">
-            {subNavLabels[lang].map((item) => (
+            {subNav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
@@ -201,7 +213,7 @@ export default function Header() {
             style={{ backgroundColor: "#fff", borderBottom: "1px solid #e5e5e5" }}
           >
             <nav className="max-w-[1400px] mx-auto px-6 py-6 space-y-1">
-              {[...mainNavLabels[lang], ...subNavLabels[lang]].map((item) => (
+              {[...mainNavLabels[lang], ...subNav].map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}

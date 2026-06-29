@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
@@ -25,6 +26,12 @@ function getCalendarDays(year: number, month: number) {
 
 export default function TerminPage() {
   const { t, lang } = useI18n();
+  const router = useRouter();
+
+  // Zugriffs-Check: wenn die Terminseite vom Admin ausgeblendet wurde, duerfen
+  // nur Workflow-Buchungen (mit prefill-Token aus dem Fragebogen) rein. Direkte
+  // Aufrufe werden auf /dienstleistungen umgeleitet.
+  const [accessAllowed, setAccessAllowed] = useState<boolean | null>(null);
 
   const [step, setStep] = useState<"date" | "time" | "form" | "success">("date");
   const [prefillTokenFromUrl, setPrefillTokenFromUrl] = useState<string | null>(null);
@@ -41,6 +48,27 @@ export default function TerminPage() {
   const [error, setError] = useState<string | null>(null);
   const [emailSuggestion, setEmailSuggestion] = useState<EmailSuggestion | null>(null);
   const [prefilled, setPrefilled] = useState(false);
+
+  // Zugriffs-Check beim Laden: Terminseite-Sichtbarkeit + Workflow-Ausnahme.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hasToken = !!new URLSearchParams(window.location.search).get("prefill");
+    if (hasToken) {
+      // Workflow-Buchung: immer erlaubt, unabhaengig vom Sichtbarkeits-Schalter.
+      setAccessAllowed(true);
+      return;
+    }
+    fetch("/api/public/settings")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d && d.termin_page_visible === false) {
+          router.replace("/dienstleistungen");
+        } else {
+          setAccessAllowed(true);
+        }
+      })
+      .catch(() => setAccessAllowed(true));
+  }, [router]);
 
   // Auto-Fill via Prefill-Token (?prefill=<32-hex>)
   // Verwendet window.location statt useSearchParams um Suspense-Boundary zu vermeiden
@@ -287,6 +315,18 @@ export default function TerminPage() {
     border: "1px solid #e5e5e5",
     transition: "border-color 0.2s",
   };
+
+  // Solange der Zugriffs-Check laeuft (oder ein Redirect ansteht): nur Header +
+  // leerer Main, damit die Buchungsmaske nicht kurz aufblitzt.
+  if (accessAllowed === null) {
+    return (
+      <>
+        <Header />
+        <main style={{ minHeight: "60vh" }} />
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

@@ -24,6 +24,7 @@ export default function VerfuegbarkeitPage() {
   const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
   const [blockedEntries, setBlockedEntries] = useState<BlockedEntry[]>([]);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Kalender state
@@ -66,14 +67,20 @@ export default function VerfuegbarkeitPage() {
       type: blockType,
       ...(blockType === "hours" ? { start_time: blockStartTime, end_time: blockEndTime } : {}),
     };
-    setBlockedEntries([...blockedEntries, entry]);
+    const next = [...blockedEntries, entry];
+    setBlockedEntries(next);
     setShowBlockModal(null);
     setBlockReason("");
     setBlockType("day");
+    // Kalender-Aenderungen werden automatisch gespeichert (next explizit uebergeben,
+    // weil setBlockedEntries asynchron ist und saveSettings sonst den alten State liest).
+    saveSettings(next);
   }
 
   function removeBlocked(id: string) {
-    setBlockedEntries(blockedEntries.filter((b) => b.id !== id));
+    const next = blockedEntries.filter((b) => b.id !== id);
+    setBlockedEntries(next);
+    saveSettings(next);
   }
 
   function isDateBlocked(dateStr: string): BlockedEntry | undefined {
@@ -84,14 +91,21 @@ export default function VerfuegbarkeitPage() {
     return blockedEntries.filter((b) => b.date === dateStr && b.type === "hours");
   }
 
-  async function saveSettings() {
-    await fetch("/api/admin/availability", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ availability: slots, blocked: blockedEntries }),
-    });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  async function saveSettings(overrideBlocked?: BlockedEntry[], overrideSlots?: AvailabilitySlot[]) {
+    const blockedToSave = overrideBlocked ?? blockedEntries;
+    const slotsToSave = overrideSlots ?? slots;
+    setSaving(true);
+    try {
+      await fetch("/api/admin/availability", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ availability: slotsToSave, blocked: blockedToSave }),
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } finally {
+      setSaving(false);
+    }
   }
 
   const today = new Date().toISOString().split("T")[0];
@@ -112,8 +126,8 @@ export default function VerfuegbarkeitPage() {
           <button onClick={() => setTab("zeiten")} style={{ padding: "5px 12px", fontSize: 12, fontWeight: 500, borderRadius: 14, cursor: "pointer", border: tab === "zeiten" ? "none" : "1px solid #ddd", background: tab === "zeiten" ? "#1a1a1a" : "#fff", color: tab === "zeiten" ? "#fff" : "#555" }}>Öffnungszeiten</button>
           <button onClick={() => setTab("kalender")} style={{ padding: "5px 12px", fontSize: 12, fontWeight: 500, borderRadius: 14, cursor: "pointer", border: tab === "kalender" ? "none" : "1px solid #ddd", background: tab === "kalender" ? "#1a1a1a" : "#fff", color: tab === "kalender" ? "#fff" : "#555" }}>Kalender</button>
         </div>
-        <button onClick={saveSettings} style={{ padding: "6px 16px", fontSize: 12, fontWeight: 500, background: saved ? "#22c55e" : "#1a1a1a", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer", transition: "background 0.2s" }}>
-          {saved ? "✓ Gespeichert" : "Speichern"}
+        <button onClick={() => saveSettings()} disabled={saving} style={{ padding: "6px 16px", fontSize: 12, fontWeight: 500, background: saved ? "#22c55e" : "#1a1a1a", color: "#fff", border: "none", borderRadius: 6, cursor: saving ? "wait" : "pointer", opacity: saving ? 0.7 : 1, transition: "background 0.2s" }}>
+          {saving ? "Speichert…" : saved ? "✓ Gespeichert" : "Speichern"}
         </button>
       </div>
 
@@ -214,6 +228,9 @@ export default function VerfuegbarkeitPage() {
             <h3 style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>{MONTHS[calMonth]} {calYear}</h3>
             <button onClick={() => { if (calMonth === 11) { setCalMonth(0); setCalYear(calYear + 1); } else setCalMonth(calMonth + 1); }} style={{ background: "none", border: "1px solid #e5e5e5", borderRadius: 5, padding: "4px 8px", cursor: "pointer", fontSize: 12 }}>→</button>
             <button onClick={() => { setCalMonth(new Date().getMonth()); setCalYear(new Date().getFullYear()); }} style={{ fontSize: 11, color: "#c8553d", background: "none", border: "none", cursor: "pointer", fontWeight: 500 }}>Heute</button>
+            <span style={{ marginLeft: "auto", fontSize: 11, color: "#999", display: "inline-flex", alignItems: "center", gap: 4 }}>
+              {saving ? "Speichert…" : saved ? "✓ Gespeichert" : "Änderungen werden automatisch gespeichert"}
+            </span>
           </div>
 
           {/* Kalender Grid */}

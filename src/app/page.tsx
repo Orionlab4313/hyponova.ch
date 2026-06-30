@@ -224,7 +224,7 @@ export default function Home() {
           >
             <div className="relative w-full overflow-visible" style={{ height: "clamp(350px, 55vh, 600px)" }}>
               <Image
-                src="/images/eigenheim-hypothek-schweiz.jpg"
+                src="/images/hero-villa-schweiz.webp"
                 alt={lang === "en" ? "Modern Swiss villa, financed via HYPONOVA mortgage broker" : "Modernes Schweizer Eigenheim, finanziert mit HYPONOVA Hypothekenvergleich"}
                 fill
                 priority

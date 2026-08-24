@@ -2,6 +2,46 @@
 
 ## Status: Pre-Launch-fertig, Stand 08.05.2026
 
+## Phase 24: 6 neue Partner-Logos + Anbieter-Doku für Simon (24.08.2026)
+
+**Auslöser**: Simon via WhatsApp (17.08.2026). Neue Partner dazugekommen, plus Wunsch nach einer
+vollständigen Doku aller Drittanbieter mit Zugängen.
+
+**Logos (live, gepusht)**:
+- 6 neue Partner: Swiss Life, Suva, Pax Versicherungen, Pensionskasse Stadt Winterthur,
+  Liechtensteinische Landesbank (LLB Schweiz), Glarner Kantonalbank. Liste jetzt 20, alphabetisch.
+- Quellen: Wikimedia Commons (Suva, LLB, Glarner KB), Firmen-Websites (Swiss Life, Pax, PKSW).
+- Alle mit svgo optimiert, viewBox ergänzt wo sie fehlte (glkb, llb, pksw hatten nur width/height).
+- **Pax-Logo Falle**: beide Varianten auf pax.ch haben den Punkt von ".Pax" in Weiss, weil ihr
+  Header dunkelviolett ist. Auf unserem weissen Hintergrund war der Punkt unsichtbar. Punkt auf
+  Brand-Violett #2a0754 umgefärbt.
+- Titel DE/EN geändert auf "Eine Auswahl unserer Partner:" bzw. "A selection of our partners:".
+  Mobil kleinere Schrift und engeres Tracking, weil der Text deutlich länger ist als vorher.
+- Marquee-Dauer 30s auf 43s, damit das Tempo pro Logo bei 20 statt 14 Logos gleich bleibt.
+
+**Offen / zu klären mit Simon**:
+- Der Doppelpunkt am Ende des Titels stammt 1:1 aus Simons WhatsApp. Falls er den nicht wollte,
+  ist es ein Einzeiler in `LogoMarquee.tsx`.
+- **Logo-Nutzungsrechte für die 6 Neuen**: Simon hat 2026 schriftlich bestätigt, dass er die
+  Rechte über die Vermittlungsverträge hat. Für die neuen Partner liegt das noch nicht vor.
+  Nach dem BEKB-Vorfall (08.07.2026) relevant, besonders bei Suva und Pensionskasse Stadt
+  Winterthur, beides öffentlich-rechtliche Institutionen.
+
+**Anbieter-Doku**:
+- `Simon-shared/HYPONOVA-Anbieter-und-Zugänge.md` (Dateiname mit Umlaut im Repo).
+- Bewusst OHNE Passwörter. Entscheid Davide: Klartext-Liste wäre per WhatsApp weitergewandert.
+  Stattdessen: Simon ist bei Vercel, Supabase, Infomaniak und Microsoft ohnehin Kontoinhaber,
+  bekommt eigene Logins statt geteilter Passwörter, plus Empfehlung Passwort-Manager und 2FA.
+- Deckt ab: Vercel, Supabase, Infomaniak, Microsoft 365, GitHub, plus Sub-Processor-Liste,
+  Fristen (M365-Verlängerung 05.05.2027, Azure Client Secret läuft Mai 2028 ab) und
+  Troubleshooting.
+- **Zu prüfen**: Vercel-Plan. Pro-Trial lief im April 2026 aus, aktueller Status unbekannt.
+  Falls das Projekt auf Hobby läuft, deckt das die kommerzielle Nutzung laut Vercel-AGB nicht ab.
+
+**Nicht gemacht**: Teams-Antwort-Mail. Davide: "lass es mal mit Teams ist alles gut".
+
+---
+
 ## Phase 23: Partner-Logos vorübergehend ausgeblendet ✅ FERTIG (2026-05-18)
 
 **Auslöser**: Simon hat Termine mit den Banken (Raiffeisen, BKB, AKB, TKB, Vaudoise, Mobiliar, Migros Bank, UBS) und will dort die Logo-Nutzungsrechte abklären, bevor sie öffentlich auf hyponova.ch erscheinen.
@@ -322,8 +362,8 @@ Plus: Microsoft Graph `/me/events` Body zeigt jetzt einen Button (statt "Oder ko
 ## Vercel-Konfiguration nach Phase 16
 
 ENV vars (Production + Preview):
-- `ADMIN_SESSION_SECRET`, HMAC-Secret fuer Admin-Sessions
-- `CRON_SECRET`, Schutz fuer /api/cron/* Endpoints
+- `ADMIN_SESSION_SECRET`, HMAC-Secret für Admin-Sessions
+- `CRON_SECRET`, Schutz für /api/cron/* Endpoints
 - (zusaetzlich Standard-Vars: SUPABASE_*, SMTP_*, CALDAV_*)
 
 Pre-Launch-Liste, komplett abgehakt:
@@ -465,13 +505,13 @@ Pre-Launch-Liste, komplett abgehakt:
 
 ## Phase 13: Security-Hardening ✅ FERTIG (30.04.2026)
 - [x] **C1 Auth-Guards**: 11 ungeschuetzte Admin-API-Routen jetzt mit `requireAdmin()` (leads, appointments, messages, replies, availability, blogposts, blogposts/[id], blogposts/upload, legal-pages, legal-pages/[id])
-- [x] **C2 Default-Passwoerter raus**: hartkodierte Strings `Möhlin4313` und `HypoAdmin2026!` aus `admin-settings.ts` entfernt; DB-Hash ueber Migration gesetzt
+- [x] **C2 Default-Passwörter raus**: hartkodierte Strings `Möhlin4313` und `HypoAdmin2026!` aus `admin-settings.ts` entfernt; DB-Hash ueber Migration gesetzt
 - [x] **C3 HTML-Sanitization**: `isomorphic-dompurify` in `src/lib/sanitize.ts`, Allowlist von Tags + Attributen, keine `<script>`/Inline-Handler/`javascript:`-URLs mehr durchsetzbar; in Blog + Legal API beim Save angewendet
 - [x] **H1 Rate-Limiting**: DB-Tabelle `rate_limit_attempts`, Limiter in `src/lib/rate-limit.ts`. Admin-Login: 8/15min/IP, Site-Login: 12/15min/IP, Reset: 3/h/IP
 - [x] **H2 Session-Secret**: `ADMIN_SESSION_SECRET` ist jetzt Pflicht (≥32 Zeichen), kein Fallback mehr; in Vercel als Env gesetzt
 - [x] **H3 Mass-Assignment**: Allowlists in leads/appointments/messages
 - [x] **H4 bcrypt async**: alle 6 Stellen von `compareSync`/`hashSync` zu `compare`/`hash` migriert
-- [x] **H5 TOTP-Encryption**: `src/lib/crypto-helper.ts` (AES-256-GCM mit Session-Secret-derived Key), `getTotpSecret`/`setTotpSecret` Helper. Legacy-Plain-Strings werden tolerant gelesen + beim naechsten Save verschluesselt
+- [x] **H5 TOTP-Encryption**: `src/lib/crypto-helper.ts` (AES-256-GCM mit Session-Secret-derived Key), `getTotpSecret`/`setTotpSecret` Helper. Legacy-Plain-Strings werden tolerant gelesen + beim nächsten Save verschluesselt
 - [x] **M1 Crypto-Random**: Filenames im Upload nutzen `crypto.randomBytes` statt `Math.random`
 - [x] **M2 Site-Cookie HMAC**: `/api/auth` setzt jetzt signiertes Token (`stage:"site"`); Middleware verifiziert via WebCrypto (Edge-kompatibel)
 - [x] **M3 Reset-Limit**: IP-basierter Limiter zusaetzlich zum 60s-DB-Cooldown
@@ -479,12 +519,12 @@ Pre-Launch-Liste, komplett abgehakt:
 - [x] **L1 SVG-Upload raus**: `image/svg+xml` aus Allowlist entfernt
 - [x] **L3 Error-Masking**: Postgres-Errors werden nicht mehr 1:1 ans Frontend geleakt, generisches "Datenbankfehler"
 - [x] **bcrypt cost** von 10 auf 12 erhoeht
-- [x] **.claude/notes.md** Klartext-Passwoerter entfernt
+- [x] **.claude/notes.md** Klartext-Passwörter entfernt
 - Migration: `supabase/migrations/20260430_security_hardening.sql`
 - Vercel-Env: `ADMIN_SESSION_SECRET` (Production + Preview)
 
 ## Phase 12: Blog zweisprachig (DE/EN) ✅ FERTIG (30.04.2026)
-- [x] **Migration**: blog_posts Spalten zu `_de` umbenannt + `_en` ergaenzt fuer title, title_highlight, badge, excerpt, content_html, reading_time, meta_description. Slug, hero_image, status, publish_at bleiben sprachunabhaengig.
+- [x] **Migration**: blog_posts Spalten zu `_de` umbenannt + `_en` ergänzt für title, title_highlight, badge, excerpt, content_html, reading_time, meta_description. Slug, hero_image, status, publish_at bleiben sprachunabhaengig.
 - [x] **Editor** mit DE/EN-Tabs analog zu LegalPageForm. Slug wird nur aus DE-Titel auto-generiert. Reading-Time pro Sprache automatisch berechnet aus content_html_de/en.
 - [x] **Public** `/blog` und `/blog/[slug]` lesen `hyponova-lang` Cookie + zeigen passende Sprache, EN faellt auf DE zurueck wenn leer
 - [x] **Hero-Texte** der Liste in DE + EN (`BlogPageView` Client-Component)
@@ -495,13 +535,13 @@ Pre-Launch-Liste, komplett abgehakt:
 - Migration: `supabase/migrations/20260430_blog_posts_bilingual.sql` (via MCP angewendet)
 
 ## Phase 11: Rechtliche Seiten editierbar (DE/EN) ✅ FERTIG (30.04.2026)
-- [x] **Tabelle** `legal_pages` (id text PK: 'impressum'|'agb'|'datenschutz'), pro Seite jeweils DE+EN Felder fuer title, title_highlight, content_html, meta_description
-- [x] **Initial-Seed** mit aktuellen DE-Texten aus den hartkodierten Seiten; EN-Felder leer (Simon ergaenzt)
+- [x] **Tabelle** `legal_pages` (id text PK: 'impressum'|'agb'|'datenschutz'), pro Seite jeweils DE+EN Felder für title, title_highlight, content_html, meta_description
+- [x] **Initial-Seed** mit aktuellen DE-Texten aus den hartkodierten Seiten; EN-Felder leer (Simon ergänzt)
 - [x] **Admin** `/admin/rechtliches` (Liste mit 3 Karten + DE/EN-Status-Badges) und `/admin/rechtliches/[id]` (Editor mit DE/EN-Tabs)
 - [x] **Editor**: Wiederverwendung von `BlogPostEditor` (Tiptap), beide Sprachen werden im DOM gehalten, nur visuell ge-toggled, kein State-Verlust beim Sprachwechsel
 - [x] **Public** `/impressum`, `/agb`, `/datenschutz`: Server-Components, lesen `hyponova-lang` Cookie + Inhalt aus Supabase, EN faellt auf DE zurueck wenn leer
-- [x] **Hinweis-Banner** im Editor fuer AGB/Datenschutz: juristisch pruefen lassen
-- [x] **revalidatePath** beim Speichern fuer sofortige Sichtbarkeit
+- [x] **Hinweis-Banner** im Editor für AGB/Datenschutz: juristisch prüfen lassen
+- [x] **revalidatePath** beim Speichern für sofortige Sichtbarkeit
 - APIs: `/api/admin/legal-pages` (GET), `/api/admin/legal-pages/[id]` (GET/PATCH)
 - Komponenten: `src/components/admin/legal/LegalPageForm.tsx`, `src/components/legal/LegalPageView.tsx`
 - Lib: `src/lib/legal-pages.ts`

@@ -3,9 +3,10 @@
 import { useI18n } from "@/i18n/context";
 
 // Lokal aus public/images/banken/ serviert (same-origin, kein Adblocker-Block).
-// 14 Partner-Banken/Versicherungen von Simon, schriftliche Logo-Bewilligung vorhanden.
+// 20 Partner-Banken/Versicherungen/Pensionskassen von Simon, schriftliche Logo-Bewilligung vorhanden.
 // Berner Kantonalbank (BEKB) am 08.07.2026 auf deren Verlangen entfernt, nicht wieder aufnehmen
 // ohne neue schriftliche Freigabe von der BEKB.
+// 24.08.2026: 6 neue Partner ergaenzt (Swiss Life, Suva, Pax, PK Stadt Winterthur, LLB, Glarner KB).
 const partners = [
   { name: "Acrevis Bank", src: "/images/banken/acrevis.svg" },
   { name: "AXA Versicherung", src: "/images/banken/axa.svg" },
@@ -14,13 +15,19 @@ const partners = [
   { name: "Bank SLM", src: "/images/banken/bank-slm.svg" },
   { name: "Bank Thalwil", src: "/images/banken/bank-thalwil.svg" },
   { name: "Banque Cantonale Neuchâteloise", src: "/images/banken/bcn.svg" },
+  { name: "Basler Kantonalbank", src: "/images/banken/bkb.svg" },
   { name: "Bernerland Bank", src: "/images/banken/bernerland.svg" },
   { name: "Clientis Sparcassa 1816", src: "/images/banken/clientis-sparcassa.svg" },
+  { name: "Glarner Kantonalbank", src: "/images/banken/glkb.svg" },
   { name: "Graubündner Kantonalbank", src: "/images/banken/gkb.svg" },
-  { name: "St. Galler Kantonalbank", src: "/images/banken/sgkb.svg" },
-  { name: "Thurgauer Kantonalbank", src: "/images/banken/tkb.svg" },
+  { name: "Liechtensteinische Landesbank (LLB Schweiz)", src: "/images/banken/llb.svg" },
+  { name: "Pax Versicherungen", src: "/images/banken/pax.svg" },
+  { name: "Pensionskasse Stadt Winterthur", src: "/images/banken/pksw.svg" },
   { name: "Raiffeisen", src: "/images/banken/raiffeisen.svg" },
-  { name: "Basler Kantonalbank", src: "/images/banken/bkb.svg" },
+  { name: "St. Galler Kantonalbank", src: "/images/banken/sgkb.svg" },
+  { name: "Suva", src: "/images/banken/suva.svg" },
+  { name: "Swiss Life", src: "/images/banken/swisslife.svg" },
+  { name: "Thurgauer Kantonalbank", src: "/images/banken/tkb.svg" },
 ];
 
 export default function LogoMarquee() {
@@ -30,8 +37,11 @@ export default function LogoMarquee() {
 
   return (
     <section className="py-10 overflow-hidden" style={{ borderBottom: "1px solid #e5e5e5" }}>
-      <p className="text-center text-lg uppercase tracking-[0.2em] font-semibold mb-10" style={{ color: "#6b6b6b" }}>
-        {lang === "en" ? "Our Partners" : "Unsere Partner"}
+      <p
+        className="text-center text-sm sm:text-lg uppercase tracking-[0.12em] sm:tracking-[0.2em] font-semibold mb-10 px-4"
+        style={{ color: "#6b6b6b" }}
+      >
+        {lang === "en" ? "A selection of our partners:" : "Eine Auswahl unserer Partner:"}
       </p>
       <div className="relative">
         <div
@@ -65,7 +75,7 @@ export default function LogoMarquee() {
           100% { transform: translateX(-50%); }
         }
         .animate-marquee {
-          animation: marquee 30s linear infinite;
+          animation: marquee 43s linear infinite;
         }
         .animate-marquee:hover {
           animation-play-state: paused;

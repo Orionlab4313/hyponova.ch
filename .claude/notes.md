@@ -672,3 +672,6 @@ Pre-Launch-Liste, komplett abgehakt:
 - **Supabase**: dqryxcdwvuborlayjain (info@hyponova.ch Account, MCP: mcp__supabase-hyponova__)
 - **Infomaniak Mail**: info@hyponova.ch
 - **Infomaniak CalDAV**: ST07312 / sync.infomaniak.com
+
+## 31.08.2026: Orionlab-Backlink im Footer
+- Bottom-Bar neben Datenschutz/Impressum: dofollow-Link auf www.orionlab.ch mit Keyword-Anker ("Webdesign von Orionlab" / "Web design by Orionlab"), zweisprachig plus title-Attribut. Gleicher SEO-Anker wie beim Edo-Coiffeur-Projekt.

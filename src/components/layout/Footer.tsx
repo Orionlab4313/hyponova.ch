@@ -39,6 +39,16 @@ export default function Footer() {
     en: "Information",
   };
 
+  const credit = {
+    de: "Webdesign von Orionlab",
+    en: "Web design by Orionlab",
+  };
+
+  const creditTitle = {
+    de: "Orionlab: Webdesign, KI und Automatisierung aus Möhlin",
+    en: "Orionlab: web design, AI and automation from Möhlin, Switzerland",
+  };
+
   const infoLinks = {
     de: [
       { href: "/ueber-uns", label: "Über HYPONOVA" },
@@ -174,6 +184,16 @@ export default function Footer() {
             <Link href="/impressum" className="text-[12px] transition-colors duration-200 hover:text-white" style={{ color: "#a3a3a3" }}>
               {t.footer.imprint}
             </Link>
+            <a
+              href="https://www.orionlab.ch"
+              target="_blank"
+              rel="noopener"
+              title={creditTitle[lang]}
+              className="text-[12px] transition-colors duration-200 hover:text-white"
+              style={{ color: "#a3a3a3" }}
+            >
+              {credit[lang]}
+            </a>
           </div>
         </div>
       </div>

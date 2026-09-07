@@ -7,6 +7,8 @@ import { useI18n } from "@/i18n/context";
 // Berner Kantonalbank (BEKB) am 08.07.2026 auf deren Verlangen entfernt, nicht wieder aufnehmen
 // ohne neue schriftliche Freigabe von der BEKB.
 // 24.08.2026: 6 neue Partner ergaenzt (Swiss Life, Suva, Pax, PK Stadt Winterthur, LLB, Glarner KB).
+// 07.09.2026: LLB-Logo auf Wunsch von Simon ersetzt: nur die Wortmarke "llb 1861" (Header-Logo von llb.ch),
+// nicht mehr das Konzern-Logo "Liechtensteinische Landesbank". Position bleibt alphabetisch unter L.
 const partners = [
   { name: "Acrevis Bank", src: "/images/banken/acrevis.svg" },
   { name: "AXA Versicherung", src: "/images/banken/axa.svg" },
@@ -20,7 +22,7 @@ const partners = [
   { name: "Clientis Sparcassa 1816", src: "/images/banken/clientis-sparcassa.svg" },
   { name: "Glarner Kantonalbank", src: "/images/banken/glkb.svg" },
   { name: "Graubündner Kantonalbank", src: "/images/banken/gkb.svg" },
-  { name: "Liechtensteinische Landesbank (LLB Schweiz)", src: "/images/banken/llb.svg" },
+  { name: "LLB", src: "/images/banken/llb.svg" },
   { name: "Pax Versicherungen", src: "/images/banken/pax.svg" },
   { name: "Pensionskasse Stadt Winterthur", src: "/images/banken/pksw.svg" },
   { name: "Raiffeisen", src: "/images/banken/raiffeisen.svg" },

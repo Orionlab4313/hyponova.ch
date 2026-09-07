@@ -2,6 +2,22 @@
 
 ## Status: Pre-Launch-fertig, Stand 08.05.2026
 
+## Phase 25: LLB-Logo korrigiert (07.09.2026)
+
+**Auslöser**: Simon via WhatsApp (07.09.2026): "Liechtensteinische Landesbank muss weg, es muss nur
+das Logo von LLB". Wir hatten seit Phase 24 das Konzern-Logo von Wikimedia (grünes Quadrat plus
+Schriftzug "Liechtensteinische Landesbank 1861") drin.
+
+**Fix**:
+- `public/images/banken/llb.svg` ersetzt durch die aktuelle Wortmarke "llb 1861" (Dunkelgrün #38452e,
+  Gold #c6ae70), 1:1 aus dem Inline-Header-SVG von llb.ch extrahiert, ohne IDs und Klassen, mit `<title>`.
+- Partner-Name in `LogoMarquee.tsx` auf "LLB" gekürzt (alt-Text). Position bleibt alphabetisch.
+- Falle: `next build` parallel zum Dev-Server ergab einen Type Error in `.next/dev/types/routes.d.ts`
+  (halb geschriebene generierte Datei). Lösung: Dev-Server stoppen, `.next/dev` löschen, neu bauen.
+
+**Offen**: Simon will eine Übersicht aller Drittanbieter-Zugänge (Microsoft, Vercel usw.), siehe
+Anbieter-Doku in Phase 24. GitHub dabei NICHT erwähnen, das Repo gehört Orionlab.
+
 ## Phase 24: 6 neue Partner-Logos + Anbieter-Doku für Simon (24.08.2026)
 
 **Auslöser**: Simon via WhatsApp (17.08.2026). Neue Partner dazugekommen, plus Wunsch nach einer

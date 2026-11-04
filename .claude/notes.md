@@ -2,6 +2,23 @@
 
 ## Status: Pre-Launch-fertig, Stand 08.05.2026
 
+## Phase 26: Blog-Liste zeigte nur den ersten Post (04.11.2026)
+
+**Symptom**: Auf `/blog` war nur eine Karte sichtbar, obwohl im Admin zwei Live-Posts stehen. Der
+Platzhalter im Grid war da, die Karte im DOM auch (Hover zeigte die korrekte URL), nur eben unsichtbar.
+
+**Ursache**: In `BlogPageView.tsx` stand `delay={i * 80}` am `ScrollReveal`. Framer Motion rechnet
+`delay` in **Sekunden**, nicht in Millisekunden. Karte 2 wartete also 80 Sekunden auf `opacity: 0`,
+Karte 3 wäre erst nach 160 Sekunden erschienen. Kein Daten-, Supabase- oder Status-Problem.
+
+**Fix**: `delay={Math.min(i, 5) * 0.08}`. Der Deckel bei 5 verhindert, dass lange Listen später
+unnötig lange auf die hinteren Karten warten. Rest des Projekts nutzt schon Sekundenwerte
+(`i * 0.08` auf der Startseite, `i * 0.05` in den Dienstleistungs-Seiten), der Blog war die
+einzige Stelle mit der falschen Einheit.
+
+**Merke**: Jeder `delay`-Wert an `ScrollReveal`, `SlideUp`, `FadeIn`, `ScaleIn` ist in Sekunden.
+Dreistellige Zahlen dort sind immer ein Bug.
+
 ## Phase 25: LLB-Logo korrigiert (07.09.2026)
 
 **Auslöser**: Simon via WhatsApp (07.09.2026): "Liechtensteinische Landesbank muss weg, es muss nur

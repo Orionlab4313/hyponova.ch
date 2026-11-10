@@ -44,9 +44,14 @@ Laura Topalli). Simon wirbt auch auf Meta, dort bisher direkt über Facebook ohn
   Achtung: lokal zeigt auf die Produktions-DB.
 
 **Offen**:
-- **Datenschutzerklärung** sagt noch wörtlich "kein Google Analytics", "keine Werbe-Cookies". Mit
-  aktivem Tag stimmt das nicht mehr. Abschnitt 4 und der Cookie-Absatz müssen Google Ads nennen
-  (Text liegt bei Simon bzw. seinem Anwalt, editierbar unter /admin/rechtliches, DE und EN).
+- **Datenschutzerklärung angepasst am 10.11.2026** (Auftrag Davide, direkt in `legal_pages`, DE und EN):
+  Cookie-Absatz in Ziff. 3, Ziff. 4 neu (Google Ads, Google Tag, Consent Mode, Cookies `_gcl_au`/`_gcl_aw`
+  90 Tage, Widerruf über "Cookie-Einstellungen"), Ziff. 5 Google Ireland Limited als Empfänger, Satz
+  "Keine Weitergabe an Werbenetzwerke" ersetzt. Alte Fassung liegt in Tabelle
+  `legal_pages_backup_20261110` (RLS an, keine Policies). Zurück: Spalten `content_html_de` und
+  `content_html_en` von dort kopieren. Text ist von mir, nicht vom Anwalt: Simon soll ihn gegenlesen lassen.
+  Wird Meta Pixel oder Remarketing gebaut, muss Ziff. 4 wieder angepasst werden (dort steht "kein Facebook
+  Pixel" und "kein Remarketing").
 - Noch keine Conversion definiert (z.B. Termin gebucht, Fragebogen abgeschickt). Der Tag allein misst
   nur Besuche. Conversion-Events brauchen ein Label aus Google Ads (`AW-18553811349/xxxx`).
 - Meta Pixel für Facebook und Instagram: gleiche Seite, zweiter Block, gleicher Consent.

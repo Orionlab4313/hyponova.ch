@@ -17,6 +17,7 @@ import {
   IconSettings,
   IconStamp,
   IconPercent,
+  IconMegaphone,
 } from "@/components/admin/AdminIcons";
 
 interface NavItem {
@@ -35,6 +36,7 @@ const navItems: NavItem[] = [
   { href: "/admin/dokumente", label: "Dokumente", Icon: IconFolder },
   { href: "/admin/vorlagen", label: "Vorlagen", Icon: IconStamp },
   { href: "/admin/zinssaetze", label: "Zinssätze", Icon: IconPercent },
+  { href: "/admin/werbung", label: "Werbung", Icon: IconMegaphone },
   { href: "/admin/blogposts", label: "Blog", Icon: IconBlog },
   { href: "/admin/rechtliches", label: "Rechtliches", Icon: IconScale },
   { href: "/admin/einstellungen", label: "Einstellungen", Icon: IconSettings },

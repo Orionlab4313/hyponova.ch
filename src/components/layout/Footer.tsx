@@ -4,9 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useI18n } from "@/i18n/context";
 import BrandText from "@/components/BrandText";
+import { useAds } from "@/components/ads/AdsProvider";
+import { OPEN_CONSENT_EVENT } from "@/lib/ads";
 
 export default function Footer() {
   const { t, lang } = useI18n();
+  const { adsActive } = useAds();
+  const cookieSettings = { de: "Cookie-Einstellungen", en: "Cookie settings" };
   const year = new Date().getFullYear();
 
   const tagline = {
@@ -177,10 +181,20 @@ export default function Footer() {
           <p className="text-[12px]" style={{ color: "#a3a3a3" }}>
             <BrandText>{copyright}</BrandText>
           </p>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
             <Link href="/datenschutz" className="text-[12px] transition-colors duration-200 hover:text-white" style={{ color: "#a3a3a3" }}>
               {t.footer.privacy}
             </Link>
+            {adsActive && (
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event(OPEN_CONSENT_EVENT))}
+                className="text-[12px] transition-colors duration-200 hover:text-white"
+                style={{ color: "#a3a3a3", background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "inherit" }}
+              >
+                {cookieSettings[lang]}
+              </button>
+            )}
             <Link href="/impressum" className="text-[12px] transition-colors duration-200 hover:text-white" style={{ color: "#a3a3a3" }}>
               {t.footer.imprint}
             </Link>

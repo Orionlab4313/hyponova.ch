@@ -2,6 +2,55 @@
 
 ## Status: Pre-Launch-fertig, Stand 08.05.2026
 
+## Phase 27: Admin-Seite "Werbung" mit Google Tag und Einwilligung (10.11.2026)
+
+**Auslöser**: Simon via WhatsApp (10.11.2026). Google Ads meldet "Aktiv (falsch konfiguriert), kein
+Google-Tag auf Ihrer Website". Tag-ID aus der Google-Mail: `AW-18553811349` (Ads-Konto läuft über
+Laura Topalli). Simon wirbt auch auf Meta, dort bisher direkt über Facebook ohne Website-Anbindung.
+
+**Gebaut**:
+- `/admin/werbung` (Nav-Punkt "Werbung", `IconMegaphone`): Feld Tag-ID plus Schalter "Tag auf der
+  Website laden". Das Feld nimmt die nackte ID oder das ganze Snippet aus der Google-Mail, die ID wird
+  per `extractGoogleTagId()` herausgezogen. Es wird NIE fremder Code gespeichert, nur die ID.
+- DB: drei Spalten in `admin_settings` (`google_tag_id`, `google_tag_enabled`, `ads_updated_at`) plus
+  CHECK auf das ID-Format. Migration `20261110_ads_google_tag.sql`, via MCP angewendet.
+- API: `GET/PATCH /api/admin/ads` (requireAdmin). `/api/public/settings` liefert zusätzlich
+  `google_tag_id` (nur wenn aktiv und gültig, sonst null).
+- `src/components/ads/AdsProvider.tsx` (in `Providers.tsx`): holt die Settings, baut gtag selbst auf
+  und lädt `gtag.js`. Helfer in `src/lib/ads.ts`.
+- Simons Tag ist eingetragen und aktiv.
+
+**Einwilligung (Entscheid Davide: mit Einwilligung, Google Consent Mode v2)**:
+- Default alles `denied`. Der Tag ist trotzdem eingebunden, Google Ads erkennt ihn also.
+- Cookie-Banner hat bei aktivem Tag zwei Knöpfe: "Nur notwendige" / "Akzeptieren". Cookie
+  `hyponova-cookie-consent` = `all` oder `necessary`. Der alte Wert `1` ("Verstanden") gilt NICHT als
+  Einwilligung, diese Besucher werden neu gefragt.
+- Bei "Akzeptieren": `ad_storage` und `ad_user_data` granted. `ad_personalization` und
+  `analytics_storage` bleiben immer denied (nur Erfolgsmessung, kein Remarketing, kein Profiling).
+  Falls Simon Remarketing will: bewusster Entscheid, dann auch Datenschutzerklärung anpassen.
+- Footer bekommt bei aktivem Tag den Link "Cookie-Einstellungen" (öffnet den Banner wieder).
+  Rückzug löscht die `_gcl_*`-Cookies.
+- Ohne aktiven Tag verhält sich der Banner wie vorher (reiner Hinweis, "Verstanden").
+
+**Schutz**:
+- Kein Tag auf `/admin` und `/upload` (Kunden-Token in der URL).
+- `page_location` wird ohne `prefill` und `token` an Google geschickt, `gclid` bleibt drin.
+
+**Fallen**:
+- gtag braucht das `arguments`-Objekt in `dataLayer`, kein Array. Mit Rest-Parametern lädt das Skript,
+  aber es passiert nichts.
+- Lokal gibt es kein `ADMIN_SESSION_SECRET` in `.env.local`, Admin-Login geht lokal also nicht. Für den
+  Test temporär ein Zufalls-Secret plus selbst signiertes Token gesetzt und danach wieder entfernt.
+  Achtung: lokal zeigt auf die Produktions-DB.
+
+**Offen**:
+- **Datenschutzerklärung** sagt noch wörtlich "kein Google Analytics", "keine Werbe-Cookies". Mit
+  aktivem Tag stimmt das nicht mehr. Abschnitt 4 und der Cookie-Absatz müssen Google Ads nennen
+  (Text liegt bei Simon bzw. seinem Anwalt, editierbar unter /admin/rechtliches, DE und EN).
+- Noch keine Conversion definiert (z.B. Termin gebucht, Fragebogen abgeschickt). Der Tag allein misst
+  nur Besuche. Conversion-Events brauchen ein Label aus Google Ads (`AW-18553811349/xxxx`).
+- Meta Pixel für Facebook und Instagram: gleiche Seite, zweiter Block, gleicher Consent.
+
 ## Phase 26: Blog-Liste zeigte nur den ersten Post (04.11.2026)
 
 **Symptom**: Auf `/blog` war nur eine Karte sichtbar, obwohl im Admin zwei Live-Posts stehen. Der

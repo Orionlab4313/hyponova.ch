@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
   const { data } = await sb
     .from("admin_settings")
     .select(
-      "microsoft_tenant_id, microsoft_client_id, microsoft_client_secret_encrypted, microsoft_refresh_token_encrypted, microsoft_user_email, microsoft_connected_at",
+      "microsoft_tenant_id, microsoft_client_id, microsoft_client_secret_encrypted, microsoft_refresh_token_encrypted, microsoft_user_email, microsoft_connected_at, microsoft_last_check_at, microsoft_last_error",
     )
     .eq("id", 1)
     .maybeSingle();
@@ -28,5 +28,8 @@ export async function GET(request: NextRequest) {
     connected: !!data?.microsoft_refresh_token_encrypted,
     user_email: data?.microsoft_user_email || null,
     connected_at: data?.microsoft_connected_at || null,
+    last_check_at: data?.microsoft_last_check_at || null,
+    // Gesetzt, wenn der letzte Token-Refresh scheiterte (Verbindung abgelaufen oder widerrufen)
+    last_error: data?.microsoft_last_error || null,
   });
 }

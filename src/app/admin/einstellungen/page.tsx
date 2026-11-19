@@ -56,6 +56,8 @@ interface MsStatus {
   connected: boolean;
   user_email: string | null;
   connected_at: string | null;
+  last_check_at?: string | null;
+  last_error?: string | null;
 }
 
 function MicrosoftTeamsSection() {
@@ -76,6 +78,7 @@ function MicrosoftTeamsSection() {
       const res = await fetch("/api/admin/microsoft/test", { method: "POST" });
       const data = await res.json();
       setTestResult(data);
+      load();
     } catch (e) {
       setTestResult({ success: false, steps: [{ step: "Netzwerk", ok: false, detail: String(e) }] });
     } finally {
@@ -96,7 +99,15 @@ function MicrosoftTeamsSection() {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       if (params.get("ms_success")) {
-        setMsg({ type: "ok", text: "Microsoft Teams erfolgreich verbunden." });
+        const n = Number(params.get("ms_backfilled") || 0);
+        setMsg({
+          type: "ok",
+          text:
+            "Microsoft Teams erfolgreich verbunden." +
+            (n > 0
+              ? ` ${n} ${n === 1 ? "bestehender Termin hat" : "bestehende Termine haben"} nachträglich einen Teams-Link erhalten, die Einladung ging per Outlook an den Kunden.`
+              : ""),
+        });
         history.replaceState(null, "", window.location.pathname);
       } else if (params.get("ms_error")) {
         setMsg({ type: "err", text: "Verbindung fehlgeschlagen: " + params.get("ms_error") });
@@ -169,12 +180,34 @@ function MicrosoftTeamsSection() {
     <section style={{ background: "#fff", border: "1px solid #e5e5e5", padding: "20px 24px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", marginBottom: 4 }}>
         <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Microsoft Teams Integration</h2>
-        {status.connected && (
+        {status.connected && !status.last_error && (
           <span style={{ fontSize: 11, padding: "3px 8px", background: "#dcfce7", color: "#166534", fontWeight: 600 }}>
             ✓ Verbunden
           </span>
         )}
+        {status.connected && status.last_error && (
+          <span style={{ fontSize: 11, padding: "3px 8px", background: "#fee2e2", color: "#991b1b", fontWeight: 600 }}>
+            ✗ Verbindung unterbrochen
+          </span>
+        )}
       </div>
+
+      {status.connected && status.last_error && (
+        <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", padding: "12px 16px", marginBottom: 14, fontSize: 13, lineHeight: 1.6 }}>
+          <div style={{ fontWeight: 700, color: "#991b1b", marginBottom: 4 }}>
+            Neue Termine erhalten aktuell keinen Teams-Link.
+          </div>
+          <div style={{ color: "#444", marginBottom: 10 }}>
+            Microsoft hat die Anmeldung beendet. Ein Klick stellt sie wieder her. Künftige Termine ohne Link bekommen ihn danach automatisch nachgereicht.
+          </div>
+          <a
+            href="/api/admin/microsoft/connect"
+            style={{ display: "inline-flex", alignItems: "center", padding: "10px 18px", background: "#5059c9", color: "#fff", textDecoration: "none", fontSize: 13, fontWeight: 600, fontFamily: "inherit" }}
+          >
+            Jetzt neu verbinden →
+          </a>
+        </div>
+      )}
       <p style={{ fontSize: 13, color: "#666", margin: "0 0 16px", lineHeight: 1.6 }}>
         Wenn aktiv: Pro Termin wird automatisch ein frischer Microsoft Teams Meeting-Link generiert und in der Bestätigungs-E-Mail + Outlook-Kalender eingefügt. Kein Lobby-Stress, kein Datenschutz-Risiko durch geteilte Links.
       </p>
@@ -189,10 +222,18 @@ function MicrosoftTeamsSection() {
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: status.connected ? 4 : 0 }}>
           <span style={{ color: "#666" }}>Microsoft-Konto verbunden:</span>
-          <span style={{ fontWeight: 600, color: status.connected ? "#166534" : "#888" }}>
-            {status.connected ? "✓ Ja" : "Nein"}
+          <span style={{ fontWeight: 600, color: !status.connected ? "#888" : status.last_error ? "#c00" : "#166534" }}>
+            {!status.connected ? "Nein" : status.last_error ? "✗ Abgelaufen" : "✓ Ja"}
           </span>
         </div>
+        {status.connected && status.last_check_at && (
+          <div style={{ display: "flex", justifyContent: "space-between", color: "#666", fontSize: 12, marginTop: 4 }}>
+            <span>Zuletzt geprüft:</span>
+            <span>
+              {new Date(status.last_check_at).toLocaleDateString("de-CH", { day: "2-digit", month: "2-digit", year: "numeric" })}
+            </span>
+          </div>
+        )}
         {status.connected && status.user_email && (
           <div style={{ display: "flex", justifyContent: "space-between", color: "#666", fontSize: 12, marginTop: 4 }}>
             <span>Verbunden als:</span>

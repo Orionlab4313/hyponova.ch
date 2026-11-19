@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-guard";
 import { createServiceClient } from "@/lib/supabase";
 import { decryptSecret, encryptSecret } from "@/lib/crypto-helper";
-import { exchangeCodeForTokens, fetchMicrosoftUserEmail } from "@/lib/microsoft-graph";
+import {
+  backfillMissingTeamsLinks,
+  exchangeCodeForTokens,
+  fetchMicrosoftUserEmail,
+} from "@/lib/microsoft-graph";
 
 /**
  * OAuth-Callback von Microsoft Identity Platform.
@@ -81,12 +85,23 @@ export async function GET(request: NextRequest) {
         microsoft_refresh_token_encrypted: encryptSecret(tokens.refresh_token),
         microsoft_user_email: userEmail,
         microsoft_connected_at: new Date().toISOString(),
+        microsoft_last_check_at: new Date().toISOString(),
+        microsoft_last_error: null,
         updated_at: new Date().toISOString(),
       })
       .eq("id", 1);
 
+    // Künftige Termine, die während einer defekten Verbindung ohne Teams-Link
+    // gebucht wurden, bekommen ihn jetzt nachgereicht.
+    let backfilled = 0;
+    try {
+      backfilled = await backfillMissingTeamsLinks();
+    } catch (e) {
+      console.error("Teams backfill failed:", e);
+    }
+
     const res = NextResponse.redirect(
-      new URL("/admin/einstellungen?ms_success=1", request.url),
+      new URL(`/admin/einstellungen?ms_success=1&ms_backfilled=${backfilled}`, request.url),
     );
     res.cookies.delete("ms_oauth_state");
     return res;

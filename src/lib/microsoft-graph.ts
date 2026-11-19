@@ -79,9 +79,12 @@ export async function getMicrosoftConfig(): Promise<MicrosoftConfig | null> {
  * Wenn Microsoft uns einen neuen Refresh-Token gibt (Sliding-Refresh), speichern
  * wir den auch ab.
  */
-export async function getAccessToken(config: MicrosoftConfig): Promise<string> {
+export async function getAccessToken(
+  config: MicrosoftConfig,
+  opts: { force?: boolean } = {},
+): Promise<string> {
   // Cache-Hit (Token gueltig fuer >60 Sekunden)
-  if (tokenCache && tokenCache.expiresAt > Date.now() + 60_000) {
+  if (!opts.force && tokenCache && tokenCache.expiresAt > Date.now() + 60_000) {
     return tokenCache.accessToken;
   }
 
@@ -102,7 +105,10 @@ export async function getAccessToken(config: MicrosoftConfig): Promise<string> {
 
   if (!r.ok) {
     const errText = await r.text().catch(() => "");
-    throw new Error(`Microsoft token refresh failed: HTTP ${r.status}, ${errText.slice(0, 200)}`);
+    tokenCache = null;
+    const message = `Microsoft token refresh failed: HTTP ${r.status}, ${errText.slice(0, 300)}`;
+    await recordMicrosoftHealth(message);
+    throw new Error(message);
   }
 
   const data = (await r.json()) as {
@@ -117,19 +123,108 @@ export async function getAccessToken(config: MicrosoftConfig): Promise<string> {
   };
 
   // Microsoft kann uns einen neuen Refresh-Token zurueckgeben (Token-Rotation).
-  // Wenn ja: ueberschreibe in der DB.
+  // Wenn ja: überschreibe in der DB. Zusammen mit dem Health-Stempel in einem Update.
+  const update: Record<string, unknown> = {
+    microsoft_last_check_at: new Date().toISOString(),
+    microsoft_last_error: null,
+  };
   if (data.refresh_token && data.refresh_token !== config.refreshToken) {
+    update.microsoft_refresh_token_encrypted = encryptSecret(data.refresh_token);
+    update.updated_at = new Date().toISOString();
+  }
+  const sb = createServiceClient();
+  const { error: saveErr } = await sb.from("admin_settings").update(update).eq("id", 1);
+  if (saveErr) console.error("Microsoft token/health save failed:", saveErr.message);
+
+  return data.access_token;
+}
+
+/**
+ * Schreibt den Zustand der Microsoft-Verbindung in admin_settings.
+ * error = null heisst gesund. Das Admin-UI liest diese Felder, damit eine
+ * abgelaufene Verbindung nicht mehr wochenlang unbemerkt bleibt.
+ */
+export async function recordMicrosoftHealth(error: string | null): Promise<void> {
+  try {
     const sb = createServiceClient();
     await sb
       .from("admin_settings")
       .update({
-        microsoft_refresh_token_encrypted: encryptSecret(data.refresh_token),
-        updated_at: new Date().toISOString(),
+        microsoft_last_check_at: new Date().toISOString(),
+        microsoft_last_error: error ? error.slice(0, 500) : null,
       })
       .eq("id", 1);
+  } catch (e) {
+    console.error("recordMicrosoftHealth failed:", e);
   }
+}
 
-  return data.access_token;
+/**
+ * Keep-Alive: erzwingt einen Token-Refresh. Ein Refresh-Token verfällt bei
+ * Microsoft nach 90 Tagen ohne Nutzung. Ohne Buchungen in dieser Zeit war die
+ * Verbindung danach tot (Vorfall November 2026). Der tägliche Cron ruft das
+ * auf, hält das Token frisch und meldet einen Ausfall sofort im Admin.
+ */
+export async function checkMicrosoftConnection(): Promise<
+  { configured: false } | { configured: true; ok: boolean; error?: string }
+> {
+  const config = await getMicrosoftConfig();
+  if (!config) return { configured: false };
+  try {
+    await getAccessToken(config, { force: true });
+    return { configured: true, ok: true };
+  } catch (e) {
+    return { configured: true, ok: false, error: String(e).slice(0, 500) };
+  }
+}
+
+/**
+ * Reicht Teams-Links für künftige Termine nach, die ohne Link gebucht wurden
+ * (z.B. während die Verbindung abgelaufen war). Der Kunde ist Teilnehmer des
+ * Outlook-Termins und bekommt die Einladung mit Beitreten-Button von Microsoft.
+ */
+export async function backfillMissingTeamsLinks(): Promise<number> {
+  const sb = createServiceClient();
+  const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Zurich" }).format(new Date());
+  const { data: rows, error } = await sb
+    .from("appointments")
+    .select("id, date, time_start, time_end, status, leads(first_name, last_name, email, phone)")
+    .is("teams_join_url", null)
+    .gte("date", today)
+    .order("date", { ascending: true })
+    .limit(20);
+  if (error || !rows) return 0;
+
+  let fixed = 0;
+  for (const row of rows) {
+    if (row.status !== "geplant") continue;
+    const lead = (Array.isArray(row.leads) ? row.leads[0] : row.leads) as
+      | { first_name?: string; last_name?: string; email?: string; phone?: string }
+      | null;
+    if (!lead?.email) continue;
+    const name = `${lead.first_name || ""} ${lead.last_name || ""}`.trim();
+    const start = String(row.time_start).slice(0, 5);
+    const end = String(row.time_end).slice(0, 5);
+    const meeting = await createOnlineMeeting({
+      subject: `Beratungsgespräch ${name}, HYPONOVA`,
+      startIso: `${row.date}T${start}:00`,
+      endIso: `${row.date}T${end}:00`,
+      timeZone: "Europe/Zurich",
+      attendees: [{ email: lead.email, name: name || lead.email }],
+      bodyText: `Kostenloses Beratungsgespräch mit HYPONOVA GmbH.\nKunde: ${name}\nE-Mail: ${lead.email}\nTelefon: ${lead.phone || "-"}`,
+    }).catch(() => null);
+    if (!meeting) continue;
+    await sb
+      .from("appointments")
+      .update({
+        teams_join_url: meeting.joinUrl,
+        teams_meeting_id: meeting.eventId,
+        teams_online_meeting_id: meeting.onlineMeetingId,
+      })
+      .eq("id", row.id);
+    fixed++;
+  }
+  return fixed;
 }
 
 /**

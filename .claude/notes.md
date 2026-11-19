@@ -2,6 +2,34 @@
 
 ## Status: Pre-Launch-fertig, Stand 08.05.2026
 
+## Phase 28: Teams-Link fehlte in Terminbestätigungen (19.11.2026)
+
+**Symptom**: Kunden bekamen die Terminbestätigung, aber ohne Teams-Link. Betroffen: 4 Buchungen
+vom 07.11. bis 17.11.2026. Letzte Buchung mit Link: 07.06.2026.
+
+**Ursache (Hypothese, sehr wahrscheinlich, Vercel-Log nicht einsehbar weil CLI ausgeloggt)**:
+Ein Microsoft Refresh-Token verfällt nach 90 Tagen ohne Nutzung. Zwischen 07.06. und 07.11.2026
+gab es keine Buchung, also keinen Token-Refresh. Danach scheiterte `getAccessToken()`, `/api/booking`
+fing den Fehler ab und buchte ohne Link weiter. Das Admin zeigte trotzdem "Verbunden", weil der
+Status nur prüfte, ob ein Token in der DB liegt.
+
+**Fix**:
+- `/api/cron/microsoft-keepalive` (täglich 04:00 UTC, `vercel.json`): erzwingt einen Token-Refresh,
+  speichert das rotierte Refresh-Token. Die 90 Tage können nicht mehr ablaufen.
+- `admin_settings.microsoft_last_check_at` und `microsoft_last_error` (Migration
+  `20261119_microsoft_health.sql`, auf Prod angewendet). Jeder Token-Refresh schreibt den Zustand.
+- `/admin/einstellungen`: roter Hinweis "Verbindung unterbrochen" mit Button "Jetzt neu verbinden",
+  statt fälschlich "Verbunden".
+- OAuth-Callback ruft `backfillMissingTeamsLinks()`: künftige Termine ohne Link bekommen nach dem
+  Neuverbinden einen. Der Kunde erhält die Outlook-Einladung mit Beitreten-Button.
+
+**Nötig von Simon**: einmal in `/admin/einstellungen` auf "Erneut autorisieren" klicken und mit
+`simontopalli@hyponova.onmicrosoft.com` anmelden. Ohne das bleibt die Verbindung tot, das kann
+kein Code ersetzen. Danach "Verbindung testen".
+
+**Offen**: Kein Mail-Alarm bei Ausfall, nur Anzeige im Admin. Falls gewünscht: neue Action in der
+Edge Function `on-booking`. Nächste bekannte Frist: Azure Client Secret läuft Mai 2028 ab.
+
 ## Phase 27: Admin-Seite "Werbung" mit Google Tag und Einwilligung (10.11.2026)
 
 **Auslöser**: Simon via WhatsApp (10.11.2026). Google Ads meldet "Aktiv (falsch konfiguriert), kein

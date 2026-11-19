@@ -12,7 +12,56 @@ interface Appointment {
   time_end: string;
   status: string;
   created_at: string;
+  teams_join_url?: string | null;
   leads?: { first_name: string; last_name: string; email: string; phone: string };
+}
+
+/** Teams-Link des Termins: derselbe Link, den der Kunde in der Bestätigung erhält. */
+function TeamsLinkBox({ url }: { url?: string | null }) {
+  const [copied, setCopied] = useState(false);
+
+  if (!url) {
+    return (
+      <div style={{ border: "1px dashed #ddd", borderRadius: 6, padding: 10, marginBottom: 8 }}>
+        <p style={{ fontSize: 11, color: "#888", margin: "0 0 3px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Microsoft Teams</p>
+        <p style={{ fontSize: 12, margin: 0, color: "#888" }}>Kein Teams-Link für diesen Termin.</p>
+      </div>
+    );
+  }
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(url as string);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <div style={{ border: "1px solid #e5e5e5", borderRadius: 6, padding: 10, marginBottom: 8 }}>
+      <p style={{ fontSize: 11, color: "#888", margin: "0 0 6px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Microsoft Teams</p>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ padding: "7px 14px", fontSize: 12, fontWeight: 600, background: "#5059c9", color: "#fff", borderRadius: 5, textDecoration: "none" }}
+        >
+          Teams Meeting beitreten
+        </a>
+        <button
+          type="button"
+          onClick={copy}
+          style={{ padding: "7px 12px", fontSize: 12, fontWeight: 500, background: copied ? "#dcfce7" : "#fff", color: copied ? "#166534" : "#444", border: `1px solid ${copied ? "#86efac" : "#ddd"}`, borderRadius: 5, cursor: "pointer", fontFamily: "inherit" }}
+        >
+          {copied ? "✓ Kopiert" : "Link kopieren"}
+        </button>
+      </div>
+      <p style={{ fontSize: 11, color: "#888", margin: "6px 0 0", wordBreak: "break-all" }}>{url}</p>
+    </div>
+  );
 }
 
 interface Lead { id: string; first_name: string; last_name: string; email: string; phone: string; }
@@ -369,6 +418,8 @@ export default function KalenderPage() {
                           {lead.phone && <p style={{ fontSize: 11, margin: 0 }}><a href={`tel:${lead.phone}`} style={{ color: "#3b82f6", textDecoration: "none" }}>{lead.phone}</a></p>}
                         </div>
                       )}
+
+                      <TeamsLinkBox url={appt.teams_join_url} />
 
                       <div style={{ display: "flex", gap: 6 }}>
                         <button onClick={() => openEdit(appt)} style={{ padding: "5px 10px", fontSize: 11, fontWeight: 500, background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 5, cursor: "pointer" }}>Bearbeiten</button>

@@ -7,7 +7,8 @@
 **Symptom**: Kunden bekamen die Terminbestätigung, aber ohne Teams-Link. Betroffen: 4 Buchungen
 vom 07.11. bis 17.11.2026. Letzte Buchung mit Link: 07.06.2026.
 
-**Ursache (Hypothese, sehr wahrscheinlich, Vercel-Log nicht einsehbar weil CLI ausgeloggt)**:
+**Ursache (bestätigt am 19.11.2026 über "Verbindung testen": `AADSTS700082`, "refresh token has
+expired due to inactivity", Token vom 11.06.2026, 90 Tage inaktiv)**:
 Ein Microsoft Refresh-Token verfällt nach 90 Tagen ohne Nutzung. Zwischen 07.06. und 07.11.2026
 gab es keine Buchung, also keinen Token-Refresh. Danach scheiterte `getAccessToken()`, `/api/booking`
 fing den Fehler ab und buchte ohne Link weiter. Das Admin zeigte trotzdem "Verbunden", weil der
